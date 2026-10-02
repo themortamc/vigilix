@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#0D1117">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🛡️ VIGILIX"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#58A6FF"
+        android:layout_marginTop="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Seguridad Móvil con Motor Rust"
+        android:textSize="14sp"
+        android:textColor="#8B949E"
+        android:layout_marginBottom="32dp" />
+
+    <EditText
+        android:id="@+id/etTarget"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#161B22"
+        android:padding="12dp"
+        android:hint="Pega un link, número (+54...) o archivo"
+        android:textColor="#C9D1D9"
+        android:textColorHint="#484F58"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/btnAnalyze"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Analizar Amenaza con Rust"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#238636"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:padding="16dp"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:textColor="#F0F6FC"
+        android:background="#21262D" />
+</LinearLayout>

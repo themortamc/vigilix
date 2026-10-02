@@ -1,0 +1,52 @@
+name: Compilar APK Vigilix con Rust
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Rust y Android Target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Instalar cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Configurar Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Android SDK y NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar NDK
+        run: sdkmanager "ndk;25.2.9519653"
+
+      - name: Compilar Rust Core a .so
+        run: |
+          cd rust
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
+          cargo ndk -t arm64-v8a -o ../app/src/main/jniLibs build --release
+
+      - name: Dar permisos de ejecución a Gradle
+        run: chmod +x gradlew || gradle wrapper
+
+      - name: Compilar APK
+        run: ./gradlew assembleDebug
+
+      - name: Subir APK listo para instalar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vigilix-Debug-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
