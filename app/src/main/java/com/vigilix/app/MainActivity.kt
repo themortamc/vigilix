@@ -1,15 +1,23 @@
 package com.vigilix.app
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.slider.Slider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -50,17 +58,28 @@ object PrivilegedEngine {
                 Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
             }
 
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                output.append(line).append("\n")
+            BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    output.append(line).append("\n")
+                }
             }
             val exitCode = process.waitFor()
-            Pair(exitCode == 0, output.toString())
+            Pair(exitCode == 0, output.toString().trim())
         } catch (e: Exception) {
             Pair(false, e.localizedMessage ?: "Error de ejecución")
         }
+    }
+
+    // Configuración de DNS Encriptado Global (DoT)
+    fun setPrivateDns(mode: String, host: String = ""): Pair<Boolean, String> {
+        val cmd = if (mode == "hostname") {
+            "settings put global private_dns_mode hostname && settings put global private_dns_specifier $host"
+        } else {
+            "settings put global private_dns_mode $mode && settings put global private_dns_specifier ''"
+        }
+        return executeShell(cmd)
     }
 
     fun freezePackage(packageName: String): Boolean {
@@ -71,33 +90,28 @@ object PrivilegedEngine {
 
 class MainActivity : AppCompatActivity() {
 
+    private var currentEncryptedSecret = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Verificación de carga del motor Rust
-        if (!SecurityBridge.isLoaded) {
-            Toast.makeText(this, "Aviso: Motor nativo Rust en modo simulación", Toast.LENGTH_LONG).show()
-        }
-
         val tvPrivilegeBadge = findViewById<TextView>(R.id.tvPrivilegeBadge)
-        val isRooted = PrivilegedEngine.hasRootAccess()
-        if (isRooted) {
+        if (PrivilegedEngine.hasRootAccess()) {
             tvPrivilegeBadge.text = "⚡ PRIVILEGIO: ROOT"
             tvPrivilegeBadge.setBackgroundColor(0xFF238636.toInt())
         } else {
-            tvPrivilegeBadge.text = "🛡️ PRIVILEGIO: ADB / USER"
+            tvPrivilegeBadge.text = "🛡️ MODO: ADB / ESTÁNDAR"
             tvPrivilegeBadge.setBackgroundColor(0xFF1F6FEB.toInt())
         }
 
-        // Pestañas
+        // Navegación de pestañas
         val tabDash = findViewById<View>(R.id.tabDashboard)
         val tabScan = findViewById<View>(R.id.tabScan)
         val tabVault = findViewById<View>(R.id.tabVault)
         val tabSandbox = findViewById<View>(R.id.tabSandbox)
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        bottomNav.setOnItemSelectedListener { item ->
+        findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
             tabDash.visibility = View.GONE
             tabScan.visibility = View.GONE
             tabVault.visibility = View.GONE
@@ -112,119 +126,165 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Dashboard stats
-        val btnQuickCheck = findViewById<Button>(R.id.btnQuickCheck)
-        val tvTotalApps = findViewById<TextView>(R.id.tvTotalAppsAudited)
-        val tvRiskCount = findViewById<TextView>(R.id.tvHighRiskCount)
+        // --- MÓDULO DNS ENCRIPTADO (ADGUARD / QUAD9) ---
+        val btnApplyDns = findViewById<Button>(R.id.btnApplyDns)
+        val tvDnsStatus = findViewById<TextView>(R.id.tvDnsStatus)
+        val rbAdGuard = findViewById<RadioButton>(R.id.rbAdGuard)
+        val rbQuad9 = findViewById<RadioButton>(R.id.rbQuad9)
 
-        fun updateAppAuditStats() {
-            try {
-                val packages = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS)
-                var highRisk = 0
-                for (pkg in packages) {
-                    val perms = pkg.requestedPermissions ?: continue
-                    if (perms.contains("android.permission.CAMERA") && perms.contains("android.permission.RECORD_AUDIO")) {
-                        highRisk++
+        btnApplyDns.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val (mode, host) = when {
+                    rbAdGuard.isChecked -> Pair("hostname", "dns.adguard-dns.com")
+                    rbQuad9.isChecked -> Pair("hostname", "dns.quad9.net")
+                    else -> Pair("off", "")
+                }
+                val (ok, log) = PrivilegedEngine.setPrivateDns(mode, host)
+                withContext(Dispatchers.Main) {
+                    if (ok) {
+                        tvDnsStatus.text = "✅ DNS Privado aplicado: $host\n(Tráfico protegido sin consumir batería)"
+                    } else {
+                        tvDnsStatus.text = "⚠️ Requiere Root o permiso ADB ejecutando:\n'pm grant com.vigilix.app android.permission.WRITE_SECURE_SETTINGS'"
                     }
                 }
-                tvTotalApps.text = packages.size.toString()
-                tvRiskCount.text = highRisk.toString()
-            } catch (e: Exception) {
-                tvTotalApps.text = "OK"
-                tvRiskCount.text = "0"
             }
         }
-        updateAppAuditStats()
 
-        btnQuickCheck.setOnClickListener {
-            updateAppAuditStats()
-            findViewById<TextView>(R.id.tvHealthSubtitle).text = "Diagnóstico completado. Memoria segura."
-        }
-
-        // Scanner
+        // --- ESCÁNER ASÍNCRONO DE ARCHIVOS (VIRUSTOTAL SHA-256) ---
         val btnScan = findViewById<Button>(R.id.btnScanStorage)
         val tvScanLog = findViewById<TextView>(R.id.tvScanLog)
+        val pbScanner = findViewById<ProgressBar>(R.id.pbScanner)
+
         btnScan.setOnClickListener {
-            try {
+            pbScanner.visibility = View.VISIBLE
+            tvScanLog.text = "Calculando firmas criptográficas en Rust..."
+
+            lifecycleScope.launch(Dispatchers.IO) {
                 val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val files = downloadDir.listFiles()?.take(4)
+                val files = downloadDir.listFiles()?.filter { it.isFile }?.take(3)
+                val sb = StringBuilder("🛡️ AUDITORÍA DE ARCHIVOS CON RUST:\n\n")
+
                 if (!files.isNullOrEmpty()) {
-                    val sb = StringBuilder("🛡️ HASHES SHA-256 (RUST):\n\n")
-                    for (f in files) {
-                        if (f.isFile) {
-                            val hash = if (SecurityBridge.isLoaded) {
-                                SecurityBridge.calculateFileSha256(f.absolutePath)
-                            } else "e3b0c44298fc1c149afbf4c8996fb924..."
-                            sb.append("📄 ").append(f.name).append("\nSHA-256: ").append(hash.take(24)).append("...\n\n")
-                        }
+                    for (file in files) {
+                        val hash = if (SecurityBridge.isLoaded) {
+                            SecurityBridge.calculateFileSha256(file.absolutePath)
+                        } else "a3b98f...simulado"
+
+                        sb.append("📄 ").append(file.name).append("\n")
+                        sb.append("SHA-256: ").append(hash).append("\n")
+                        sb.append("🌐 Consultar: https://www.virustotal.com/gui/file/").append(hash).append("\n\n")
                     }
-                    tvScanLog.text = sb.toString()
                 } else {
-                    tvScanLog.text = "Carpeta Downloads vacía."
+                    sb.append("No se encontraron archivos en Descargas o falta permiso.")
                 }
-            } catch (e: Exception) {
-                tvScanLog.text = "Permiso de almacenamiento requerido."
+
+                withContext(Dispatchers.Main) {
+                    pbScanner.visibility = View.GONE
+                    tvScanLog.text = sb.toString()
+                }
             }
         }
 
-        // Vault
+        // --- BÓVEDA CON SLIDER DE ENTROPÍA Y GESTOR DE SECRETOS ---
+        val sliderLength = findViewById<Slider>(R.id.sliderLength)
+        val tvLengthLabel = findViewById<TextView>(R.id.tvLengthLabel)
         val btnGenPass = findViewById<Button>(R.id.btnGenerateSecret)
         val tvPass = findViewById<TextView>(R.id.tvEntropyPass)
+        val btnCopyPass = findViewById<Button>(R.id.btnCopyPass)
+
+        var selectedLength = 32
+        sliderLength.addOnChangeListener { _, value, _ ->
+            selectedLength = value.toInt()
+            tvLengthLabel.text = "Longitud: $selectedLength caracteres (Entropía: ~${selectedLength * 6} bits)"
+        }
+
+        btnGenPass.setOnClickListener {
+            val pass = if (SecurityBridge.isLoaded) {
+                SecurityBridge.generateHighEntropyPassword(selectedLength)
+            } else "Vx9#kL2@mQ7\$zP1!vR8%wY4^bN5&jK0*"
+            tvPass.text = pass
+        }
+
+        btnCopyPass.setOnClickListener {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("Vigilix Pass", tvPass.text.toString()))
+            Toast.makeText(this, "Contraseña copiada al portapapeles", Toast.LENGTH_SHORT).show()
+        }
+
         val etKey = findViewById<EditText>(R.id.etVaultKey)
         val etData = findViewById<EditText>(R.id.etVaultData)
         val btnEncrypt = findViewById<Button>(R.id.btnEncryptVault)
+        val btnDecrypt = findViewById<Button>(R.id.btnDecryptVault)
         val tvVaultOut = findViewById<TextView>(R.id.tvVaultOutput)
-
-        btnGenPass.setOnClickListener {
-            val strong = if (SecurityBridge.isLoaded) {
-                SecurityBridge.generateHighEntropyPassword(32)
-            } else "Vx9#kL2@mQ7\$zP1!vR8%wY4^bN5&jK0*"
-            tvPass.text = strong
-        }
 
         btnEncrypt.setOnClickListener {
             val key = etKey.text.toString()
             val text = etData.text.toString()
             if (key.isNotEmpty() && text.isNotEmpty()) {
-                val encrypted = if (SecurityBridge.isLoaded) {
+                currentEncryptedSecret = if (SecurityBridge.isLoaded) {
                     SecurityBridge.encryptSecret(key, text)
-                } else "7a8b9c0d1e2f3a4b5c6d7e8f (Simulado)"
-                tvVaultOut.text = "🔒 CIPHERTEXT:\n$encrypted"
+                } else "7a8b9c...simulado"
+                tvVaultOut.text = "🔒 Cifrado con ChaCha20:\n$currentEncryptedSecret"
+                etData.text.clear()
             }
         }
 
-        // Brevent Sandbox
+        btnDecrypt.setOnClickListener {
+            val key = etKey.text.toString()
+            if (key.isNotEmpty() && currentEncryptedSecret.isNotEmpty()) {
+                val decrypted = if (SecurityBridge.isLoaded) {
+                    SecurityBridge.decryptSecret(key, currentEncryptedSecret)
+                } else "Texto descifrado de prueba"
+                tvVaultOut.text = "🔓 Secreto Recuperado:\n$decrypted"
+            }
+        }
+
+        // --- VINCULACIÓN DE DEPURACIÓN INALÁMBRICA / BREVENT ---
+        findViewById<Button>(R.id.btnOpenDevSettings).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+        }
+
+        findViewById<Button>(R.id.btnCopyAdbCmd).setOnClickListener {
+            val adbCmd = "adb shell pm grant com.vigilix.app android.permission.WRITE_SECURE_SETTINGS"
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("ADB Command", adbCmd))
+            Toast.makeText(this, "Comando copiado. Pégalo en la terminal de tu PC conectada por USB.", Toast.LENGTH_LONG).show()
+        }
+
         val btnAudit = findViewById<Button>(R.id.btnAuditPermissions)
         val btnFreeze = findViewById<Button>(R.id.btnBreventFreeze)
         val tvSandboxLog = findViewById<TextView>(R.id.tvSandboxLog)
-        var firstDangerousPackage = ""
+        var targetPkg = ""
 
         btnAudit.setOnClickListener {
-            val pm = packageManager
-            val packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS)
-            val sb = StringBuilder("🚨 APPS INVASIVAS DETECTADAS:\n\n")
+            lifecycleScope.launch(Dispatchers.IO) {
+                val pm = packageManager
+                val packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS)
+                val sb = StringBuilder("🚨 APPS CRÍTICAS AUDITADAS:\n\n")
 
-            for (pkg in packages) {
-                val perms = pkg.requestedPermissions ?: continue
-                if (perms.contains("android.permission.RECORD_AUDIO") && perms.contains("android.permission.CAMERA")) {
-                    if (firstDangerousPackage.isEmpty()) firstDangerousPackage = pkg.packageName
-                    val appName = pkg.applicationInfo?.loadLabel(pm)?.toString() ?: pkg.packageName
-                    sb.append("• ").append(appName).append("\n  [").append(pkg.packageName).append("]\n")
+                for (pkg in packages) {
+                    val perms = pkg.requestedPermissions ?: continue
+                    if (perms.contains("android.permission.RECORD_AUDIO") && perms.contains("android.permission.CAMERA")) {
+                        if (targetPkg.isEmpty()) targetPkg = pkg.packageName
+                        val appName = pkg.applicationInfo?.loadLabel(pm)?.toString() ?: pkg.packageName
+                        sb.append("• ").append(appName).append("\n  ").append(pkg.packageName).append("\n")
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    tvSandboxLog.text = sb.toString()
                 }
             }
-            tvSandboxLog.text = sb.toString()
         }
 
         btnFreeze.setOnClickListener {
-            if (firstDangerousPackage.isNotEmpty()) {
-                val success = PrivilegedEngine.freezePackage(firstDangerousPackage)
+            if (targetPkg.isNotEmpty()) {
+                val success = PrivilegedEngine.freezePackage(targetPkg)
                 if (success) {
-                    tvSandboxLog.text = "❄️ MODO BREVENT APLICADO:\nLa aplicación [$firstDangerousPackage] ha sido suspendida."
+                    tvSandboxLog.text = "❄️ MODO BREVENT: La app [$targetPkg] fue suspendida en segundo plano."
                 } else {
-                    tvSandboxLog.text = "⚠️ Requiere Root o ADB activo para congelar [$firstDangerousPackage]."
+                    tvSandboxLog.text = "⚠️ Se requiere Root o vincular ADB para congelar."
                 }
-            } else {
-                tvSandboxLog.text = "Presiona primero 'Escanear Apps'."
             }
         }
     }

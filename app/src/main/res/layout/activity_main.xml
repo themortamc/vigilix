@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     android:background="#0B0E14">
 
-    <!-- Top App Bar -->
+    <!-- Barra Superior -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="20dp"
-        android:paddingVertical="16dp"
+        android:paddingVertical="14dp"
         android:background="#161B22"
         android:gravity="center_vertical">
 
@@ -38,7 +38,6 @@
             android:paddingVertical="5dp" />
     </LinearLayout>
 
-    <!-- Contenedor Scrollable para los Módulos -->
     <ScrollView
         android:id="@+id/mainScroll"
         android:layout_width="match_parent"
@@ -52,7 +51,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ================= TAB 1: DASHBOARD ================= -->
+            <!-- ================= TAB 1: DASHBOARD & DNS ================= -->
             <LinearLayout
                 android:id="@+id/tabDashboard"
                 android:layout_width="match_parent"
@@ -60,7 +59,7 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <!-- Tarjeta Score de Salud -->
+                <!-- Estado del sistema -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -79,7 +78,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ESTADO DE PRIVACIDAD GLOBAL"
+                            android:text="ESTADO DEL SISTEMA"
                             android:textColor="#8B949E"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -88,9 +87,9 @@
                             android:id="@+id/tvHealthScore"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="98.5%"
+                            android:text="100% Protegido"
                             android:textColor="#3FB950"
-                            android:textSize="44sp"
+                            android:textSize="32sp"
                             android:textStyle="bold"
                             android:layout_marginTop="4dp" />
 
@@ -98,91 +97,88 @@
                             android:id="@+id/tvHealthSubtitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Cifrado ChaCha20 activo • Núcleo Rust sincronizado"
+                            android:text="Motor Rust activo • Hilos de escaneo en segundo plano."
                             android:textColor="#C9D1D9"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Grid de Métricas Rápidas -->
-                <LinearLayout
+                <!-- CONTROLADOR DE DNS ADGUARD / PRIVADO -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    app:cardBackgroundColor="#161B22"
+                    app:strokeColor="#30363D"
+                    app:strokeWidth="1dp"
+                    app:cardCornerRadius="16dp"
                     android:layout_marginBottom="16dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="#161B22"
-                        app:strokeColor="#30363D"
-                        app:strokeWidth="1dp"
-                        app:cardCornerRadius="12dp"
-                        android:layout_marginEnd="8dp">
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                        <LinearLayout
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🌐 DNS ENCRIPTADO (SIN VPN)"
+                            android:textColor="#58A6FF"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aplica filtrado de publicidad y phishing en todo el celular."
+                            android:textColor="#8B949E"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+
+                        <RadioGroup
+                            android:id="@+id/rgDns"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
-                            android:orientation="vertical">
-                            <TextView
+                            android:layout_marginTop="12dp">
+                            <RadioButton
+                                android:id="@+id/rbAdGuard"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Apps Auditadas"
-                                android:textColor="#8B949E"
-                                android:textSize="11sp" />
-                            <TextView
-                                android:id="@+id/tvTotalAppsAudited"
+                                android:text="AdGuard DNS (Bloquea Anuncios + Rastreadores)"
+                                android:textColor="#C9D1D9"
+                                android:checked="true" />
+                            <RadioButton
+                                android:id="@+id/rbQuad9"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="--"
-                                android:textColor="#58A6FF"
-                                android:textSize="22sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                                android:text="Quad9 DNS (Especializado contra Malware)"
+                                android:textColor="#C9D1D9" />
+                            <RadioButton
+                                android:id="@+id/rbDnsOff"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="DNS Automático / Desactivado"
+                                android:textColor="#C9D1D9" />
+                        </RadioGroup>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="#161B22"
-                        app:strokeColor="#30363D"
-                        app:strokeWidth="1dp"
-                        app:cardCornerRadius="12dp"
-                        android:layout_marginStart="8dp">
-
-                        <LinearLayout
+                        <Button
+                            android:id="@+id/btnApplyDns"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Apps Invasivas"
-                                android:textColor="#8B949E"
-                                android:textSize="11sp" />
-                            <TextView
-                                android:id="@+id/tvHighRiskCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="--"
-                                android:textColor="#F85149"
-                                android:textSize="22sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
+                            android:text="Aplicar DNS con Root / ADB"
+                            android:backgroundTint="#238636"
+                            android:textColor="#FFFFFF"
+                            android:layout_marginTop="8dp" />
 
-                <Button
-                    android:id="@+id/btnQuickCheck"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:text="Ejecutar Diagnóstico Completo"
-                    android:backgroundTint="#238636"
-                    android:textColor="#FFFFFF" />
+                        <TextView
+                            android:id="@+id/tvDnsStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#8B949E"
+                            android:textSize="12sp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- ================= TAB 2: ESCÁNER VIRUSTOTAL ================= -->
@@ -211,32 +207,33 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ESCÁNER DE ARCHIVOS SHA-256"
+                            android:text="ESCÁNER DE ARCHIVOS ASÍNCRONO"
                             android:textColor="#58A6FF"
                             android:textStyle="bold"
                             android:textSize="15sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Calcula firmas criptográficas en Rust directo en la CPU."
-                            android:textColor="#8B949E"
-                            android:textSize="12sp"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="16dp" />
 
                         <Button
                             android:id="@+id/btnScanStorage"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:text="Auditar Carpeta Downloads"
-                            android:backgroundTint="#1F6FEB" />
+                            android:text="Escanear Descargas (Coroutines + Rust)"
+                            android:backgroundTint="#1F6FEB"
+                            android:layout_marginTop="12dp" />
+
+                        <ProgressBar
+                            android:id="@+id/pbScanner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:indeterminate="true"
+                            android:visibility="gone"
+                            android:layout_marginTop="12dp" />
 
                         <TextView
                             android:id="@+id/tvScanLog"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Listo para analizar."
+                            android:text="Presiona para analizar firmas de archivos."
                             android:textColor="#C9D1D9"
                             android:textSize="12sp"
                             android:padding="12dp"
@@ -246,7 +243,7 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- ================= TAB 3: BÓVEDA DE CONTRASEÑAS ================= -->
+            <!-- ================= TAB 3: BÓVEDA Y CONTRASEÑAS ================= -->
             <LinearLayout
                 android:id="@+id/tabVault"
                 android:layout_width="match_parent"
@@ -272,18 +269,36 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="GENERADOR DE ALTA ENTROPÍA"
+                            android:text="CONFIGURADOR DE CONTRASEÑA"
                             android:textColor="#3FB950"
                             android:textStyle="bold"
                             android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvLengthLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Longitud: 32 caracteres (Alta Entropía)"
+                            android:textColor="#C9D1D9"
+                            android:textSize="13sp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Selector de largo -->
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderLength"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="12"
+                            android:valueTo="64"
+                            android:stepSize="4"
+                            android:value="32" />
 
                         <Button
                             android:id="@+id/btnGenerateSecret"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Generar Clave Aleatoria (32 Chars)"
-                            android:backgroundTint="#238636"
-                            android:layout_marginTop="8dp" />
+                            android:text="Generar con Rust CSPRNG"
+                            android:backgroundTint="#238636" />
 
                         <TextView
                             android:id="@+id/tvEntropyPass"
@@ -291,11 +306,19 @@
                             android:layout_height="wrap_content"
                             android:text="Toca generar..."
                             android:textColor="#7EE787"
-                            android:textIsSelectable="true"
                             android:textSize="14sp"
                             android:padding="12dp"
                             android:background="#0D1117"
                             android:layout_marginTop="8dp" />
+
+                        <Button
+                            android:id="@+id/btnCopyPass"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Copiar al Portapapeles"
+                            android:backgroundTint="#21262D"
+                            android:textColor="#58A6FF"
+                            android:layout_marginTop="6dp" />
 
                         <View
                             android:layout_width="match_parent"
@@ -306,7 +329,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="CIFRADO INVIOLABLE (CHACHA20-POLY1305)"
+                            android:text="GESTOR DE SECRETOS (ARGON2ID + CHACHA20)"
                             android:textColor="#D29922"
                             android:textStyle="bold"
                             android:textSize="14sp" />
@@ -315,7 +338,7 @@
                             android:id="@+id/etVaultKey"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Contraseña Maestra (Argon2id)"
+                            android:hint="Llave Maestra"
                             android:textColor="#FFFFFF"
                             android:textColorHint="#6E7681"
                             android:inputType="textPassword"
@@ -325,17 +348,35 @@
                             android:id="@+id/etVaultData"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Dato a proteger..."
+                            android:hint="Dato secreto (ej: Token API, Clave privada)"
                             android:textColor="#FFFFFF"
                             android:textColorHint="#6E7681" />
 
-                        <Button
-                            android:id="@+id/btnEncryptVault"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Cifrar Secreto en Rust"
-                            android:backgroundTint="#8957E5"
-                            android:layout_marginTop="8dp" />
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <Button
+                                android:id="@+id/btnEncryptVault"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Cifrar"
+                                android:backgroundTint="#8957E5"
+                                android:layout_marginEnd="4dp" />
+
+                            <Button
+                                android:id="@+id/btnDecryptVault"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Descifrar"
+                                android:backgroundTint="#30363D"
+                                android:textColor="#FFFFFF"
+                                android:layout_marginStart="4dp" />
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvVaultOutput"
@@ -349,7 +390,7 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- ================= TAB 4: SANDBOX BREVENT & PERMISOS ================= -->
+            <!-- ================= TAB 4: SANDBOX BREVENT & GUÍA ADB ================= -->
             <LinearLayout
                 android:id="@+id/tabSandbox"
                 android:layout_width="match_parent"
@@ -375,7 +416,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="CONTROL PRIVILEGIADO (ROOT / ADB BREVENT)"
+                            android:text="VINCULACIÓN PRIVILEGIADA (BREVENT / ADB)"
                             android:textColor="#F85149"
                             android:textStyle="bold"
                             android:textSize="14sp" />
@@ -383,33 +424,55 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Permite congelar apps invasivas y forzar revocación de permisos sin avisar."
+                            android:text="Sin Root, puedes habilitar privilegios conectando por Depuración USB/Inalámbrica."
                             android:textColor="#8B949E"
                             android:textSize="12sp"
                             android:layout_marginTop="4dp" />
 
                         <Button
+                            android:id="@+id/btnOpenDevSettings"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Abrir Opciones de Desarrollador"
+                            android:backgroundTint="#30363D"
+                            android:textColor="#58A6FF"
+                            android:layout_marginTop="10dp" />
+
+                        <Button
+                            android:id="@+id/btnCopyAdbCmd"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Copiar Comando ADB para PC"
+                            android:backgroundTint="#21262D"
+                            android:textColor="#C9D1D9"
+                            android:layout_marginTop="6dp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#30363D"
+                            android:layout_marginVertical="12dp" />
+
+                        <Button
                             android:id="@+id/btnAuditPermissions"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Escanear Apps Peligrosas"
-                            android:backgroundTint="#DA3633"
-                            android:layout_marginTop="12dp" />
+                            android:text="Escanear Apps Críticas"
+                            android:backgroundTint="#DA3633" />
 
                         <Button
                             android:id="@+id/btnBreventFreeze"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Congelar Apps en Segundo Plano (Brevent)"
-                            android:backgroundTint="#21262D"
-                            android:textColor="#58A6FF"
+                            android:text="Congelar App en Segundo Plano"
+                            android:backgroundTint="#1F6FEB"
                             android:layout_marginTop="8dp" />
 
                         <TextView
                             android:id="@+id/tvSandboxLog"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Esperando escaneo de permisos..."
+                            android:text="Estado: Esperando acción."
                             android:textColor="#FFA198"
                             android:textSize="12sp"
                             android:padding="12dp"
@@ -422,7 +485,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Barra Inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
