@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dash"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="Dashboard" />
+    <item
+        android:id="@+id/nav_scan"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="Escáner" />
+    <item
+        android:id="@+id/nav_vault"
+        android:icon="@android:drawable/ic_lock_lock"
+        android:title="Bóveda" />
+    <item
+        android:id="@+id/nav_sandbox"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Sandbox Brevent" />
+</menu>

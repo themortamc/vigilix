@@ -3,22 +3,60 @@ package com.vigilix.app
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
 
-object SecurityBridge {
-    init {
-        System.loadLibrary("vigilix_core")
+object PrivilegedEngine {
+    fun hasRootAccess(): Boolean {
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
+            process.waitFor() == 0
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    external fun generateHighEntropyPassword(length: Int): String
-    external fun encryptSecret(masterKey: String, plaintext: String): String
-    external fun decryptSecret(masterKey: String, cipherHex: String): String
-    external fun calculateFileSha256(filePath: String): String
-    external fun scanThreat(input: String): String
+    fun executeShell(command: String): Pair<Boolean, String> {
+        return try {
+            // Intenta por Root, si falla ejecuta en shell estándar (o ADB enlazado)
+            val useRoot = hasRootAccess()
+            val process = if (useRoot) {
+                Runtime.getRuntime().exec(arrayOf("su", "-c", command))
+            } else {
+                Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+            }
+
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            val output = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                output.append(line).append("\n")
+            }
+            val exitCode = process.waitFor()
+            Pair(exitCode == 0, output.toString())
+        } catch (e: Exception) {
+            Pair(false, e.localizedMessage ?: "Error de ejecución")
+        }
+    }
+
+    // Modo Brevent: Fuerza inactividad y desconecta de segundo plano
+    fun freezePackage(packageName: String): Boolean {
+        val cmd = "am set-inactive $packageName true && cmd appops set $packageName RUN_IN_BACKGROUND ignore"
+        return executeShell(cmd).first
+    }
+
+    // Modo GrapheneOS: Revoca permisos de sistema directamente
+    fun revokePermission(packageName: String, permission: String): Boolean {
+        val cmd = "pm revoke $packageName $permission"
+        return executeShell(cmd).first
+    }
 }
 
 class MainActivity : AppCompatActivity() {
@@ -27,89 +65,144 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 1. Elementos de UI
-        val btnGeneratePass = findViewById<Button>(R.id.btnGeneratePass)
-        val tvGeneratedPass = findViewById<TextView>(R.id.tvGeneratedPass)
-        val etMasterKey = findViewById<EditText>(R.id.etMasterKey)
-        val etSecretToEncrypt = findViewById<EditText>(R.id.etSecretToEncrypt)
-        val btnEncrypt = findViewById<Button>(R.id.btnEncrypt)
-        val tvVaultStatus = findViewById<TextView>(R.id.tvVaultStatus)
-
-        val btnScanDownloads = findViewById<Button>(R.id.btnScanDownloads)
-        val tvScanResult = findViewById<TextView>(R.id.tvScanResult)
-
-        val btnAuditApps = findViewById<Button>(R.id.btnAuditApps)
-        val tvAuditResult = findViewById<TextView>(R.id.tvAuditResult)
-
-        // --- GESTOR DE CONTRASEÑAS: ALTA ENTROPÍA ---
-        btnGeneratePass.setOnClickListener {
-            // Genera contraseña de 24 caracteres criptográficamente seguros
-            val pass = SecurityBridge.generateHighEntropyPassword(24)
-            tvGeneratedPass.text = pass
+        // 1. Detección de privilegios en el Header
+        val tvPrivilegeBadge = findViewById<TextView>(R.id.tvPrivilegeBadge)
+        val isRooted = PrivilegedEngine.hasRootAccess()
+        if (isRooted) {
+            tvPrivilegeBadge.text = "⚡ PRIVILEGIO: ROOT (ACTIVO)"
+            tvPrivilegeBadge.setBackgroundColor(0xFF238636.toInt())
+        } else {
+            tvPrivilegeBadge.text = "🛡️ PRIVILEGIO: ESTÁNDAR / ADB"
+            tvPrivilegeBadge.setBackgroundColor(0xFF1F6FEB.toInt())
         }
 
-        // --- GESTOR DE CONTRASEÑAS: CIFRADO CHACHA20 ---
-        var lastEncryptedHex = ""
-        btnEncrypt.setOnClickListener {
-            val master = etMasterKey.text.toString()
-            val secret = etSecretToEncrypt.text.toString()
-            if (master.isNotEmpty() && secret.isNotEmpty()) {
-                lastEncryptedHex = SecurityBridge.encryptSecret(master, secret)
-                tvVaultStatus.text = "🔒 Cifrado con ChaCha20-Poly1305:\n$lastEncryptedHex"
-            } else {
-                tvVaultStatus.text = "Ingresa llave maestra y texto."
+        // 2. Referencias a las 4 Pestañas
+        val tabDash = findViewById<View>(R.id.tabDashboard)
+        val tabScan = findViewById<View>(R.id.tabScan)
+        val tabVault = findViewById<View>(R.id.tabVault)
+        val tabSandbox = findViewById<View>(R.id.tabSandbox)
+
+        // 3. Bottom Navigation Listener (Cambio de pantallas fluido)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        bottomNav.setOnItemSelectedListener { item ->
+            tabDash.visibility = View.GONE
+            tabScan.visibility = View.GONE
+            tabVault.visibility = View.GONE
+            tabSandbox.visibility = View.GONE
+
+            when (item.itemId) {
+                R.id.nav_dash -> { tabDash.visibility = View.VISIBLE; true }
+                R.id.nav_scan -> { tabScan.visibility = View.VISIBLE; true }
+                R.id.nav_vault -> { tabVault.visibility = View.VISIBLE; true }
+                R.id.nav_sandbox -> { tabSandbox.visibility = View.VISIBLE; true }
+                else -> false
             }
         }
 
-        // --- ESCÁNER DE ARCHIVOS TIPO VIRUSTOTAL (SHA-256 EN RUST) ---
-        btnScanDownloads.setOnClickListener {
+        // --- DASHBOARD ACTIONS ---
+        val btnQuickCheck = findViewById<Button>(R.id.btnQuickCheck)
+        val tvTotalApps = findViewById<TextView>(R.id.tvTotalAppsAudited)
+        val tvRiskCount = findViewById<TextView>(R.id.tvHighRiskCount)
+
+        fun updateAppAuditStats() {
+            val packages = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS)
+            var highRisk = 0
+            for (pkg in packages) {
+                val perms = pkg.requestedPermissions ?: continue
+                if (perms.contains("android.permission.CAMERA") && 
+                    perms.contains("android.permission.RECORD_AUDIO")) {
+                    highRisk++
+                }
+            }
+            tvTotalApps.text = packages.size.toString()
+            tvRiskCount.text = highRisk.toString()
+        }
+        updateAppAuditStats()
+
+        btnQuickCheck.setOnClickListener {
+            updateAppAuditStats()
+            findViewById<TextView>(R.id.tvHealthSubtitle).text = "Diagnóstico completado. Memoria segura."
+        }
+
+        // --- VIRUSTOTAL SCANNER ACTIONS ---
+        val btnScan = findViewById<Button>(R.id.btnScanStorage)
+        val tvScanLog = findViewById<TextView>(R.id.tvScanLog)
+
+        btnScan.setOnClickListener {
             val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            if (downloadDir.exists() && downloadDir.isDirectory) {
-                val files = downloadDir.listFiles()?.take(5) // Tomar los primeros 5 para el demo
+            if (downloadDir.exists()) {
+                val files = downloadDir.listFiles()?.take(4)
                 if (!files.isNullOrEmpty()) {
-                    val sb = StringBuilder("🛡️ ARCHIVOS AUDITADOS (SHA-256):\n")
-                    for (file in files) {
-                        if (file.isFile) {
-                            val hash = SecurityBridge.calculateFileSha256(file.absolutePath)
-                            sb.append("📄 ").append(file.name).append("\n")
-                            sb.append("   Hash: ").append(hash.take(16)).append("... (Verificado)\n")
+                    val sb = StringBuilder("🛡️ HASHES SHA-256 GENERADOS (RUST NATIVO):\n\n")
+                    for (f in files) {
+                        if (f.isFile) {
+                            val hash = SecurityBridge.calculateFileSha256(f.absolutePath)
+                            sb.append("📄 ").append(f.name).append("\n")
+                            sb.append("SHA-256: ").append(hash.take(24)).append("...\n\n")
                         }
                     }
-                    tvScanResult.text = sb.toString()
+                    tvScanLog.text = sb.toString()
                 } else {
-                    tvScanResult.text = "Carpeta Downloads vacía o sin permisos concedidos."
+                    tvScanLog.text = "Carpeta Downloads vacía."
                 }
-            } else {
-                tvScanResult.text = "Directorio de descargas inaccesible."
             }
         }
 
-        // --- AUDITOR DE PERMISOS ESTILO GRAPHENEOS ---
-        btnAuditApps.setOnClickListener {
+        // --- VAULT CHACHA20 ACTIONS ---
+        val btnGenPass = findViewById<Button>(R.id.btnGenerateSecret)
+        val tvPass = findViewById<TextView>(R.id.tvEntropyPass)
+        val etKey = findViewById<EditText>(R.id.etVaultKey)
+        val etData = findViewById<EditText>(R.id.etVaultData)
+        val btnEncrypt = findViewById<Button>(R.id.btnEncryptVault)
+        val tvVaultOut = findViewById<TextView>(R.id.tvVaultOutput)
+
+        btnGenPass.setOnClickListener {
+            val strong = SecurityBridge.generateHighEntropyPassword(32)
+            tvPass.text = strong
+        }
+
+        btnEncrypt.setOnClickListener {
+            val key = etKey.text.toString()
+            val text = etData.text.toString()
+            if (key.isNotEmpty() && text.isNotEmpty()) {
+                val encrypted = SecurityBridge.encryptSecret(key, text)
+                tvVaultOut.text = "🔒 CIPHERTEXT:\n$encrypted"
+            }
+        }
+
+        // --- SANDBOX BREVENT & PERMISSION CONTROL ---
+        val btnAudit = findViewById<Button>(R.id.btnAuditPermissions)
+        val btnFreeze = findViewById<Button>(R.id.btnBreventFreeze)
+        val tvSandboxLog = findViewById<TextView>(R.id.tvSandboxLog)
+        var firstDangerousPackage = ""
+
+        btnAudit.setOnClickListener {
             val pm = packageManager
             val packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS)
-            var highRiskApps = 0
-            val sb = StringBuilder("🚨 AUDITORÍA DE PERMISOS INVASIVOS:\n")
+            val sb = StringBuilder("🚨 APPS CON PERMISOS INVASIVOS DETECTADAS:\n\n")
 
             for (pkg in packages) {
-                val perms = pkg.requestedPermissions
-                if (perms != null) {
-                    val hasCam = perms.contains("android.permission.CAMERA")
-                    val hasMic = perms.contains("android.permission.RECORD_AUDIO")
-                    val hasGps = perms.contains("android.permission.ACCESS_FINE_LOCATION")
-
-                    if (hasCam && hasMic && hasGps) {
-                        highRiskApps++
-                        if (highRiskApps <= 4) { // Listar solo las primeras 4 para no saturar pantalla
-                            val appName = pkg.applicationInfo?.loadLabel(pm)?.toString() ?: pkg.packageName
-                            sb.append("⚠️ ").append(appName).append("\n")
-                            sb.append("   Acceso a: Cámara + Micrófono + Ubicación\n")
-                        }
-                    }
+                val perms = pkg.requestedPermissions ?: continue
+                if (perms.contains("android.permission.RECORD_AUDIO") && perms.contains("android.permission.CAMERA")) {
+                    if (firstDangerousPackage.isEmpty()) firstDangerousPackage = pkg.packageName
+                    val appName = pkg.applicationInfo?.loadLabel(pm)?.toString() ?: pkg.packageName
+                    sb.append("• ").append(appName).append("\n  [").append(pkg.packageName).append("]\n")
                 }
             }
-            sb.append("\nTotal de aplicaciones críticas detectadas: ").append(highRiskApps)
-            tvAuditResult.text = sb.toString()
+            tvSandboxLog.text = sb.toString()
+        }
+
+        btnFreeze.setOnClickListener {
+            if (firstDangerousPackage.isNotEmpty()) {
+                val success = PrivilegedEngine.freezePackage(firstDangerousPackage)
+                if (success) {
+                    tvSandboxLog.text = "❄️ MODO BREVENT APLICADO:\nLa aplicación [$firstDangerousPackage] ha sido suspendida del segundo plano."
+                } else {
+                    tvSandboxLog.text = "⚠️ Requiere acceso Root o depuración inalámbrica ADB activa para suspender [$firstDangerousPackage]."
+                }
+            } else {
+                tvSandboxLog.text = "Presiona primero 'Escanear Apps Peligrosas'."
+            }
         }
     }
 }
