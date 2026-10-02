@@ -38,11 +38,9 @@ jobs:
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
           cargo ndk -t arm64-v8a -o ../app/src/main/jniLibs build --release
 
-      - name: Generar Gradle Wrapper si no existe
+      - name: Generar Gradle Wrapper 8.6
         run: |
-          if [ ! -f "gradlew" ]; then
-            gradle wrapper
-          fi
+          gradle wrapper --gradle-version 8.6 --distribution-type bin
           chmod +x gradlew
 
       - name: Compilar APK
