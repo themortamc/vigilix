@@ -13,6 +13,20 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
+// 1. Puente de comunicación con el Core en Rust
+object SecurityBridge {
+    init {
+        System.loadLibrary("vigilix_core")
+    }
+
+    external fun generateHighEntropyPassword(length: Int): String
+    external fun encryptSecret(masterKey: String, plaintext: String): String
+    external fun decryptSecret(masterKey: String, cipherHex: String): String
+    external fun calculateFileSha256(filePath: String): String
+    external fun scanThreat(input: String): String
+}
+
+// 2. Motor de ejecución de privilegios (Root / ADB Brevent)
 object PrivilegedEngine {
     fun hasRootAccess(): Boolean {
         return try {
@@ -25,7 +39,6 @@ object PrivilegedEngine {
 
     fun executeShell(command: String): Pair<Boolean, String> {
         return try {
-            // Intenta por Root, si falla ejecuta en shell estándar (o ADB enlazado)
             val useRoot = hasRootAccess()
             val process = if (useRoot) {
                 Runtime.getRuntime().exec(arrayOf("su", "-c", command))
@@ -46,13 +59,11 @@ object PrivilegedEngine {
         }
     }
 
-    // Modo Brevent: Fuerza inactividad y desconecta de segundo plano
     fun freezePackage(packageName: String): Boolean {
         val cmd = "am set-inactive $packageName true && cmd appops set $packageName RUN_IN_BACKGROUND ignore"
         return executeShell(cmd).first
     }
 
-    // Modo GrapheneOS: Revoca permisos de sistema directamente
     fun revokePermission(packageName: String, permission: String): Boolean {
         val cmd = "pm revoke $packageName $permission"
         return executeShell(cmd).first
@@ -65,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 1. Detección de privilegios en el Header
+        // Detección de privilegios
         val tvPrivilegeBadge = findViewById<TextView>(R.id.tvPrivilegeBadge)
         val isRooted = PrivilegedEngine.hasRootAccess()
         if (isRooted) {
@@ -76,13 +87,12 @@ class MainActivity : AppCompatActivity() {
             tvPrivilegeBadge.setBackgroundColor(0xFF1F6FEB.toInt())
         }
 
-        // 2. Referencias a las 4 Pestañas
+        // Pestañas
         val tabDash = findViewById<View>(R.id.tabDashboard)
         val tabScan = findViewById<View>(R.id.tabScan)
         val tabVault = findViewById<View>(R.id.tabVault)
         val tabSandbox = findViewById<View>(R.id.tabSandbox)
 
-        // 3. Bottom Navigation Listener (Cambio de pantallas fluido)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottomNav.setOnItemSelectedListener { item ->
             tabDash.visibility = View.GONE
@@ -99,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // --- DASHBOARD ACTIONS ---
+        // --- DASHBOARD ---
         val btnQuickCheck = findViewById<Button>(R.id.btnQuickCheck)
         val tvTotalApps = findViewById<TextView>(R.id.tvTotalAppsAudited)
         val tvRiskCount = findViewById<TextView>(R.id.tvHighRiskCount)
@@ -124,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.tvHealthSubtitle).text = "Diagnóstico completado. Memoria segura."
         }
 
-        // --- VIRUSTOTAL SCANNER ACTIONS ---
+        // --- VIRUSTOTAL SCANNER ---
         val btnScan = findViewById<Button>(R.id.btnScanStorage)
         val tvScanLog = findViewById<TextView>(R.id.tvScanLog)
 
@@ -148,7 +158,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // --- VAULT CHACHA20 ACTIONS ---
+        // --- VAULT CHACHA20 ---
         val btnGenPass = findViewById<Button>(R.id.btnGenerateSecret)
         val tvPass = findViewById<TextView>(R.id.tvEntropyPass)
         val etKey = findViewById<EditText>(R.id.etVaultKey)
