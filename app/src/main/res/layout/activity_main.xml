@@ -1,57 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
     android:background="#0D1117">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🛡️ VIGILIX"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="#58A6FF"
-        android:layout_marginTop="40dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Seguridad Móvil con Motor Rust"
-        android:textSize="14sp"
-        android:textColor="#8B949E"
-        android:layout_marginBottom="32dp" />
-
-    <EditText
-        android:id="@+id/etTarget"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#161B22"
-        android:padding="12dp"
-        android:hint="Pega un link, número (+54...) o archivo"
-        android:textColor="#C9D1D9"
-        android:textColorHint="#484F58"
-        android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/btnAnalyze"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Analizar Amenaza con Rust"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#238636"
-        android:layout_marginTop="16dp" />
-
-    <TextView
-        android:id="@+id/tvStatus"
+    <!-- Header Principal -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:padding="16dp"
-        android:textSize="16sp"
-        android:textAlignment="center"
-        android:textColor="#F0F6FC"
-        android:background="#21262D" />
+        android:background="#161B22"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🛡️ VIGILIX SECURITY SUITE"
+            android:textColor="#58A6FF"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rust Core 0.2"
+            android:textColor="#7EE787"
+            android:textSize="12sp"
+            android:background="#238636"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp" />
+    </LinearLayout>
+
+    <!-- Contenedor Dinámico con Scroll -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- SECCIÓN 1: DASHBOARD DE ESTADO -->
+            <LinearLayout
+                android:id="@+id/sectionDashboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#161B22"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ESTADO DEL DISPOSITIVO"
+                    android:textColor="#8B949E"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvHealthScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="95% Protegido"
+                    android:textColor="#3FB950"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cifrado ChaCha20 activo • Aislamiento de procesos listo."
+                    android:textColor="#C9D1D9"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- SECCIÓN 2: ESCÁNER VIRUSTOTAL (SHA-256) -->
+            <LinearLayout
+                android:id="@+id/sectionScanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#161B22"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ESCÁNER DE ARCHIVOS (VIRUSTOTAL STYLE)"
+                    android:textColor="#58A6FF"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btnScanDownloads"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Escanear Carpeta Descargas (Rust SHA-256)"
+                    android:backgroundTint="#1F6FEB"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/tvScanResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Presiona el botón para auditar descargas sospechosas."
+                    android:textColor="#C9D1D9"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:background="#0D1117"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- SECCIÓN 3: GESTOR DE CONTRASEÑAS (ARGON2 + CHACHA20) -->
+            <LinearLayout
+                android:id="@+id/sectionVault"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#161B22"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BÓVEDA DE CONTRASEÑAS (CHACHA20-POLY1305)"
+                    android:textColor="#D29922"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btnGeneratePass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Generar Contraseña de Alta Entropía"
+                    android:backgroundTint="#238636"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/tvGeneratedPass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contraseña generada aparecerá aquí."
+                    android:textColor="#7EE787"
+                    android:textIsSelectable="true"
+                    android:textSize="15sp"
+                    android:padding="8dp"
+                    android:background="#0D1117"
+                    android:layout_marginTop="8dp" />
+
+                <EditText
+                    android:id="@+id/etMasterKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Llave Maestra"
+                    android:textColorHint="#6E7681"
+                    android:textColor="#FFFFFF"
+                    android:inputType="textPassword"
+                    android:layout_marginTop="8dp" />
+
+                <EditText
+                    android:id="@+id/etSecretToEncrypt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Secreto o texto a cifrar con Argon2id"
+                    android:textColorHint="#6E7681"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/btnEncrypt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cifrar en Rust y Guardar"
+                    android:backgroundTint="#8957E5"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tvVaultStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#C9D1D9"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- SECCIÓN 4: AUDITOR DE PERMISOS ESTILO GRAPHENEOS -->
+            <LinearLayout
+                android:id="@+id/sectionPermissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#161B22"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AUDITOR DE PRIVACIDAD (TIPO GRAPHENEOS)"
+                    android:textColor="#F85149"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btnAuditApps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Auditar Permisos Invasivos de Apps"
+                    android:backgroundTint="#DA3633"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/tvAuditResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Audita apps con acceso a Cámara, Micrófono y GPS."
+                    android:textColor="#FFA198"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"
+                    android:background="#0D1117"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
