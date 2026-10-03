@@ -21,7 +21,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -689,11 +688,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isGranted(info: PackageInfo, permission: String): Boolean {
-        // En API 33+ la forma correcta es hasPermission(); los índices de
-        // requestedPermissions y requestedPermissionsFlags no siempre coinciden.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return ContextCompat.hasPermission(this, permission)
-        }
+        // requestedPermissions y requestedPermissionsFlags son arreglos paralelos (mismo índice).
+        // Se mira el permiso de la app AJENA: checkSelfPermission() solo sirve para la propia.
         val requested = info.requestedPermissions ?: return false
         val flags = info.requestedPermissionsFlags ?: return false
         val index = requested.indexOf(permission)

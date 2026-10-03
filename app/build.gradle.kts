@@ -19,19 +19,23 @@ android {
         }
     }
 
-    signingConfigs {
-        create("release") {
-            // En CI, el keystore se genera con keytool en cada ejecución.
-            // Para desarrollo local, usá el keystore por defecto de Android.
-            val keystoreFile = System.getenv("KEYSTORE_FILE")
-            val keystorePass = System.getenv("KEYSTORE_PASSWORD")
-            val keyAlias = System.getenv("KEY_ALIAS")
-            val keyPass = System.getenv("KEY_PASSWORD")
-            if (keystoreFile != null && keystorePass != null && keyAlias != null && keyPass != null) {
-                storeFile = file(keystoreFile)
-                storePassword = keystorePass
-                this.keyAlias = keyAlias
-                keyPassword = keyPass
+    // Firma de release OPCIONAL: solo se usa si las 4 variables de entorno están definidas
+    // (por ejemplo, desde GitHub Secrets). Sin ellas, assembleRelease genera un APK sin firmar
+    // en lugar de fallar.
+    val releaseKeystore = System.getenv("KEYSTORE_FILE")
+    val releaseStorePass = System.getenv("KEYSTORE_PASSWORD")
+    val releaseKeyAlias = System.getenv("KEY_ALIAS")
+    val releaseKeyPass = System.getenv("KEY_PASSWORD")
+    val hasReleaseSigning = releaseKeystore != null && releaseStorePass != null &&
+        releaseKeyAlias != null && releaseKeyPass != null
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(releaseKeystore!!)
+                storePassword = releaseStorePass
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPass
             }
         }
     }
@@ -40,7 +44,9 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

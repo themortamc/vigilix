@@ -92,8 +92,8 @@ El juego de caracteres tiene 88 símbolos, es decir log2(88) ≈ 6,46 bits por c
 
 ## 4. Pendientes y recomendaciones
 
-1. **Firma de release (V-12).** El CI entrega un APK de debug: es depurable y su clave cambia en cada ejecución, así que no se puede actualizar sobre una instalación anterior. Recomendado: generar un keystore propio, guardarlo en *GitHub Secrets* (archivo en base64, contraseña y alias), configurar `signingConfigs.release` leyendo variables de entorno y publicar el APK de release. No se agregó nada de esto para no meter secretos ni configuración que no pude probar. El CI ya intenta `assembleRelease` (con R8) como verificación que no bloquea.
-2. **`rust/Cargo.lock`.** No pude generarlo (no hay Cargo en el entorno). Ejecutá `cargo generate-lockfile` dentro de `rust/` y subilo: el CI lo detecta solo y pasa a usar `--locked`. Mientras no exista, avisa con una advertencia.
+1. **Firma de release (V-12).** El CI entrega un APK de debug: es depurable y su clave cambia en cada ejecución, así que no se puede actualizar sobre una instalación anterior. Recomendado: generar un keystore propio, guardarlo en *GitHub Secrets* (archivo en base64, contraseña y alias), configurar `signingConfigs.release` leyendo variables de entorno y publicar el APK de release. Desde la 0.5.1 `build.gradle.kts` ya soporta firma opcional: si están definidas `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` y `KEY_PASSWORD`, `assembleRelease` firma con ese keystore; si no, genera un APK sin firmar en vez de fallar. Falta cargar el keystore en GitHub Secrets y agregar el paso en el workflow. El CI ya intenta `assembleRelease` (con R8) como verificación que no bloquea.
+2. **`rust/Cargo.lock`.** Hecho (0.5.1): ya está en el repositorio y el CI usa `--locked`. Actualizalo con `cargo update` cuando cambies dependencias y volvé a subirlo.
 3. **Gradle wrapper.** El CI lo genera en cada ejecución. Lo ideal es subir `gradlew` y `gradle/wrapper/` al repositorio y validar el wrapper.
 4. **Dependencias (V-15).** Activá Dependabot (`package-ecosystem: gradle`, `cargo` y `github-actions`) y corré `cargo audit` o `cargo deny`. No cambié versiones porque no puedo compilar ni probar aquí.
 5. **Bóveda persistente (idea a futuro).** Hoy no guarda nada, por diseño. Si algún día guarda datos, que la clave de la base esté protegida con Android Keystore y no solo con una clave maestra.
@@ -110,3 +110,10 @@ El juego de caracteres tiene 88 símbolos, es decir log2(88) ≈ 6,46 bits por c
 3. **Bóveda:** generá una contraseña, copiala y verificá que se borra del portapapeles a los 45 s. Probá una captura de pantalla (debe estar bloqueada). Cifrá un texto, descifralo con la misma clave y probá con una clave incorrecta (debe dar error sin borrar lo escrito).
 4. **Apps:** comparar la lista con Ajustes > Privacidad > Administrador de permisos.
 5. **CI:** revisar que los dos jobs terminen y que aparezca el artefacto `Vigilix-Debug-APK`.
+
+## 7. Cambios de la 0.5.1 (corrección de compilación)
+- `activity_main.xml` y `values/colors.xml` se habían reemplazado por versiones reducidas que ya no tenían los IDs ni los colores que usa el Kotlin (`scrollFiles`, `scrollVault`, `scrollApps`, `tvAdbCommand`, etc.): por eso fallaba `compileDebugKotlin`. Se restauraron las versiones completas y se conservaron tus retoques de la barra superior (escudo de 28 dp con color de acento, título de 20 sp, sin divisor).
+- Con los colores reducidos, `vx_text`, `vx_border`, `vx_accent` y otros solo existían en `values-night`: el APK habría compilado igual pero se caía al abrirlo en modo claro.
+- `isGranted()` usaba `ContextCompat.hasPermission`, que no existe, y además comprobaría los permisos de Vigilix en vez de los de la app revisada. Se volvió a comparar `requestedPermissionsFlags` (arreglo paralelo a `requestedPermissions`, mismo índice).
+- La firma de release ya no rompe `assembleRelease` cuando faltan las variables de entorno.
+- Se eliminó `color/bottom_nav_color_selector.xml` (restos del diseño anterior, sin uso).
