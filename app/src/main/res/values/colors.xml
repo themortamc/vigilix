@@ -4,4 +4,6 @@
     <color name="vx_bg_alt">#F5F5F5</color>
     <color name="vx_text_primary">#212121</color>
     <color name="vx_accent_text">#6200EE</color>
+    <color name="vx_icon_bg">#FFFFFF</color>
+    <color name="vx_icon_fg">#6200EE</color>
 </resources>

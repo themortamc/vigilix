@@ -18,10 +18,10 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/ic_shield"
-            app:tint="@color/vx_accent_text" />
+            app:tint="@color/vx_accent" />
 
         <TextView
-            style="@style/VxHeading"
+            style="@style/VxTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -69,7 +69,7 @@
                         style="@style/VxHeading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/home_security_status"
+                        android:text="@string/home_title"
                         android:textSize="18sp" />
 
                     <LinearLayout
@@ -85,7 +85,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="@string/refresh" />
+                        android:text="@string/apps_refresh" />
                 </LinearLayout>
 
                 <TextView
@@ -93,7 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="@string/home_quick_tools" />
+                    android:text="@string/home_checks_heading" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -107,7 +107,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/generate_password" />
+                        android:text="@string/gen_button" />
 
                     <Button
                         android:id="@+id/btnCheckFile"
@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="@string/check_file" />
+                        android:text="@string/files_pick" />
                 </LinearLayout>
 
             </LinearLayout>
