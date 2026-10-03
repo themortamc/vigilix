@@ -3,51 +3,90 @@ name: Compilar APK Vigilix con Rust
 on:
   push:
     branches: [ "main", "master" ]
+  pull_request:
   workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# Permisos mínimos para el token del workflow: solo lectura del repositorio.
+permissions:
+  contents: read
 
+jobs:
+  # Pruebas del núcleo en Rust. Es un job independiente: si fallan, se ve en rojo
+  # pero no impide generar el APK.
+  rust-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Descargar Código
-        uses: actions/checkout@v4
+      - name: Descargar código
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Configurar Rust
+        uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # rama stable
+
+      - name: Pruebas del núcleo
+        working-directory: rust
+        run: |
+          LOCKED=""
+          if [ -f Cargo.lock ]; then LOCKED="--locked"; fi
+          cargo test --release $LOCKED
+
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Configurar Java JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configurar Rust y Target Android
-        uses: dtolnay/rust-toolchain@stable
+      - name: Configurar Rust y targets de Android
+        uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # rama stable
         with:
-          targets: aarch64-linux-android
+          targets: aarch64-linux-android,x86_64-linux-android
 
-      - name: Instalar cargo-ndk
-        run: cargo install cargo-ndk
+      - name: Instalar cargo-ndk (versión fija)
+        run: cargo install cargo-ndk --version 4.1.2 --locked
 
       - name: Aceptar licencias del SDK de Android e instalar NDK
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
 
-      - name: Compilar Core en Rust (.so)
+      - name: Compilar núcleo en Rust (.so)
+        working-directory: rust
         run: |
-          cd rust
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
-          cargo ndk -t arm64-v8a -o ../app/src/main/jniLibs build --release
+          LOCKED=""
+          if [ -f Cargo.lock ]; then
+            LOCKED="--locked"
+          else
+            echo "::warning::Falta rust/Cargo.lock: las dependencias de Rust no quedan fijadas. Generalo con 'cargo generate-lockfile' y subilo al repositorio."
+          fi
+          cargo ndk -t arm64-v8a -t x86_64 -o ../app/src/main/jniLibs build --release $LOCKED
 
       - name: Generar Gradle Wrapper 8.6
         run: |
           gradle wrapper --gradle-version 8.6 --distribution-type bin
           chmod +x gradlew
 
-      - name: Compilar APK
+      - name: Compilar APK (debug)
         run: ./gradlew assembleDebug --stacktrace
 
+      # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
+      - name: Verificar compilación release (R8)
+        continue-on-error: true
+        run: ./gradlew assembleRelease --stacktrace
+
       - name: Subir APK generado
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: Vigilix-Debug-APK
           path: app/build/outputs/apk/debug/app-debug.apk

@@ -3,3 +3,9 @@ target/
 build/
 app/build/
 app/src/main/jniLibs/
+
+# Archivos de firma: nunca al repositorio
+*.jks
+*.keystore
+keystore.properties
+local.properties

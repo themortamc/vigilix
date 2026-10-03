@@ -1,3 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Vigilix</string>
+    <string name="app_name" translatable="false">Vigilix</string>
+
+    <!-- Navegación y comunes -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_files">Archivos</string>
+    <string name="nav_vault">Bóveda</string>
+    <string name="nav_apps">Apps</string>
+    <string name="access_standard">Modo estándar</string>
+    <string name="access_root">Root activo</string>
+    <string name="access_no_root">Sin root</string>
+    <string name="cancel">Cancelar</string>
+    <string name="close">Cerrar</string>
+    <string name="copied">Copiado.</string>
+    <string name="copied_sensitive">Copiado. Se borra del portapapeles en %1$d segundos.</string>
+    <string name="root_asking">Pidiendo acceso root…</string>
+    <string name="working">Procesando…</string>
+    <string name="error_open_settings">No pude abrir los ajustes.</string>
+    <string name="error_no_browser">No encontré un navegador para abrir el enlace.</string>
+
+    <!-- Inicio -->
+    <string name="home_title">Estado del dispositivo</string>
+    <string name="home_subtitle">Controles reales de tu teléfono, explicados sin vueltas.</string>
+    <string name="home_checks_heading">Controles</string>
+    <string name="summary_title">%1$d de %2$d controles en orden</string>
+    <string name="summary_body_ok">No encontré nada para corregir.</string>
+    <string name="summary_body_warn">Hay cosas para mejorar. Mirá los controles marcados.</string>
+    <string name="summary_body_bad">Hay algo importante para revisar. Mirá los controles marcados en rojo.</string>
+
+    <string name="check_engine_title">Motor de cifrado</string>
+    <string name="check_engine_ok">Cargado y listo.</string>
+    <string name="check_engine_bad">No se pudo cargar, así que la bóveda no va a funcionar. Reinstalá una versión compatible con tu dispositivo.</string>
+    <string name="check_lock_title">Bloqueo de pantalla</string>
+    <string name="check_lock_ok">Tenés PIN, patrón o contraseña.</string>
+    <string name="check_lock_bad">Sin bloqueo: cualquiera que tome tu teléfono puede entrar a todo. Activá un PIN en Ajustes.</string>
+    <string name="check_patch_title">Parche de seguridad de Android</string>
+    <string name="check_patch_unknown">Tu teléfono no informa la fecha del parche.</string>
+    <string name="check_patch_detail">Último parche: %1$s (hace %2$d días). Cuanto más viejo, más fallas conocidas sin corregir.</string>
+    <string name="check_dns_title">DNS privado</string>
+    <string name="check_perm_title">Permiso para cambiar el DNS sin root</string>
+    <string name="check_perm_ok">Concedido.</string>
+    <string name="check_perm_missing">No concedido. Es opcional: sin él te guío para hacerlo a mano.</string>
+
+    <!-- DNS privado -->
+    <string name="dns_heading">DNS privado</string>
+    <string name="dns_explain">El DNS traduce nombres como «banco.com» a direcciones de internet. Con DNS privado esa consulta viaja cifrada y nadie en el camino puede leerla ni cambiarla.</string>
+    <string name="dns_adguard">Usar AdGuard (bloquea publicidad y rastreadores)</string>
+    <string name="dns_quad9">Usar Quad9 (bloquea sitios maliciosos)</string>
+    <string name="dns_auto">Volver a Automático (valor de Android)</string>
+    <string name="dns_auto_label">Automático</string>
+    <string name="dns_now">Ahora: %1$s</string>
+    <string name="dns_state_old">Necesita Android 9 o superior.</string>
+    <string name="dns_state_host">Activo con %1$s</string>
+    <string name="dns_state_off">Desactivado</string>
+    <string name="dns_state_auto">Automático: solo cifra si tu red lo permite</string>
+    <string name="dns_working">Cambiando el DNS…</string>
+    <string name="dns_done_title">Listo</string>
+    <string name="dns_done_body">Tu teléfono ahora usa: %1$s.</string>
+    <string name="dns_fail_title">No se pudo cambiar</string>
+    <string name="dns_fail_body">El comando no se aplicó o el ajuste no cambió. Probá hacerlo a mano en Ajustes.</string>
+    <string name="dns_noroot_title">No obtuve acceso root</string>
+    <string name="dns_noroot_body">Aceptá el aviso de tu gestor de root o elegí la opción manual.</string>
+    <string name="dns_old_title">No disponible en tu Android</string>
+    <string name="dns_old_body">El DNS privado existe desde Android 9.</string>
+    <string name="dns_ask_title">Cómo aplicar el cambio</string>
+    <string name="dns_ask_body">Para poner «%1$s» necesito un permiso especial que esta app todavía no tiene, o acceso root.\n\nTambién podés hacerlo vos en Ajustes: copio el nombre del servidor y abro los ajustes de red.</string>
+    <string name="dns_ask_root">Usar root</string>
+    <string name="dns_ask_manual">Hacerlo a mano</string>
+    <string name="dns_manual_title">Hacelo en Ajustes</string>
+    <string name="dns_manual_body">Buscá «DNS privado» en los ajustes de red (el lugar exacto cambia según la marca) y elegí: %1$s. Si es un nombre de servidor, ya lo copié: solo pegalo.</string>
+    <string name="adb_heading">Permiso opcional (una sola vez)</string>
+    <string name="adb_explain">Con este permiso la app cambia el DNS sin pedir root. Conectá el teléfono a una PC con la depuración USB activada y ejecutá este comando:</string>
+    <string name="adb_copy">Copiar comando</string>
+
+    <!-- Archivos -->
+    <string name="files_title">Verificar archivo</string>
+    <string name="files_subtitle">Obtené la huella digital (SHA-256) de cualquier archivo.</string>
+    <string name="files_info_title">Qué hace y qué no hace</string>
+    <string name="files_info_body">Calcula la huella del archivo en tu teléfono. No detecta virus por sí sola: sirve para comparar. Si el sitio de descarga publica la huella, tiene que coincidir. En VirusTotal se envía solo la huella, nunca el archivo; si nadie subió antes ese archivo, dirá que no lo conoce.</string>
+    <string name="files_pick">Elegir archivos</string>
+    <string name="files_working">Calculando %1$d archivo(s)…</string>
+    <string name="files_done">Listo: %1$d archivo(s).</string>
+    <string name="files_done_truncated">Calculé %1$d de %2$d archivos (el máximo por vez es %1$d).</string>
+    <string name="files_unnamed">(sin nombre)</string>
+    <string name="files_size_unknown">tamaño desconocido</string>
+    <string name="files_meta">%1$s · SHA-256 · %2$s</string>
+    <string name="files_engine_rust">motor Rust</string>
+    <string name="files_engine_java">motor Java</string>
+    <string name="files_error_meta">No se pudo leer el archivo</string>
+    <string name="files_error_hash">Probá de nuevo o elegí el archivo desde otra carpeta.</string>
+    <string name="files_copy_hash">Copiar huella</string>
+    <string name="files_virustotal">VirusTotal</string>
+    <string name="files_apk_title">Elegiste un archivo .apk</string>
+    <string name="files_apk_body">Antes de instalarlo, compará la huella con la que publica quien lo distribuye. Si no coincide o no hay huella publicada, no lo instales.</string>
+
+    <!-- Bóveda -->
+    <string name="vault_title">Bóveda</string>
+    <string name="vault_subtitle">Contraseñas seguras y textos cifrados, todo dentro de tu teléfono.</string>
+    <string name="vault_info_title">Cómo funciona</string>
+    <string name="vault_info_body">La app no guarda nada: ni claves ni textos. Cifrás un texto con tu clave maestra y guardás el resultado donde quieras. Si perdés la clave maestra, no hay forma de recuperar el texto.</string>
+    <string name="vault_clear">Borrar todo de la pantalla</string>
+
+    <string name="gen_heading">Generar contraseña</string>
+    <string name="gen_explain">Aleatoria, con mayúsculas, minúsculas, números y símbolos. Se crea en tu teléfono.</string>
+    <string name="gen_length">Longitud: %1$d caracteres</string>
+    <string name="gen_button">Generar</string>
+    <string name="gen_copy">Copiar contraseña</string>
+    <string name="gen_copy_empty">Primero generá una contraseña.</string>
+    <string name="gen_meta">Fortaleza estimada: unos %1$d bits. Cuanto más alto, más difícil de adivinar. No se guarda ni se envía a ningún lado.</string>
+
+    <string name="crypt_heading">Cifrar y descifrar</string>
+    <string name="crypt_explain">Tapá un texto con una clave maestra. Para leerlo de nuevo vas a necesitar el texto cifrado y la misma clave.</string>
+    <string name="mode_encrypt">Cifrar</string>
+    <string name="mode_decrypt">Descifrar</string>
+    <string name="key_hint">Clave maestra</string>
+    <string name="key_empty">Escribí la clave maestra.</string>
+    <string name="key_too_short">Usá al menos %1$d caracteres.</string>
+    <string name="data_hint_encrypt">Texto a cifrar</string>
+    <string name="data_hint_decrypt">Texto cifrado (empieza con vgx1:)</string>
+    <string name="data_empty">Escribí o pegá un texto.</string>
+    <string name="run_encrypt">Cifrar texto</string>
+    <string name="run_decrypt">Descifrar texto</string>
+    <string name="result_encrypted">Texto cifrado (podés guardarlo donde quieras)</string>
+    <string name="result_decrypted">Texto original</string>
+    <string name="copy_result">Copiar resultado</string>
+    <string name="error_engine_title">El motor de cifrado no está disponible</string>
+    <string name="error_engine_body">No se pudo cargar el componente nativo. Prefiero no mostrarte nada antes que darte un resultado falso. Reinstalá la app.</string>
+    <string name="error_encrypt_title">No se pudo cifrar</string>
+    <string name="error_encrypt_body">Probá de nuevo. Tu texto sigue en pantalla, no se borró.</string>
+    <string name="error_decrypt_title">No se pudo descifrar</string>
+    <string name="error_decrypt_body">La clave puede ser incorrecta, o el texto estar incompleto o modificado. Tu texto sigue en pantalla.</string>
+
+    <!-- Apps -->
+    <string name="apps_title">Apps con cámara y micrófono</string>
+    <string name="apps_subtitle">Apps instaladas por vos que hoy tienen ambos permisos concedidos.</string>
+    <string name="apps_info_title">Para qué sirve</string>
+    <string name="apps_info_body">Una app con cámara y micrófono puede grabar. No significa que lo haga, pero conviene que solo la tengan las que de verdad lo necesitan. Tocá una app para revisar sus permisos.</string>
+    <string name="apps_refresh">Actualizar lista</string>
+    <string name="apps_empty">No hay apps instaladas con ambos permisos concedidos.</string>
+    <string name="app_dialog_body">%1$s\n\nPodés quitarle el permiso desde los ajustes de la app.</string>
+    <string name="app_open_settings">Abrir ajustes de la app</string>
+    <string name="app_more_root">Más opciones (root)</string>
+    <string name="app_needs_root">Esta opción necesita root. Usá «Abrir ajustes de la app».</string>
+    <string name="app_restrict_title">Restringir %1$s</string>
+    <string name="app_restrict_body">Limita lo que la app puede hacer en segundo plano. No borra datos ni quita permisos, y podés deshacerlo cuando quieras.</string>
+    <string name="app_restrict">Restringir</string>
+    <string name="app_unrestrict">Quitar restricción</string>
+    <string name="app_restricted">Restricción aplicada.</string>
+    <string name="app_unrestricted">Restricción quitada.</string>
+    <string name="app_rule_failed">No se pudo aplicar el cambio.</string>
 </resources>

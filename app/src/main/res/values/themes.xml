@@ -1,8 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.Vigilix" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#58A6FF</item>
-        <item name="colorPrimaryDark">#0B0E14</item>
-        <item name="colorAccent">#238636</item>
-        <item name="android:windowBackground">#0B0E14</item>
+        <item name="colorPrimary">@color/vx_accent</item>
+        <item name="colorPrimaryVariant">@color/vx_accent</item>
+        <item name="colorOnPrimary">@color/vx_on_accent</item>
+        <item name="colorSecondary">@color/vx_accent</item>
+        <item name="colorSecondaryVariant">@color/vx_accent</item>
+        <item name="colorOnSecondary">@color/vx_on_accent</item>
+        <item name="colorSurface">@color/vx_bg_alt</item>
+        <item name="colorOnSurface">@color/vx_text</item>
+        <item name="colorError">@color/vx_red</item>
+        <item name="android:colorBackground">@color/vx_bg</item>
+        <item name="colorOnBackground">@color/vx_text</item>
+        <item name="android:windowBackground">@color/vx_bg</item>
+        <item name="android:statusBarColor">@color/vx_bg_alt</item>
+        <item name="android:windowLightStatusBar">@bool/vx_light_bars</item>
     </style>
+
+    <!-- ===== Texto ===== -->
+    <style name="VxTitle">
+        <item name="android:textColor">@color/vx_text</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="VxHeading">
+        <item name="android:textColor">@color/vx_text</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="VxRowTitle">
+        <item name="android:textColor">@color/vx_text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="VxBody">
+        <item name="android:textColor">@color/vx_text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="VxMuted">
+        <item name="android:textColor">@color/vx_text_muted</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="VxMono">
+        <item name="android:textColor">@color/vx_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="VxCalloutTitle">
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <!-- ===== Botones ===== -->
+    <style name="VxButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/vx_btn_bg</item>
+        <item name="android:textColor">@color/vx_btn_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="iconTint">@color/vx_btn_text</item>
+    </style>
+
+    <style name="VxButtonSecondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/vx_border</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/vx_accent_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="iconTint">@color/vx_accent_text</item>
+        <item name="rippleColor">@color/vx_accent_soft</item>
+    </style>
+
+    <style name="VxTextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/vx_accent_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="rippleColor">@color/vx_accent_soft</item>
+    </style>
+
+    <!-- ===== Campos de texto ===== -->
+    <style name="VxInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/vx_box_stroke</item>
+        <item name="hintTextColor">@color/vx_accent_text</item>
+    </style>
+
 </resources>

@@ -1,499 +1,622 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0B0E14">
+    android:background="@color/vx_bg"
+    android:orientation="vertical">
 
-    <!-- Barra Superior -->
+    <!-- Barra superior -->
     <LinearLayout
-        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/vx_bg_alt"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="14dp"
-        android:background="#161B22"
-        android:gravity="center_vertical">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_shield"
+            app:tint="@color/vx_accent_text" />
 
         <TextView
+            style="@style/VxHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:text="🛡️ VIGILIX PRO"
-            android:textColor="#58A6FF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:text="@string/app_name" />
 
         <TextView
-            android:id="@+id/tvPrivilegeBadge"
+            android:id="@+id/tvAccess"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MODO: DETECTANDO"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:background="#21262D"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp" />
+            android:background="@drawable/bg_chip"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="5dp"
+            android:textColor="@color/vx_accent_text"
+            android:textSize="12sp"
+            android:text="@string/access_standard" />
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/mainScroll"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/topBar"
-        android:layout_above="@id/bottomNav"
-        android:padding="16dp">
+        android:layout_height="1dp"
+        android:background="@color/vx_border" />
 
-        <LinearLayout
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scrollHome"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:visibility="visible">
 
-            <!-- ================= TAB 1: DASHBOARD & DNS ================= -->
             <LinearLayout
-                android:id="@+id/tabDashboard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:padding="16dp">
 
-                <!-- Estado del sistema -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#161B22"
-                    app:strokeColor="#30363D"
-                    app:strokeWidth="1dp"
-                    app:cardCornerRadius="16dp"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ESTADO DEL SISTEMA"
-                            android:textColor="#8B949E"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvHealthScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="100% Protegido"
-                            android:textColor="#3FB950"
-                            android:textSize="32sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="4dp" />
-
-                        <TextView
-                            android:id="@+id/tvHealthSubtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Motor Rust activo • Hilos de escaneo en segundo plano."
-                            android:textColor="#C9D1D9"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- CONTROLADOR DE DNS ADGUARD / PRIVADO -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#161B22"
-                    app:strokeColor="#30363D"
-                    app:strokeWidth="1dp"
-                    app:cardCornerRadius="16dp"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🌐 DNS ENCRIPTADO (SIN VPN)"
-                            android:textColor="#58A6FF"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Aplica filtrado de publicidad y phishing en todo el celular."
-                            android:textColor="#8B949E"
-                            android:textSize="12sp"
-                            android:layout_marginTop="2dp" />
-
-                        <RadioGroup
-                            android:id="@+id/rgDns"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp">
-                            <RadioButton
-                                android:id="@+id/rbAdGuard"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AdGuard DNS (Bloquea Anuncios + Rastreadores)"
-                                android:textColor="#C9D1D9"
-                                android:checked="true" />
-                            <RadioButton
-                                android:id="@+id/rbQuad9"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Quad9 DNS (Especializado contra Malware)"
-                                android:textColor="#C9D1D9" />
-                            <RadioButton
-                                android:id="@+id/rbDnsOff"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="DNS Automático / Desactivado"
-                                android:textColor="#C9D1D9" />
-                        </RadioGroup>
-
-                        <Button
-                            android:id="@+id/btnApplyDns"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Aplicar DNS con Root / ADB"
-                            android:backgroundTint="#238636"
-                            android:textColor="#FFFFFF"
-                            android:layout_marginTop="8dp" />
-
-                        <TextView
-                            android:id="@+id/tvDnsStatus"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#8B949E"
-                            android:textSize="12sp"
-                            android:layout_marginTop="8dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- ================= TAB 2: ESCÁNER VIRUSTOTAL ================= -->
-            <LinearLayout
-                android:id="@+id/tabScan"
+            <TextView
+                style="@style/VxTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/home_title" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/home_subtitle" />
+            <include
+                android:id="@+id/calloutSummary"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/home_checks_heading" />
+            <LinearLayout
+                android:id="@+id/checksContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:divider="@drawable/divider_h"
+                android:orientation="vertical"
+                android:showDividers="middle" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/dns_heading" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/dns_explain" />
+            <TextView
+                android:id="@+id/tvDnsState"
+                style="@style/VxBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDnsAdguard"
+                style="@style/VxButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/dns_adguard" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDnsQuad9"
+                style="@style/VxButtonSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/dns_quad9" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDnsAuto"
+                style="@style/VxButtonSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/dns_auto" />
+            <include
+                android:id="@+id/calloutDnsResult"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/panelAdb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/adb_heading" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/adb_explain" />
+            <TextView
+                android:id="@+id/tvAdbCommand"
+                style="@style/VxMono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_code"
+                android:padding="12dp"
+                android:textSize="13sp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCopyAdb"
+                style="@style/VxButtonSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/adb_copy"
+                app:icon="@drawable/ic_copy" />
+            </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:id="@+id/scrollFiles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/files_title" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/files_subtitle" />
+            <include
+                android:id="@+id/calloutFilesInfo"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickFiles"
+                style="@style/VxButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/files_pick"
+                app:icon="@drawable/ic_file" />
+            <TextView
+                android:id="@+id/tvFilesStatus"
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+            <include
+                android:id="@+id/calloutApk"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/filesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:id="@+id/scrollVault"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/vault_title" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/vault_subtitle" />
+            <include
+                android:id="@+id/calloutVaultInfo"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/gen_heading" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/gen_explain" />
+            <TextView
+                android:id="@+id/tvPassword"
+                style="@style/VxMono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_code"
+                android:padding="12dp"
+                android:minHeight="56dp"
+                android:saveEnabled="false"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvPasswordMeta"
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvLengthLabel"
+                style="@style/VxRowTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" />
+            <SeekBar
+                android:id="@+id/sbLength"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:max="13"
+                android:progress="2"
+                android:saveEnabled="false" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGenerate"
+                style="@style/VxButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/gen_button" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCopyPassword"
+                style="@style/VxButtonSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/gen_copy"
+                app:icon="@drawable/ic_copy" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/crypt_heading" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/crypt_explain" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:checkedButton="@+id/btnModeEncrypt"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnModeEncrypt"
+                    style="@style/VxButtonSecondary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/mode_encrypt" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnModeDecrypt"
+                    style="@style/VxButtonSecondary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/mode_decrypt" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilKey"
+                style="@style/VxInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:hint="@string/key_hint"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword|textNoSuggestions"
+                    android:saveEnabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilData"
+                style="@style/VxInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/data_hint_encrypt">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|start"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:minLines="4"
+                    android:saveEnabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRun"
+                style="@style/VxButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/run_encrypt" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearVault"
+                style="@style/VxTextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/vault_clear" />
+            <include
+                android:id="@+id/calloutVaultError"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/panelVaultResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
+                <TextView
+                    android:id="@+id/tvVaultResultLabel"
+                    style="@style/VxRowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvVaultResult"
+                    style="@style/VxMono"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#161B22"
-                    app:strokeColor="#30363D"
-                    app:strokeWidth="1dp"
-                    app:cardCornerRadius="16dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_code"
+                    android:padding="12dp"
+                    android:saveEnabled="false"
+                    android:textSize="13sp" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="20dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ESCÁNER DE ARCHIVOS ASÍNCRONO"
-                            android:textColor="#58A6FF"
-                            android:textStyle="bold"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btnScanStorage"
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:text="Escanear Descargas (Coroutines + Rust)"
-                            android:backgroundTint="#1F6FEB"
-                            android:layout_marginTop="12dp" />
-
-                        <ProgressBar
-                            android:id="@+id/pbScanner"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:indeterminate="true"
-                            android:visibility="gone"
-                            android:layout_marginTop="12dp" />
-
-                        <TextView
-                            android:id="@+id/tvScanLog"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Presiona para analizar firmas de archivos."
-                            android:textColor="#C9D1D9"
-                            android:textSize="12sp"
-                            android:padding="12dp"
-                            android:background="#0D1117"
-                            android:layout_marginTop="12dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCopyResult"
+                    style="@style/VxButtonSecondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/copy_result"
+                    app:icon="@drawable/ic_copy" />
             </LinearLayout>
 
-            <!-- ================= TAB 3: BÓVEDA Y CONTRASEÑAS ================= -->
+            </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ScrollView
+            android:id="@+id/scrollApps"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:visibility="gone">
+
             <LinearLayout
-                android:id="@+id/tabVault"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:padding="16dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#161B22"
-                    app:strokeColor="#30363D"
-                    app:strokeWidth="1dp"
-                    app:cardCornerRadius="16dp"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="20dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="CONFIGURADOR DE CONTRASEÑA"
-                            android:textColor="#3FB950"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/tvLengthLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Longitud: 32 caracteres (Alta Entropía)"
-                            android:textColor="#C9D1D9"
-                            android:textSize="13sp"
-                            android:layout_marginTop="8dp" />
-
-                        <!-- Selector de largo -->
-                        <com.google.android.material.slider.Slider
-                            android:id="@+id/sliderLength"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:valueFrom="12"
-                            android:valueTo="64"
-                            android:stepSize="4"
-                            android:value="32" />
-
-                        <Button
-                            android:id="@+id/btnGenerateSecret"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Generar con Rust CSPRNG"
-                            android:backgroundTint="#238636" />
-
-                        <TextView
-                            android:id="@+id/tvEntropyPass"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Toca generar..."
-                            android:textColor="#7EE787"
-                            android:textSize="14sp"
-                            android:padding="12dp"
-                            android:background="#0D1117"
-                            android:layout_marginTop="8dp" />
-
-                        <Button
-                            android:id="@+id/btnCopyPass"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Copiar al Portapapeles"
-                            android:backgroundTint="#21262D"
-                            android:textColor="#58A6FF"
-                            android:layout_marginTop="6dp" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="#30363D"
-                            android:layout_marginVertical="16dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="GESTOR DE SECRETOS (ARGON2ID + CHACHA20)"
-                            android:textColor="#D29922"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <EditText
-                            android:id="@+id/etVaultKey"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Llave Maestra"
-                            android:textColor="#FFFFFF"
-                            android:textColorHint="#6E7681"
-                            android:inputType="textPassword"
-                            android:layout_marginTop="8dp" />
-
-                        <EditText
-                            android:id="@+id/etVaultData"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Dato secreto (ej: Token API, Clave privada)"
-                            android:textColor="#FFFFFF"
-                            android:textColorHint="#6E7681" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="8dp">
-
-                            <Button
-                                android:id="@+id/btnEncryptVault"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Cifrar"
-                                android:backgroundTint="#8957E5"
-                                android:layout_marginEnd="4dp" />
-
-                            <Button
-                                android:id="@+id/btnDecryptVault"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Descifrar"
-                                android:backgroundTint="#30363D"
-                                android:textColor="#FFFFFF"
-                                android:layout_marginStart="4dp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvVaultOutput"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#C9D1D9"
-                            android:textSize="11sp"
-                            android:padding="8dp"
-                            android:layout_marginTop="8dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- ================= TAB 4: SANDBOX BREVENT & GUÍA ADB ================= -->
-            <LinearLayout
-                android:id="@+id/tabSandbox"
+            <TextView
+                style="@style/VxTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/apps_title" />
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/apps_subtitle" />
+            <include
+                android:id="@+id/calloutAppsInfo"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefreshApps"
+                style="@style/VxButtonSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/apps_refresh" />
+            <ProgressBar
+                android:id="@+id/appsProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvAppsEmpty"
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/panelApps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_panel"
                 android:orientation="vertical"
+                android:padding="16dp"
                 android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#161B22"
-                    app:strokeColor="#30363D"
-                    app:strokeWidth="1dp"
-                    app:cardCornerRadius="16dp"
-                    android:layout_marginBottom="16dp">
+            <LinearLayout
+                android:id="@+id/appsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@drawable/divider_h"
+                android:orientation="vertical"
+                android:showDividers="middle" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="20dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="VINCULACIÓN PRIVILEGIADA (BREVENT / ADB)"
-                            android:textColor="#F85149"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sin Root, puedes habilitar privilegios conectando por Depuración USB/Inalámbrica."
-                            android:textColor="#8B949E"
-                            android:textSize="12sp"
-                            android:layout_marginTop="4dp" />
-
-                        <Button
-                            android:id="@+id/btnOpenDevSettings"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Abrir Opciones de Desarrollador"
-                            android:backgroundTint="#30363D"
-                            android:textColor="#58A6FF"
-                            android:layout_marginTop="10dp" />
-
-                        <Button
-                            android:id="@+id/btnCopyAdbCmd"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Copiar Comando ADB para PC"
-                            android:backgroundTint="#21262D"
-                            android:textColor="#C9D1D9"
-                            android:layout_marginTop="6dp" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="#30363D"
-                            android:layout_marginVertical="12dp" />
-
-                        <Button
-                            android:id="@+id/btnAuditPermissions"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Escanear Apps Críticas"
-                            android:backgroundTint="#DA3633" />
-
-                        <Button
-                            android:id="@+id/btnBreventFreeze"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Congelar App en Segundo Plano"
-                            android:backgroundTint="#1F6FEB"
-                            android:layout_marginTop="8dp" />
-
-                        <TextView
-                            android:id="@+id/tvSandboxLog"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Estado: Esperando acción."
-                            android:textColor="#FFA198"
-                            android:textSize="12sp"
-                            android:padding="12dp"
-                            android:background="#0D1117"
-                            android:layout_marginTop="12dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
+            </LinearLayout>
+        </ScrollView>
 
-    <!-- Barra Inferior -->
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/vx_border" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:background="#161B22"
-        app:itemIconTint="@color/bottom_nav_color_selector"
-        app:itemTextColor="@color/bottom_nav_color_selector"
+        android:layout_height="wrap_content"
+        android:background="@color/vx_bg_alt"
+        app:itemIconTint="@color/vx_nav_item"
+        app:itemTextColor="@color/vx_nav_item"
+        app:itemRippleColor="@color/vx_accent_soft"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
-
-</RelativeLayout>
+</LinearLayout>

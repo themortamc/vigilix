@@ -1,6 +1,6 @@
 [package]
 name = "vigilix_core"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [lib]
@@ -13,3 +13,11 @@ hex = "0.4"
 chacha20poly1305 = { version = "0.10", features = ["alloc"] }
 argon2 = "0.5"
 rand = "0.8"
+zeroize = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+overflow-checks = true
