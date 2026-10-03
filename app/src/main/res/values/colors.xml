@@ -1,27 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Paleta inspirada en Obsidian. Modo claro (por defecto); el oscuro está en values-night. -->
 <resources>
     <color name="vx_bg">#FFFFFF</color>
-    <color name="vx_bg_alt">#F6F6F6</color>
-    <color name="vx_bg_input">#EDEDED</color>
-    <color name="vx_border">#DADADA</color>
-    <color name="vx_text">#222222</color>
-    <color name="vx_text_muted">#5C5C5C</color>
-
-    <color name="vx_accent">#7A5AE0</color>
-    <color name="vx_accent_text">#5B3FC4</color>
-    <color name="vx_accent_soft">#EEEAFB</color>
-    <color name="vx_on_accent">#FFFFFF</color>
-
-    <color name="vx_green">#17702F</color>
-    <color name="vx_green_soft">#E3F4E8</color>
-    <color name="vx_orange">#9A5700</color>
-    <color name="vx_orange_soft">#FFF0D9</color>
-    <color name="vx_red">#C6282B</color>
-    <color name="vx_red_soft">#FDE7E7</color>
-    <color name="vx_cyan">#0A6C7E</color>
-    <color name="vx_cyan_soft">#E0F2F6</color>
-
-    <color name="vx_icon_bg">#1E1E1E</color>
-    <color name="vx_icon_fg">#8B6CEF</color>
+    <color name="vx_bg_alt">#F5F5F5</color>
+    <color name="vx_text_primary">#212121</color>
+    <color name="vx_accent_text">#6200EE</color>
+    <color name="vx_btn_text">#FFFFFF</color>
+    <color name="vx_btn_bg">#6200EE</color>
+    <color name="vx_btn_bg_secondary">#E8EAF6</color>
 </resources>
