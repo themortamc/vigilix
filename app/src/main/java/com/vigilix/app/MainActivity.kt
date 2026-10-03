@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -441,6 +442,8 @@ class MainActivity : AppCompatActivity() {
         if (SecurityBridge.isLoaded) {
             hash = try {
                 contentResolver.openFileDescriptor(uri, "r")?.let { pfd ->
+                    // detachFd cede la propiedad del fd a Rust, que lo cierra al terminar.
+                    // El ParcelFileDescriptor original NO se cierra con `use`: Rust es dueño del fd.
                     SecurityBridge.sha256OfDescriptor(pfd.detachFd())
                 }
             } catch (e: Exception) {
@@ -686,6 +689,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isGranted(info: PackageInfo, permission: String): Boolean {
+        // En API 33+ la forma correcta es hasPermission(); los índices de
+        // requestedPermissions y requestedPermissionsFlags no siempre coinciden.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.hasPermission(this, permission)
+        }
         val requested = info.requestedPermissions ?: return false
         val flags = info.requestedPermissionsFlags ?: return false
         val index = requested.indexOf(permission)
