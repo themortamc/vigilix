@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.vigilix.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.5.0"
+        versionCode = 4
+        versionName = "0.6.0"
 
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
@@ -71,4 +71,6 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    // Huella digital para desbloquear la bóveda (opcional para el usuario).
+    implementation("androidx.biometric:biometric:1.1.0")
 }

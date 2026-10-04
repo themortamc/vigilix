@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Para listar qué apps tienen cámara y micrófono concedidos (restringido por Google Play). -->
+    <!-- Para listar qué apps tienen cámara y micrófono concedidos y revisar las apps instaladas. -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -13,19 +13,43 @@
         tools:ignore="ProtectedPermissions" />
 
     <!--
-        Sin INTERNET: la app no usa la red (VirusTotal se abre en el navegador).
-        Sin permisos de almacenamiento: los archivos se eligen con el selector del sistema.
+        INTERNET: solo se usa cuando la persona lo pide (actualizar la lista de malware conocido
+        y consultar VirusTotal por huella). Nunca se envían archivos ni contraseñas.
     -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+        Escáner: recorrer el almacenamiento para calcular huellas de archivos.
+        Android 11+ exige "acceso a todos los archivos"; antes alcanza con leer el almacenamiento.
+    -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+
+    <!-- El escaneo largo corre como servicio en primer plano (con notificación). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Desbloquear la bóveda con huella. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
+        android:name=".VigilixApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Vigilix">
+        android:theme="@style/Theme.Vigilix"
+        tools:targetApi="34">
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden"
@@ -36,5 +60,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Pantalla de desbloqueo que el sistema muestra sobre otras apps al autocompletar. -->
+        <activity
+            android:name=".AutofillAuthActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <service
+            android:name=".ScanService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Servicio de autocompletado: el sistema es el único que puede conectarse (BIND_AUTOFILL_SERVICE). -->
+        <service
+            android:name=".VigilixAutofillService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.autofill"
+                android:resource="@xml/autofill_service_config" />
+        </service>
     </application>
 </manifest>

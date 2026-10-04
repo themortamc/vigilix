@@ -59,23 +59,19 @@ class MainActivity : AppCompatActivity() {
         val counted: Boolean = true,
     )
 
-    private class FileResult(val name: String, val size: Long, val hash: String?, val viaRust: Boolean)
-
     private class AppEntry(val pkg: String, val label: String, val icon: Drawable)
 
     private lateinit var b: ActivityMainBinding
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val wipeVaultTask = Runnable { wipeVault() }
+    private val wipeScreenTask = Runnable { vault.wipeScreen() }
+
+    private lateinit var scanner: ScannerScreen
+    private lateinit var vault: VaultScreen
 
     private var tab = Tab.HOME
     private var rootState: Boolean? = null
-    private var vaultEncrypt = true
     private var appsLoaded = false
     private var appsJob: Job? = null
-
-    private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (uris.isNotEmpty()) hashFiles(uris)
-    }
 
     // ---------------------------------------------------------------------------------------------
     // Ciclo de vida
@@ -89,9 +85,9 @@ class MainActivity : AppCompatActivity() {
         tab = savedInstanceState?.getInt(STATE_TAB)?.let { Tab.values().getOrNull(it) } ?: Tab.HOME
 
         setupHome()
-        setupFiles()
-        setupVault()
         setupApps()
+        scanner = ScannerScreen(this, b.screenScanner).also { it.setup() }
+        vault = VaultScreen(this, b.screenVault).also { it.setup() }
 
         b.bottomNav.selectedItemId = tab.menuId
         b.bottomNav.setOnItemSelectedListener { item ->
@@ -100,6 +96,8 @@ class MainActivity : AppCompatActivity() {
                 showTab(target)
                 if (target == Tab.HOME) refreshChecks()
                 if (target == Tab.APPS && !appsLoaded) loadApps()
+                if (target == Tab.FILES) scanner.refresh()
+                if (target == Tab.VAULT) vault.refresh()
             }
             target != null
         }
@@ -113,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        mainHandler.removeCallbacks(wipeVaultTask)
+        mainHandler.removeCallbacks(wipeScreenTask)
     }
 
     override fun onResume() {
@@ -122,19 +120,20 @@ class MainActivity : AppCompatActivity() {
         when (tab) {
             Tab.HOME -> refreshChecks()
             Tab.APPS -> if (appsLoaded) loadApps()
-            else -> Unit
+            Tab.FILES -> scanner.refresh()
+            Tab.VAULT -> vault.refresh()
         }
     }
 
     override fun onStop() {
         super.onStop()
         // Si la app queda en segundo plano, los datos sensibles se borran de la pantalla tras un rato.
-        mainHandler.postDelayed(wipeVaultTask, VAULT_WIPE_DELAY_MS)
+        mainHandler.postDelayed(wipeScreenTask, VAULT_WIPE_DELAY_MS)
     }
 
     override fun onDestroy() {
-        mainHandler.removeCallbacks(wipeVaultTask)
-        if (isFinishing) wipeVault()
+        mainHandler.removeCallbacks(wipeScreenTask)
+        if (isFinishing) vault.wipeScreen()
         super.onDestroy()
     }
 
@@ -377,267 +376,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ---------------------------------------------------------------------------------------------
-    // ARCHIVOS: huella SHA-256 (se lee con el selector del sistema, sin permisos de almacenamiento)
-    // ---------------------------------------------------------------------------------------------
-
-    private fun setupFiles() {
-        b.calloutFilesInfo.show(
-            Status.INFO,
-            getString(R.string.files_info_title),
-            getString(R.string.files_info_body),
-        )
-        b.btnPickFiles.setOnClickListener { pickFiles.launch(arrayOf("*/*")) }
-    }
-
-    private fun hashFiles(selected: List<Uri>) {
-        val uris = selected.take(MAX_FILES)
-        b.filesContainer.removeAllViews()
-        b.calloutApk.hide()
-        b.btnPickFiles.isEnabled = false
-        b.tvFilesStatus.text = getString(R.string.files_working, uris.size)
-
-        lifecycleScope.launch {
-            var hasApk = false
-            for (uri in uris) {
-                val result = withContext(Dispatchers.IO) { describeAndHash(uri) }
-                addFileRow(result)
-                if (result.name.endsWith(".apk", ignoreCase = true)) hasApk = true
-            }
-            b.tvFilesStatus.text = if (selected.size > uris.size) {
-                getString(R.string.files_done_truncated, uris.size, selected.size)
-            } else {
-                getString(R.string.files_done, uris.size)
-            }
-            b.btnPickFiles.isEnabled = true
-            if (hasApk) {
-                b.calloutApk.show(
-                    Status.WARN,
-                    getString(R.string.files_apk_title),
-                    getString(R.string.files_apk_body),
-                )
-            }
-        }
-    }
-
-    /** Corre en un hilo de fondo. Usa Rust si está disponible y, si no, un SHA-256 real de Java. */
-    private fun describeAndHash(uri: Uri): FileResult {
-        var name = getString(R.string.files_unnamed)
-        var size = -1L
-        try {
-            val columns = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
-            contentResolver.query(uri, columns, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex >= 0 && !cursor.isNull(nameIndex)) name = cursor.getString(nameIndex)
-                    val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                    if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) size = cursor.getLong(sizeIndex)
-                }
-            }
-        } catch (e: Exception) {
-            // Sin nombre ni tamaño: igual se puede calcular la huella.
-        }
-
-        var hash: String? = null
-        if (SecurityBridge.isLoaded) {
-            hash = try {
-                contentResolver.openFileDescriptor(uri, "r")?.let { pfd ->
-                    // detachFd cede la propiedad del fd a Rust, que lo cierra al terminar.
-                    // El ParcelFileDescriptor original NO se cierra con `use`: Rust es dueño del fd.
-                    SecurityBridge.sha256OfDescriptor(pfd.detachFd())
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-        val viaRust = hash != null
-        if (hash == null) hash = javaSha256(uri)
-        return FileResult(name, size, hash, viaRust)
-    }
-
-    private fun javaSha256(uri: Uri): String? = try {
-        val digest = MessageDigest.getInstance("SHA-256")
-        contentResolver.openInputStream(uri)?.use { input ->
-            val buffer = ByteArray(64 * 1024)
-            while (true) {
-                val read = input.read(buffer)
-                if (read < 0) break
-                digest.update(buffer, 0, read)
-            }
-            digest.digest().joinToString("") { "%02x".format(it) }
-        }
-    } catch (e: Exception) {
-        null
-    }
-
-    private fun addFileRow(result: FileResult) {
-        val row = ItemFileBinding.inflate(layoutInflater, b.filesContainer, false)
-        row.tvFileName.text = result.name
-        val hash = result.hash
-        if (hash == null) {
-            row.tvFileMeta.text = getString(R.string.files_error_meta)
-            row.tvFileHash.text = getString(R.string.files_error_hash)
-            row.btnFileCopy.isEnabled = false
-            row.btnFileVt.isEnabled = false
-        } else {
-            val size = if (result.size >= 0) {
-                Formatter.formatShortFileSize(this, result.size)
-            } else {
-                getString(R.string.files_size_unknown)
-            }
-            val engine = getString(if (result.viaRust) R.string.files_engine_rust else R.string.files_engine_java)
-            row.tvFileMeta.text = getString(R.string.files_meta, size, engine)
-            row.tvFileHash.text = hash
-            row.btnFileCopy.setOnClickListener { copyToClipboard(hash, sensitive = false) }
-            row.btnFileVt.setOnClickListener { openUrl("https://www.virustotal.com/gui/file/$hash") }
-        }
-        b.filesContainer.addView(row.root)
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // BÓVEDA: generador de contraseñas y cifrado de texto (todo en el teléfono)
-    // ---------------------------------------------------------------------------------------------
-
-    private fun setupVault() {
-        b.calloutVaultInfo.show(
-            Status.INFO,
-            getString(R.string.vault_info_title),
-            getString(R.string.vault_info_body),
-        )
-
-        updateLengthLabel()
-        b.sbLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) = updateLengthLabel()
-            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-        })
-        b.btnGenerate.setOnClickListener { generatePassword() }
-        b.btnCopyPassword.setOnClickListener {
-            val password = b.tvPassword.text.toString()
-            if (password.isEmpty()) {
-                toast(R.string.gen_copy_empty)
-            } else {
-                copyToClipboard(password, sensitive = true)
-            }
-        }
-
-        b.toggleMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) setVaultMode(encrypt = checkedId == R.id.btnModeEncrypt)
-        }
-        b.btnRun.setOnClickListener { runVault() }
-        b.btnClearVault.setOnClickListener { wipeVault() }
-        b.btnCopyResult.setOnClickListener {
-            val text = b.tvVaultResult.text.toString()
-            if (text.isNotEmpty()) copyToClipboard(text, sensitive = !vaultEncrypt)
-        }
-    }
-
-    private fun passwordLength(): Int = 12 + b.sbLength.progress * 4
-
-    private fun updateLengthLabel() {
-        b.tvLengthLabel.text = getString(R.string.gen_length, passwordLength())
-    }
-
-    private fun generatePassword() {
-        val length = passwordLength()
-        val password = SecurityBridge.newPassword(length)
-        if (password == null) {
-            showVaultError(R.string.error_engine_title, R.string.error_engine_body)
-            return
-        }
-        b.calloutVaultError.hide()
-        // El juego de caracteres tiene 88 símbolos: log2(88) ≈ 6,46 bits por carácter.
-        val bits = (length * ln(CHARSET_SIZE) / ln(2.0)).roundToInt()
-        b.tvPassword.text = password
-        b.tvPassword.isVisible = true
-        b.tvPasswordMeta.text = getString(R.string.gen_meta, bits)
-        b.tvPasswordMeta.isVisible = true
-    }
-
-    private fun setVaultMode(encrypt: Boolean) {
-        vaultEncrypt = encrypt
-        b.tilData.hint = getString(if (encrypt) R.string.data_hint_encrypt else R.string.data_hint_decrypt)
-        b.btnRun.setText(if (encrypt) R.string.run_encrypt else R.string.run_decrypt)
-        // Se limpia para no dejar texto en claro en el campo de texto cifrado (ni al revés).
-        b.etData.text?.clear()
-        b.tilData.error = null
-        b.tilKey.error = null
-        b.calloutVaultError.hide()
-        b.panelVaultResult.isVisible = false
-        b.tvVaultResult.text = ""
-    }
-
-    private fun runVault() {
-        val encrypt = vaultEncrypt
-        val key = b.etKey.text?.toString().orEmpty()
-        val data = b.etData.text?.toString().orEmpty()
-
-        b.calloutVaultError.hide()
-        b.panelVaultResult.isVisible = false
-        b.tilKey.error = null
-        b.tilData.error = null
-
-        if (!SecurityBridge.isLoaded) {
-            showVaultError(R.string.error_engine_title, R.string.error_engine_body)
-            return
-        }
-        if (key.isEmpty()) {
-            b.tilKey.error = getString(R.string.key_empty)
-            return
-        }
-        if (encrypt && key.length < MIN_KEY_LENGTH) {
-            b.tilKey.error = getString(R.string.key_too_short, MIN_KEY_LENGTH)
-            return
-        }
-        if (data.isBlank()) {
-            b.tilData.error = getString(R.string.data_empty)
-            return
-        }
-
-        b.btnRun.isEnabled = false
-        b.btnRun.setText(R.string.working)
-        lifecycleScope.launch {
-            // Argon2id usa 64 MiB y puede tardar un momento: nunca en el hilo principal.
-            val output = withContext(Dispatchers.Default) {
-                if (encrypt) SecurityBridge.encrypt(key, data) else SecurityBridge.decrypt(key, data)
-            }
-            b.btnRun.isEnabled = true
-            b.btnRun.setText(if (encrypt) R.string.run_encrypt else R.string.run_decrypt)
-
-            if (output == null) {
-                // Los campos NO se borran: la persona no pierde lo que escribió.
-                if (encrypt) {
-                    showVaultError(R.string.error_encrypt_title, R.string.error_encrypt_body)
-                } else {
-                    showVaultError(R.string.error_decrypt_title, R.string.error_decrypt_body)
-                }
-            } else {
-                b.tvVaultResultLabel.setText(if (encrypt) R.string.result_encrypted else R.string.result_decrypted)
-                b.tvVaultResult.text = output
-                b.panelVaultResult.isVisible = true
-            }
-        }
-    }
-
-    private fun showVaultError(@StringRes title: Int, @StringRes body: Int) {
-        b.calloutVaultError.show(Status.BAD, getString(title), getString(body))
-    }
-
-    /** Borra de la pantalla todo lo sensible de la bóveda. */
-    private fun wipeVault() {
-        if (!::b.isInitialized) return
-        b.etKey.text?.clear()
-        b.etData.text?.clear()
-        b.tilKey.error = null
-        b.tilData.error = null
-        b.tvPassword.text = ""
-        b.tvPassword.isVisible = false
-        b.tvPasswordMeta.isVisible = false
-        b.tvVaultResult.text = ""
-        b.panelVaultResult.isVisible = false
-        b.calloutVaultError.hide()
-    }
-
-    // ---------------------------------------------------------------------------------------------
     // APPS: quién tiene cámara y micrófono realmente concedidos
     // ---------------------------------------------------------------------------------------------
 
@@ -759,45 +497,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openAppSettings(pkg: String) {
-        try {
-            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", pkg, null)))
-        } catch (e: ActivityNotFoundException) {
-            toast(R.string.error_open_settings)
-        }
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // Utilidades
-    // ---------------------------------------------------------------------------------------------
-
-    private fun copyToClipboard(text: String, sensitive: Boolean) {
-        ClipboardHelper.copy(this, text, sensitive)
-        if (sensitive) {
-            toast(R.string.copied_sensitive, ClipboardHelper.CLEAR_AFTER_SECONDS)
-        } else {
-            toast(R.string.copied)
-        }
-    }
-
-    private fun openUrl(url: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        } catch (e: ActivityNotFoundException) {
-            toast(R.string.error_no_browser)
-        }
-    }
-
-    private fun toast(@StringRes id: Int, vararg args: Any) {
-        Toast.makeText(this, getString(id, *args), Toast.LENGTH_SHORT).show()
-    }
-
     private companion object {
         const val STATE_TAB = "tab"
-        const val MAX_FILES = 10
-        const val MIN_KEY_LENGTH = 8
         const val VAULT_WIPE_DELAY_MS = 30_000L
         const val MILLIS_PER_DAY = 86_400_000L
-        const val CHARSET_SIZE = 88.0
     }
 }

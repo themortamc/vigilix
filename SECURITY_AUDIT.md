@@ -1,4 +1,4 @@
-# Auditoría de seguridad de Vigilix (0.4.0 → 0.5.0)
+# Auditoría de seguridad de Vigilix (0.4.0 → 0.6.0)
 
 Repositorio revisado: `themortamc/vigilix` (8 commits; el ZIP subido era idéntico al repositorio).
 Alcance: código Kotlin, núcleo Rust (JNI), manifest, Gradle, workflow de CI e historial de git.
@@ -96,8 +96,8 @@ El juego de caracteres tiene 88 símbolos, es decir log2(88) ≈ 6,46 bits por c
 2. **`rust/Cargo.lock`.** Hecho (0.5.1): ya está en el repositorio y el CI usa `--locked`. Actualizalo con `cargo update` cuando cambies dependencias y volvé a subirlo.
 3. **Gradle wrapper.** El CI lo genera en cada ejecución. Lo ideal es subir `gradlew` y `gradle/wrapper/` al repositorio y validar el wrapper.
 4. **Dependencias (V-15).** Activá Dependabot (`package-ecosystem: gradle`, `cargo` y `github-actions`) y corré `cargo audit` o `cargo deny`. No cambié versiones porque no puedo compilar ni probar aquí.
-5. **Bóveda persistente (idea a futuro).** Hoy no guarda nada, por diseño. Si algún día guarda datos, que la clave de la base esté protegida con Android Keystore y no solo con una clave maestra.
-6. **Pruebas.** Las pruebas unitarias de Rust están incluidas (ida y vuelta con Unicode, salt distinto por mensaje, clave incorrecta, texto modificado, entradas inválidas, clases de caracteres y un SHA-256 conocido) pero **no se ejecutaron**. Corren en un job aparte del CI: si fallan, se ve en rojo pero el APK se sigue generando.
+5. **Bóveda persistente.** Hecho en la 0.6.0 (ver sección 8).
+6. **Pruebas.** Las pruebas unitarias de Rust están incluidas (ida y vuelta con Unicode, salt distinto por mensaje, clave incorrecta, texto modificado, entradas inválidas, clases de caracteres y un SHA-256 conocido) y desde la 0.6.0 **sí se ejecutaron** (21 pruebas, todas pasan en un entorno de Linux con Rust 1.85). Corren en un job aparte del CI: si fallan, se ve en rojo pero el APK se sigue generando.
 
 ## 5. Compatibilidad: leer antes de actualizar
 - **Los textos cifrados con la 0.4.0 no se pueden descifrar con la 0.5.0** (formato y derivación de clave nuevos). La Bóveda 0.4.0 no guardaba nada, pero si copiaste algún texto cifrado antes, quedó inutilizable.
@@ -117,3 +117,67 @@ El juego de caracteres tiene 88 símbolos, es decir log2(88) ≈ 6,46 bits por c
 - `isGranted()` usaba `ContextCompat.hasPermission`, que no existe, y además comprobaría los permisos de Vigilix en vez de los de la app revisada. Se volvió a comparar `requestedPermissionsFlags` (arreglo paralelo a `requestedPermissions`, mismo índice).
 - La firma de release ya no rompe `assembleRelease` cuando faltan las variables de entorno.
 - Se eliminó `color/bottom_nav_color_selector.xml` (restos del diseño anterior, sin uso).
+
+## 8. Versión 0.6.0: escáner completo, contraseñas guardadas y autocompletado
+
+### 8.1 Qué se agregó
+- **Escáner del teléfono** (pestaña Escáner): recorre el almacenamiento y las apps instaladas, calcula el SHA-256 de cada archivo con el motor Rust y lo compara con una lista local de malware conocido. Modo *Rápido* (ejecutables, instaladores, scripts, comprimidos, PDF y documentos de Office) o *Completo* (todo hasta 2 GB por archivo). Corre como servicio en primer plano, con notificación y botón de cancelar.
+- **Lista local de firmas:** archivo binario de hashes ordenados, con búsqueda binaria directa sobre el archivo (sin cargarla en memoria; máximo 2.000.000 de firmas). Se alimenta de listas en texto, CSV o ZIP: cualquier formato donde aparezcan SHA-256 de 64 caracteres. Se actualiza desde internet (solo HTTPS, solo cuando la persona lo pide) o importando un archivo, sin red. Incluye el hash del archivo de prueba EICAR para poder verificar que todo funciona.
+- **VirusTotal gratis:** consulta por hash con la API pública y la clave del propio usuario (se guarda cifrada con el Keystore). Respeta el límite gratuito (4 por minuto, 500 por día): una consulta cada 15,5 s, tope de 40 por escaneo y 480 por día, con caché de 7 días. Primero las apps instaladas, después los ejecutables sueltos.
+- **Bóveda de contraseñas:** sitio o app de origen, usuario, contraseña, notas y favoritos. Búsqueda, copia rápida de usuario y de clave desde la lista (la clave se marca como sensible y se borra del portapapeles a los 45 s), abrir el sitio o la app, y generador integrado.
+- **Autocompletado del sistema** (Android 8+): sirve en apps y en navegadores que lo soporten (Chrome pide activarlo en Ajustes > Contraseñas y autocompletado > Servicio de autocompletado).
+- **Desbloqueo configurable:** solo clave maestra, o clave maestra + huella. Bloqueo automático (al salir, 1, 5 o 15 minutos) y bloqueo al apagar la pantalla.
+- **Copias cifradas:** exportar la bóveda a un archivo (ya cifrado, se puede guardar en cualquier carpeta, incluida una sincronizada) e importar una copia con su propia clave maestra.
+- Las herramientas de la 0.5 (generador y cifrado de texto suelto) se mantienen debajo de la bóveda.
+
+### 8.2 Diseño de seguridad de la bóveda
+- Formato `vgv1:` + hex(salt ‖ nonce ‖ cifrado ‖ etiqueta). Argon2id (64 MiB, 3 pasadas) → ChaCha20-Poly1305. AAD propio (`vigilix/vault/v1`): un texto cifrado suelto (`vgx1:`) no se puede hacer pasar por una bóveda.
+- La clave derivada vive **solo en la sesión de Rust** y se borra (`Zeroizing`) al bloquear. Cada guardado usa un nonce nuevo con el mismo salt. Escritura atómica: archivo temporal, `fsync` y renombrado.
+- **Huella:** la clave derivada se envuelve con una clave del Android Keystore (AES-GCM de 256 bits) que exige biometría fuerte **en cada uso** y se invalida si cambian las huellas registradas. Si se invalida, vuelve a pedirse la clave maestra. Cambiar la clave maestra desactiva la huella.
+- **Autocompletado:** la coincidencia es estricta: dominio igual o subdominio del guardado (`accounts.google.com` sirve para `google.com`; `google.com.evil.com` y `evilgoogle.com` no), o el mismo nombre de paquete de la app vinculada. Con la bóveda bloqueada exige huella o clave maestra antes de mostrar nada. Nunca se autocompleta dentro de la propia Vigilix.
+- Pantalla protegida contra capturas (`FLAG_SECURE`) en la pestaña Contraseñas y en la pantalla de desbloqueo del autocompletado. Sin copias de seguridad automáticas de Android (`allowBackup=false`).
+- 5 intentos fallidos seguidos activan una espera creciente en la pantalla. No es un límite persistente: el costo de Argon2id es la defensa real contra adivinar la clave.
+
+### 8.3 Límites que siguen existiendo (importante)
+- **Detección por hash exacto:** solo encuentra archivos idénticos a muestras ya conocidas. No detecta variantes nuevas, malware desconocido ni comportamiento sospechoso. "No encontré nada" no significa "es seguro". La pantalla lo aclara.
+- **Alcance en Android:** sin root, Android no deja leer `/Android/data`, `/Android/obb` ni los datos privados de otras apps. Sí se leen los APK instalados (sus códigos son legibles) y el almacenamiento compartido.
+- **Cobertura de la lista:** la fuente preconfigurada es MalwareBazaar (abuse.ch), que exige una Auth-Key gratuita y publica sobre todo muestras de las últimas horas, mayormente de Windows. Para el teléfono sirve más VirusTotal. La dirección de descarga (`mb-api.abuse.ch/v2/files/exports/<clave>/recent.csv`) la tomé del ejemplo de la documentación de abuse.ch y **no la pude probar con una clave real**: si responde error, usá "Otra dirección" o importá el archivo a mano.
+- **VirusTotal:** el plan público es para uso personal y no comercial, y cada usuario tiene que usar su propia clave. Si la app llega a monetizarse, hay que pasar a un plan comercial.
+- **Memoria:** mientras la bóveda está abierta, las contraseñas están en memoria como `String` de Java, que no se pueden borrar a mano (el recolector las libera después). La lista descifrada se descarta al bloquear.
+- **Autocompletado:** el servicio ve la estructura de la pantalla donde la persona toca un campo (es inherente a cualquier gestor de contraseñas) pero no guarda ni registra nada. No hay todavía "guardar contraseña nueva al iniciar sesión" ni sugerencias dentro del teclado (Gboard). El dominio verificado solo lo informan los navegadores compatibles; en el resto se usa la app vinculada.
+- **Cambio de clave maestra:** el archivo anterior se reemplaza, pero no se sobrescribe de forma segura (memoria flash).
+- **Servicio en primer plano:** si Android mata la app a la mitad, el escaneo se corta y no se retoma.
+
+### 8.4 Distribución en todos lados
+| Canal | Qué hay que resolver |
+|---|---|
+| APK en GitHub | Firma de release propia (sección 4, punto 1). Es el canal sin restricciones. |
+| Google Play | `QUERY_ALL_PACKAGES` y `MANAGE_EXTERNAL_STORAGE` requieren declaración y aprobación (el acceso a todos los archivos suele aprobarse para antivirus, pero no está garantizado); la función de root y `WRITE_SECURE_SETTINGS` pueden generar objeciones. Conviene una variante (`flavor`) "tienda" sin root ni DNS por permisos especiales. No verifiqué las políticas vigentes de Play hoy. Hace falta política de privacidad pública. |
+| F-Droid | Solo usa AndroidX y Material (software libre), pero VirusTotal es un servicio no libre: se marca como característica no deseada (*NonFreeNet*). Hay que escribir la receta de compilación (Gradle + Rust con cargo-ndk). |
+
+Recomendación: dejar los tres canales para después de probar la 0.6 en un teléfono, y hacer primero la firma de release y la variante "tienda".
+
+### 8.5 Cambios de compatibilidad
+- **`minSdk` sube de 24 a 26** (Android 8.0): el servicio de autocompletado del sistema existe desde ahí. Deja afuera Android 7.x y menos (alrededor del 1 % de los equipos).
+- Nuevos permisos: `INTERNET` (solo al actualizar la lista o consultar VirusTotal, siempre a pedido), `MANAGE_EXTERNAL_STORAGE` (y `READ_EXTERNAL_STORAGE` hasta Android 10), `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_DATA_SYNC`, `POST_NOTIFICATIONS` y `USE_BIOMETRIC`.
+- Nueva dependencia: `androidx.biometric:biometric:1.1.0`.
+- Nuevas funciones JNI: `sha256OfPath`, `vaultCreate`, `vaultOpen`, `vaultPeek`, `vaultOpenWithKey`, `vaultSave`, `vaultLock`, `vaultIsUnlocked`, `vaultExportKey`, `hashDbMerge`, `hashDbContains`, `hashDbCount`. Kotlin y Rust se actualizan juntos.
+- Cambian los nombres de las pestañas: Inicio, **Escáner**, **Contraseñas**, Apps.
+
+### 8.6 Qué se verificó en esta versión
+| Qué | Estado |
+|---|---|
+| Pruebas de Rust (bóveda, base de firmas, hash por ruta, EICAR de punta a punta) | **Ejecutadas: 21 de 21 pasan** |
+| Todo el Kotlin contra el SDK de Android (API 34), con componentes AndroidX/Material simulados | **Sin errores de tipos** (esto ya encontró y corrigió un error real de código) |
+| Recursos: IDs, strings, colores claro/oscuro, estilos, drawables, clases del manifest | Cruzados con un script: sin faltantes |
+| Compilación real con Gradle, R8 e instalación en un teléfono | **NO se pudo.** Lo hace tu CI. Riesgo restante: diferencias entre las firmas reales de AndroidX/Material y las simuladas, vinculación de recursos y reglas de R8 |
+| Descarga real de la lista de abuse.ch y consulta real a VirusTotal | **NO probadas** (necesitan tus claves) |
+
+### 8.7 Lista de prueba en el teléfono (0.6)
+1. **Escáner con EICAR:** creá un archivo de texto llamado `eicar.com` con esta única línea y sin espacios extra: `X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*`. Dale el permiso de archivos, tocá *Escanear ahora* en modo Rápido: tiene que aparecer como coincidencia con malware conocido (EICAR). Es inofensivo; es un archivo de prueba que todos los antivirus detectan. Si tu antivirus lo borra, es buena señal.
+2. **Lista de firmas:** importá un `.txt` con un hash cualquiera en una línea y mirá que el total suba. Probá una Auth-Key real de abuse.ch.
+3. **VirusTotal:** cargá tu clave, activá la opción y escaneá. Tiene que consultar de a una cada ~15 s y mostrar el avance. Probá también con una clave inválida (debe avisar y cortar).
+4. **Bóveda:** creá la bóveda, agregá una entrada con sitio y usuario, bloqueala, reabrila con la clave maestra. Activá la huella, bloqueá y desbloqueá con huella. Cambiá una huella registrada del teléfono: tiene que volver a pedir la clave maestra.
+5. **Copia cifrada:** exportá, cambiá la clave maestra, importá la copia con su clave original.
+6. **Autocompletado:** activalo desde Ajustes de la bóveda, abrí el sitio guardado en Chrome y tocá el campo de usuario. Con la bóveda bloqueada tiene que pedir huella o clave. Probá también un sitio parecido (por ejemplo `tusitio.com.otro.com`): **no** debe ofrecer nada.
+7. **Captura de pantalla** en la pestaña Contraseñas: tiene que estar bloqueada.

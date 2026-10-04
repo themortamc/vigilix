@@ -4,8 +4,8 @@
 
     <!-- Navegación y comunes -->
     <string name="nav_home">Inicio</string>
-    <string name="nav_files">Archivos</string>
-    <string name="nav_vault">Bóveda</string>
+    <string name="nav_files">Escáner</string>
+    <string name="nav_vault">Contraseñas</string>
     <string name="nav_apps">Apps</string>
     <string name="access_standard">Modo estándar</string>
     <string name="access_root">Root activo</string>
@@ -74,10 +74,7 @@
     <string name="adb_copy">Copiar comando</string>
 
     <!-- Archivos -->
-    <string name="files_title">Verificar archivo</string>
-    <string name="files_subtitle">Obtené la huella digital (SHA-256) de cualquier archivo.</string>
-    <string name="files_info_title">Qué hace y qué no hace</string>
-    <string name="files_info_body">Calcula la huella del archivo en tu teléfono. No detecta virus por sí sola: sirve para comparar. Si el sitio de descarga publica la huella, tiene que coincidir. En VirusTotal se envía solo la huella, nunca el archivo; si nadie subió antes ese archivo, dirá que no lo conoce.</string>
+    <string name="files_subtitle">Obtené la huella digital (SHA-256) de un archivo puntual, sin escanear todo el teléfono.</string>
     <string name="files_pick">Elegir archivos</string>
     <string name="files_working">Calculando %1$d archivo(s)…</string>
     <string name="files_done">Listo: %1$d archivo(s).</string>
@@ -95,10 +92,10 @@
     <string name="files_apk_body">Antes de instalarlo, compará la huella con la que publica quien lo distribuye. Si no coincide o no hay huella publicada, no lo instales.</string>
 
     <!-- Bóveda -->
-    <string name="vault_title">Bóveda</string>
-    <string name="vault_subtitle">Contraseñas seguras y textos cifrados, todo dentro de tu teléfono.</string>
-    <string name="vault_info_title">Cómo funciona</string>
-    <string name="vault_info_body">La app no guarda nada: ni claves ni textos. Cifrás un texto con tu clave maestra y guardás el resultado donde quieras. Si perdés la clave maestra, no hay forma de recuperar el texto.</string>
+    <string name="vault_title">Contraseñas</string>
+    <string name="vault_subtitle">Guardá tus usuarios y claves, y usalas rápido con un toque o con el autocompletado.</string>
+    <string name="vault_info_title">Cómo se protegen</string>
+    <string name="vault_info_body">Todo se cifra en tu teléfono con tu clave maestra (Argon2id + ChaCha20-Poly1305) y no sale de él. Si perdés la clave maestra no hay forma de recuperar las contraseñas: nadie, tampoco yo, puede restablecerla.</string>
     <string name="vault_clear">Borrar todo de la pantalla</string>
 
     <string name="gen_heading">Generar contraseña</string>
@@ -149,4 +146,220 @@
     <string name="app_restricted">Restricción aplicada.</string>
     <string name="app_unrestricted">Restricción quitada.</string>
     <string name="app_rule_failed">No se pudo aplicar el cambio.</string>
+
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="save">Guardar</string>
+
+    <!-- Escáner -->
+    <string name="scan_title">Escáner</string>
+    <string name="scan_subtitle">Buscá archivos y apps que coincidan con malware conocido.</string>
+    <string name="scan_info_title">Qué hace y qué no hace</string>
+    <string name="scan_info_body">Calcula la huella (SHA-256) de tus archivos y apps y la compara con una lista de malware conocido, y opcionalmente con VirusTotal. Solo detecta archivos idénticos a muestras ya conocidas: no analiza el comportamiento ni detecta variantes nuevas. Que no aparezca algo no significa que sea seguro. Los archivos nunca salen del teléfono: solo se consulta su huella.</string>
+    <string name="scan_phone_heading">Escanear el teléfono</string>
+    <string name="scan_mode_quick">Rápido</string>
+    <string name="scan_mode_full">Completo</string>
+    <string name="scan_mode_quick_hint">Rápido: instaladores, ejecutables, scripts, comprimidos, PDF y documentos de Office, más las apps instaladas.</string>
+    <string name="scan_mode_full_hint">Completo: todos los archivos del almacenamiento (hasta 2 GB cada uno), más las apps instaladas. Puede tardar bastante.</string>
+    <string name="scan_use_vt">Consultar también VirusTotal</string>
+    <string name="scan_vt_hint_ready">Solo para apps y archivos ejecutables que no estén en la lista. El plan gratis permite 4 consultas por minuto, así que se hacen a ritmo lento y hasta 40 por escaneo.</string>
+    <string name="scan_vt_hint_nokey">Necesita tu propia API key gratuita de VirusTotal (se configura más abajo).</string>
+    <string name="scan_start">Escanear ahora</string>
+    <string name="scan_cancel">Cancelar</string>
+    <string name="scan_grant_access">Dar acceso a todos los archivos</string>
+    <string name="scan_perm_title">Falta el permiso de archivos</string>
+    <string name="scan_perm_body">Para recorrer el almacenamiento, Android exige un permiso especial. Solo se usa para leer archivos y calcular su huella; Vigilix no modifica nada por su cuenta.</string>
+    <string name="scan_status_files">Analizados: %1$d archivos (%2$s)</string>
+    <string name="scan_status_apps">Revisando las apps instaladas…</string>
+    <string name="scan_status_vt">Consultando VirusTotal: %1$d de %2$d (a ritmo lento por el límite gratuito)</string>
+    <string name="scan_result_clean_title">No encontré coincidencias</string>
+    <string name="scan_result_clean_body">Se analizaron %1$d archivos. Recordá que esto solo detecta malware ya conocido.</string>
+    <string name="scan_result_found_title">Encontré %1$d elemento(s) para revisar</string>
+    <string name="scan_result_found_body">Mirá el detalle abajo. Antes de borrar algo importante, comprobá la huella en VirusTotal.</string>
+    <string name="scan_result_cancelled">Escaneo cancelado</string>
+    <string name="scan_skipped">No se pudieron leer %1$d archivos (sin permiso o demasiado grandes).</string>
+    <string name="scan_vt_unknown">VirusTotal no conoce %1$d archivos; eso no los hace peligrosos ni seguros.</string>
+    <string name="scan_vt_missing_title">Falta la API key de VirusTotal</string>
+    <string name="scan_vt_missing_body">Para consultar VirusTotal necesitás tu propia clave gratuita. También podés escanear sin VirusTotal.</string>
+    <string name="scan_note_failed">El escaneo se detuvo por un error.</string>
+    <string name="scan_note_vt_nokey">No hay API key de VirusTotal configurada.</string>
+    <string name="scan_note_vt_badkey">La API key de VirusTotal no es válida.</string>
+    <string name="scan_note_vt_limit">Se alcanzó el límite gratuito de VirusTotal. Probá de nuevo más tarde.</string>
+    <string name="scan_note_vt_network">No se pudo conectar con VirusTotal.</string>
+    <string name="scan_note_vt_capped">Se consultaron %1$d de %2$d archivos para no agotar tu cupo gratuito.</string>
+    <string name="scan_reason_db">Coincide con malware conocido (%1$s).</string>
+    <string name="scan_reason_vt_bad">VirusTotal: %1$d de %2$d motores lo marcan como malicioso.</string>
+    <string name="scan_reason_vt_warn">VirusTotal: %1$d detecciones. Puede ser un falso positivo.</string>
+    <string name="finding_delete">Eliminar</string>
+    <string name="finding_app_settings">Ajustes de la app</string>
+    <string name="finding_delete_title">¿Eliminar el archivo?</string>
+    <string name="finding_delete_body">Se va a borrar «%1$s» de tu almacenamiento. No se puede deshacer.</string>
+    <string name="finding_deleted">Archivo eliminado.</string>
+    <string name="finding_delete_failed">No se pudo eliminar el archivo.</string>
+    <string name="scan_channel_name">Escaneo</string>
+    <string name="scan_notif_title">Escaneo de Vigilix</string>
+    <string name="scan_notif_starting">Preparando…</string>
+    <string name="scan_notif_files">%1$d archivos analizados</string>
+    <string name="scan_notif_apps">Revisando las apps instaladas</string>
+    <string name="scan_notif_vt">Consultando VirusTotal: %1$d de %2$d</string>
+    <string name="scan_notif_done_clean">Terminó: sin coincidencias (%1$d archivos).</string>
+    <string name="scan_notif_done_findings">Terminó: %1$d elemento(s) para revisar.</string>
+    <string name="scan_notif_cancelled">Escaneo cancelado.</string>
+
+    <!-- Base de firmas -->
+    <string name="db_heading">Lista de malware conocido</string>
+    <string name="db_info">%1$d firmas · actualizada: %2$s</string>
+    <string name="db_never">nunca</string>
+    <string name="db_explain">Es una lista de huellas de archivos maliciosos ya identificados. Funciona sin internet una vez cargada. Podés actualizarla desde internet o importar un archivo de texto, CSV o ZIP con huellas SHA-256.</string>
+    <string name="db_update">Actualizar desde internet</string>
+    <string name="db_update_setup">Elegir fuente y actualizar</string>
+    <string name="db_import">Importar desde un archivo</string>
+    <string name="db_source">Cambiar fuente de la lista</string>
+    <string name="db_working">Procesando la lista…</string>
+    <string name="db_done_title">Lista actualizada</string>
+    <string name="db_done_body">Se agregaron %1$d firmas nuevas. Total: %2$d.</string>
+    <string name="db_fail_title">No se pudo actualizar</string>
+    <string name="db_err_engine">El motor nativo no está disponible.</string>
+    <string name="db_err_file">No se pudo leer o guardar la lista.</string>
+    <string name="db_err_too_many">La lista supera el máximo de 2.000.000 de firmas. No se cambió nada.</string>
+    <string name="db_err_url">La dirección no es válida. Tiene que empezar con https://</string>
+    <string name="db_err_http">El servidor respondió con un error (%1$s). Revisá la clave o la dirección.</string>
+    <string name="db_err_network">No se pudo descargar. Revisá tu conexión.</string>
+    <string name="db_err_too_big">El archivo es demasiado grande (máximo 300 MB).</string>
+    <string name="db_err_url_short">La dirección tiene que empezar con https://</string>
+    <string name="db_source_title">Fuente de la lista</string>
+    <string name="db_source_bazaar">MalwareBazaar (abuse.ch): últimas 48 horas</string>
+    <string name="db_source_custom">Otra dirección (https)</string>
+    <string name="db_source_get_key">Obtener una Auth-Key gratuita de abuse.ch</string>
+    <string name="db_bazaar_key_title">Auth-Key de abuse.ch</string>
+    <string name="db_bazaar_key_hint">Auth-Key</string>
+    <string name="db_bazaar_key_invalid">La clave no parece válida.</string>
+    <string name="db_custom_title">Dirección de la lista</string>
+    <string name="db_custom_hint">https://…</string>
+    <string name="db_custom_body">Un archivo de texto, CSV o ZIP donde aparezcan huellas SHA-256 (64 caracteres). Cada actualización suma las firmas nuevas a las que ya tenés.</string>
+    <string name="db_source_saved">Fuente guardada.</string>
+
+    <!-- VirusTotal -->
+    <string name="vt_heading">VirusTotal</string>
+    <string name="vt_status_nokey">Sin API key.</string>
+    <string name="vt_status_ready">API key guardada. Consultas de hoy: %1$d de %2$d.</string>
+    <string name="vt_explain">Gratis, con tu propia clave: 4 consultas por minuto y 500 por día. Solo se envía la huella del archivo, nunca el archivo. El plan gratuito es solo para uso personal y no comercial.</string>
+    <string name="vt_set_key">Cargar mi API key</string>
+    <string name="vt_change_key">Cambiar mi API key</string>
+    <string name="vt_get_key">Obtener una clave gratuita</string>
+    <string name="vt_key_title">API key de VirusTotal</string>
+    <string name="vt_key_hint">API key</string>
+    <string name="vt_key_body">Se guarda cifrada en tu teléfono. Dejalo vacío para quitarla.</string>
+    <string name="vt_key_saved">API key guardada.</string>
+    <string name="vt_key_removed">API key eliminada.</string>
+
+    <!-- Archivos sueltos -->
+    <string name="files_heading">Verificar un archivo</string>
+    <string name="files_known_bad">Coincide con malware conocido: %1$s</string>
+    <string name="files_not_in_db">No figura en la lista local (eso no garantiza que sea seguro).</string>
+
+    <!-- Contraseñas -->
+    <string name="setup_heading">Creá tu bóveda</string>
+    <string name="setup_explain">Elegí una clave maestra larga que puedas recordar. Es lo único que protege todo lo demás y no se puede recuperar si la perdés.</string>
+    <string name="setup_pass_hint">Clave maestra</string>
+    <string name="setup_pass2_hint">Repetí la clave maestra</string>
+    <string name="setup_create">Crear bóveda</string>
+    <string name="setup_too_short">Usá al menos %1$d caracteres.</string>
+    <string name="setup_mismatch">Las dos claves no coinciden.</string>
+    <string name="setup_failed_title">No se pudo crear la bóveda</string>
+    <string name="setup_failed_body">Probá de nuevo. Si sigue fallando, revisá el espacio disponible del teléfono.</string>
+    <string name="locked_heading">Bóveda bloqueada</string>
+    <string name="unlock_hint">Clave maestra</string>
+    <string name="unlock_button">Desbloquear</string>
+    <string name="unlock_bio">Usar huella digital</string>
+    <string name="unlock_wrong">Clave incorrecta.</string>
+    <string name="unlock_wait">Esperá %1$d s</string>
+    <string name="unlock_corrupt_title">El archivo de la bóveda está dañado</string>
+    <string name="unlock_corrupt_body">No se pudo leer el contenido. Si tenés una copia de seguridad, podés importarla.</string>
+    <string name="vault_count">%1$d contraseñas guardadas</string>
+    <string name="vault_menu">Ajustes</string>
+    <string name="vault_lock_now">Bloquear</string>
+    <string name="vault_add">Agregar contraseña</string>
+    <string name="vault_search_hint">Buscar</string>
+    <string name="vault_empty">Todavía no guardaste ninguna contraseña.</string>
+    <string name="vault_no_results">No hay resultados.</string>
+    <string name="cred_copy_user">Usuario</string>
+    <string name="cred_copy_pass">Clave</string>
+    <string name="cred_open">Abrir</string>
+    <string name="cred_add_title">Agregar contraseña</string>
+    <string name="cred_edit_title">Editar contraseña</string>
+    <string name="cred_title_hint">Nombre (por ejemplo, Gmail)</string>
+    <string name="cred_url_hint">Sitio web (por ejemplo, gmail.com)</string>
+    <string name="cred_user_hint">Usuario o correo</string>
+    <string name="cred_pass_hint">Contraseña</string>
+    <string name="cred_notes_hint">Notas (opcional)</string>
+    <string name="cred_favorite">Marcar como favorita</string>
+    <string name="cred_generate">Generar una contraseña segura</string>
+    <string name="cred_generated">Contraseña generada. Tocá el ojo del campo para verla.</string>
+    <string name="cred_pick_app">Vincular una app instalada</string>
+    <string name="cred_clear_app">Quitar app vinculada</string>
+    <string name="cred_app_none">Sin app vinculada. Vincularla sirve para el autocompletado dentro de apps.</string>
+    <string name="cred_app_selected">App vinculada: %1$s</string>
+    <string name="cred_app_not_found">No se pudo abrir la app.</string>
+    <string name="cred_pass_required">Escribí la contraseña.</string>
+    <string name="cred_url_invalid">Esa dirección no es válida.</string>
+    <string name="cred_origin_required">Indicá un nombre, un sitio o una app.</string>
+    <string name="cred_save_failed">No se pudo guardar. Probá de nuevo.</string>
+    <string name="cred_delete">Eliminar</string>
+    <string name="cred_delete_title">¿Eliminar esta contraseña?</string>
+    <string name="cred_delete_body">Se va a borrar «%1$s» de la bóveda. No se puede deshacer.</string>
+
+    <!-- Ajustes de la bóveda -->
+    <string name="menu_bio_on">Activar desbloqueo con huella</string>
+    <string name="menu_bio_off">Desactivar desbloqueo con huella</string>
+    <string name="menu_autolock">Bloqueo automático: %1$s</string>
+    <string name="menu_autolock_title">Bloquear la bóveda…</string>
+    <string name="menu_screen_off">Bloquear al apagar la pantalla: %1$s</string>
+    <string name="menu_autofill_on">Autocompletado: activo</string>
+    <string name="menu_autofill_off">Activar el autocompletado</string>
+    <string name="menu_change_password">Cambiar la clave maestra</string>
+    <string name="menu_export">Exportar copia cifrada</string>
+    <string name="menu_import">Importar una copia cifrada</string>
+    <string name="lock_immediate">al salir de la app</string>
+    <string name="lock_1m">1 minuto después de salir</string>
+    <string name="lock_5m">5 minutos después de salir</string>
+    <string name="lock_15m">15 minutos después de salir</string>
+    <string name="pw_current_hint">Clave maestra actual</string>
+    <string name="pw_new_hint">Clave maestra nueva</string>
+    <string name="pw_new2_hint">Repetí la clave nueva</string>
+    <string name="pw_changed">Clave maestra cambiada.</string>
+    <string name="pw_changed_bio_off">Clave cambiada. Volvé a activar la huella desde Ajustes.</string>
+    <string name="export_done">Copia cifrada guardada.</string>
+    <string name="export_failed">No se pudo guardar la copia.</string>
+    <string name="import_locked_title">Desbloqueá la bóveda primero</string>
+    <string name="import_locked_body">Para sumar una copia, la bóveda tiene que estar abierta.</string>
+    <string name="import_password_title">Clave maestra de la copia</string>
+    <string name="import_password_body">Escribí la clave maestra con la que se hizo esa copia.</string>
+    <string name="import_failed">No se pudo leer el archivo.</string>
+    <string name="import_failed_title">No se pudo importar</string>
+    <string name="import_failed_body">La clave es incorrecta o el archivo no es una copia de Vigilix.</string>
+    <string name="import_done_title">Copia importada</string>
+    <string name="import_done_body">Se agregaron o actualizaron %1$d contraseñas.</string>
+
+    <!-- Huella -->
+    <string name="bio_offer_title">¿Desbloquear con huella?</string>
+    <string name="bio_offer_body">Podés abrir la bóveda con tu huella en vez de escribir la clave maestra. La clave maestra siempre sigue funcionando.</string>
+    <string name="bio_offer_yes">Activar</string>
+    <string name="bio_offer_no">Ahora no</string>
+    <string name="bio_enable_title">Confirmá tu huella para activarla</string>
+    <string name="bio_unlock_title">Desbloquear Vigilix</string>
+    <string name="bio_use_master">Usar clave maestra</string>
+    <string name="bio_enabled">Huella activada.</string>
+    <string name="bio_enable_failed">No se pudo activar la huella.</string>
+    <string name="bio_disabled">Huella desactivada.</string>
+    <string name="bio_invalidated">Cambiaron las huellas del teléfono: usá la clave maestra y volvé a activarla.</string>
+
+    <!-- Autocompletado -->
+    <string name="autofill_hint">Elegí Vigilix en la lista y confirmá.</string>
+    <string name="autofill_already">El autocompletado de Vigilix ya está activo.</string>
+    <string name="autofill_unsupported">Tu teléfono no permite elegir el servicio desde acá. Buscalo en Ajustes, Autocompletar.</string>
+    <string name="af_unlock_title">Desbloquear Vigilix</string>
+    <string name="af_unlock_subtitle">Tocá para abrir tus contraseñas</string>
+    <string name="af_auth_title">Desbloquear Vigilix</string>
+    <string name="af_auth_body">Para completar tu usuario y contraseña, desbloqueá la bóveda.</string>
 </resources>

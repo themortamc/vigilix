@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        style="@style/VxTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="@string/scan_title" />
+    <TextView
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/scan_subtitle" />
+    <include
+        android:id="@+id/calloutScanInfo"
+        layout="@layout/view_callout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <TextView
+        style="@style/VxHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="@string/scan_phone_heading" />
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleScanMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:checkedButton="@+id/btnScanQuick"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnScanQuick"
+            style="@style/VxButtonSecondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/scan_mode_quick" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnScanFull"
+            style="@style/VxButtonSecondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/scan_mode_full" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <TextView
+        android:id="@+id/tvScanModeHint"
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchVt"
+        style="@style/VxBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/scan_use_vt" />
+
+    <TextView
+        android:id="@+id/tvVtHint"
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp" />
+    <include
+        android:id="@+id/calloutScanPerm"
+        layout="@layout/view_callout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGrantAccess"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/scan_grant_access"
+        android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnScanStart"
+        style="@style/VxButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="@string/scan_start"
+        app:icon="@drawable/ic_shield" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnScanCancel"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/scan_cancel"
+        android:visibility="gone" />
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvScanStatus"
+        style="@style/VxBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+    <TextView
+        android:id="@+id/tvScanPath"
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="middle"
+        android:maxLines="1"
+        android:textSize="12sp"
+        android:visibility="gone" />
+    <include
+        android:id="@+id/calloutScanResult"
+        layout="@layout/view_callout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/findingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <TextView
+        style="@style/VxHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="@string/db_heading" />
+    <TextView
+        android:id="@+id/tvDbInfo"
+        style="@style/VxBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+    <TextView
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/db_explain" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDbUpdate"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/db_update" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDbImport"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/db_import" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDbSource"
+        style="@style/VxTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/db_source" />
+    <include
+        android:id="@+id/calloutDbResult"
+        layout="@layout/view_callout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <TextView
+        style="@style/VxHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="@string/vt_heading" />
+    <TextView
+        android:id="@+id/tvVtStatus"
+        style="@style/VxBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+    <TextView
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/vt_explain" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVtKey"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/vt_set_key" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVtGetKey"
+        style="@style/VxTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/vt_get_key"
+        app:icon="@drawable/ic_open" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <TextView
+        style="@style/VxHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="@string/files_heading" />
+    <TextView
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/files_subtitle" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPickFiles"
+        style="@style/VxButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/files_pick"
+        app:icon="@drawable/ic_file" />
+    <TextView
+        android:id="@+id/tvFilesStatus"
+        style="@style/VxMuted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+    <include
+        android:id="@+id/calloutApk"
+        layout="@layout/view_callout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/filesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    </LinearLayout>
+
+</LinearLayout>
