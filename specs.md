@@ -14,50 +14,62 @@
 
 ---
 
-## 1. Arquitectura general
+## 1. Arquitectura de Navegación e Información (IA v2.0)
+
+Mantenemos 4 secciones principales unificadas en la navegación inferior más un panel modal de Herramientas Cripto:
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│  UI (Kotlin, View Binding, coroutines)                    │
-│  MainActivity: Dashboard · Escáner · Bóveda · Apps · Sec  │
-├───────────────────────────────────────────────────────────┤
-│  Helpers (Kotlin objects)                                 │
-│  VaultStore · ScanEngine · HashDb · DnsController         │
-│  PermissionMonitor · HistoryManager · KeystoreCrypto      │
-│  BiometricHelper · AutofillSupport · PrivilegedEngine     │
-│  VirusTotalClient · ClipboardHelper                       │
-├───────────────────────────────────────────────────────────┤
-│  SecurityBridge (Kotlin object — único puente JNI)        │
-│  - isLoaded: bool  (false → modo degradado, devuelve null)  │
-│  - Cada fun envuelta en guarded() { UnsatisfiedLinkError }│
-├───────────────────────────────────────────────────────────┤
-│  rust/ — vigilix_core (cdylib, JNI)                       │
-│  Lógica pura (testeable):                                 │
-│    encrypt_text / decrypt_text                            │
-│    generate_password (8..128, OsRng, 4 clases)            │
-│    sha256_of_file / sha256_of_path                        │
-│    vault_* (create/open/peek/open_with_key/save/lock/…)   │
-│    hashdb_* (merge_text/count/contains — búsqueda binaria) │
-│  Capa JNI: #[no_mangle] extern "system" + catch_unwind    │
-└───────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  BARRA SUPERIOR: Logo Vigilix · Estado Root · Botón Herramientas (🔧)   │
+├──────────────────────────────────────────────────────────────────────────┤
+│  1. 🏠 INICIO (Dashboard)                                               │
+│     - Indicador de Salud del Dispositivo (Porcentaje real y Estado)      │
+│     - Accesos Rápidos (Escaneo 1-tap, Bóveda, DNS, Herramientas)         │
+│     - Controles de Seguridad (Motor, Bloqueo, Parche, DNS)               │
+│                                                                          │
+│  2. 🛡️ ESCÁNER                                                           │
+│     - Escaneo del Teléfono (Modos Rápido / Completo + VirusTotal)        │
+│     - Verificador de Archivo Suelto (SHA-256 de archivos y APKs)        │
+│     - Historial de Escaneos Recientes                                    │
+│     - Gestión de Base de Firmas (.vxdb) y API Key de VirusTotal          │
+│                                                                          │
+│  3. 🔐 BÓVEDA                                                            │
+│     - Desbloqueo Maestro / Biométrico (Android Keystore)                 │
+│     - Lista de Credenciales (Búsqueda, copia rápida, accesos, autofill)  │
+│     - Gestión de Copias Cifradas (Export/Import) y Ajustes Bóveda       │
+│                                                                          │
+│  4. 📱 PRIVACIDAD (Apps & Permisos)                                      │
+│     - Filtro por riesgo: Cámara & Mic, Ubicación, SMS/Contactos          │
+│     - Auditoría en tiempo real de permisos concedidos                    │
+│     - Control de restricciones en segundo plano (vía Root)               │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 2. Dashboard (Pestaña Inicio)
 
-- **Salud del dispositivo:** calcula un porcentaje basado en controles reales (motor nativo, bloqueo de pantalla, parche de seguridad, DNS privado). No usa números inventados.
-- **Tarjeta de Bóveda:** muestra estado real (abierta con recuento / bloqueada / vacía / sin motor) y botón de acceso rápido.
-- **Tarjeta de Último Escaneo:** lee `Prefs.lastScanAt` para mostrar tiempo transcurrido, archivos procesados y hallazgos.
-- **Accesos rápidos:** generador de contraseñas, cifrador de texto y verificación de archivo suelto.
+- **Salud del dispositivo:** calcula un porcentaje basado en controles reales (motor nativo, bloqueo de pantalla, parche de seguridad, DNS privado).
+- **Tarjetas de Estado:** estado de la bóveda, último escaneo e historial rápido.
+- **Accesos rápidos:** disparadores de 1 toque para escaneo, bóveda, DNS y panel de herramientas.
 
-## 3. Pestaña Seguridad
+## 3. Escáner de Malware (Pestaña Escáner)
 
-- **Detector de permisos en tiempo real (`PermissionMonitor`):**
-  Audita apps de terceros instaladas y enumera cuáles tienen concedidos permisos sensibles (Ubicación, Cámara, Micrófono, Contactos, SMS, Registro de llamadas, Dibujar sobre otras apps). Sin falsos positivos (compara permisos concedidos reales).
-- **Bloqueo de apps (`PrivilegedEngine`):**
-  Restringe actividad en segundo plano mediante `am set-inactive <pkg> true` y `appops set <pkg> RUN_IN_BACKGROUND ignore`. Requiere root; se revierte cuando la persona lo decide.
-- **Historial de escaneos (`HistoryManager`):**
-  Guarda en `SharedPreferences` de forma estructurada los últimos 10 escaneos (`timestamp`, `mode`, `files`, `findings`, `vtUsed`). Permite borrado completo.
+- **Escaneo del sistema:** Modos Rápido y Completo con `ScanEngine`.
+- **Análisis puntual:** Cálculo de hash SHA-256 de archivos o APKs mediante `SecurityBridge` (Rust).
+- **Historial:** Persistencia de escaneos anteriores en `HistoryManager`.
+- **Configuración:** Actualización de firmas `.vxdb` y VirusTotal.
 
-## 4. Escáner, Bóveda, Apps, VirusTotal, DNS
+## 4. Bóveda de Contraseñas (Pestaña Bóveda)
 
-*(Sin cambios respecto a v0.6.0; se mantienen todas las invariantes de seguridad de `constitution.md`).*
+- Cifrado seguro con Argon2id y ChaCha20-Poly1305.
+- Copia rápida de usuario y clave.
+- Desbloqueo biométrico integrado con Android Keystore.
+- Soporte para Autofill del sistema.
+
+## 5. Privacidad y Permisos (Pestaña Privacidad)
+
+- `PermissionMonitor`: Audita permisos concedidos en tiempo real por categoría (Cámara/Mic, Ubicación, SMS/Contactos).
+- `PrivilegedEngine`: Restricción de ejecución en segundo plano para apps seleccionadas mediante root.
+
+## 6. Panel de Herramientas Cripto
+
+- Diálogo/Modal accesible desde cualquier parte de la app con el Generador de Contraseñas de Alta Entropía y Cifrador de Texto Standalone (`vgx1:`).

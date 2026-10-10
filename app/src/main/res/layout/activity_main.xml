@@ -13,11 +13,12 @@
         android:background="@color/vx_bg_alt"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_shield"
             app:tint="@color/vx_accent" />
@@ -26,7 +27,7 @@
             style="@style/VxTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:text="@string/app_name"
             android:textSize="20sp" />
@@ -36,11 +37,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chip"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
             android:text="@string/access_standard"
             android:textColor="@color/vx_accent_text"
             android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/btnTopTools"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tools_title"
+            android:src="@drawable/ic_lock"
+            app:tint="@color/vx_text" />
     </LinearLayout>
 
     <FrameLayout
@@ -48,7 +59,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- TAB INICIO: dashboard con tarjetas de estado -->
+        <!-- 1. TAB INICIO: Dashboard general -->
         <ScrollView
             android:id="@+id/scrollHome"
             android:layout_width="match_parent"
@@ -66,7 +77,6 @@
                     style="@style/VxTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
                     android:text="@string/home_title" />
 
                 <TextView
@@ -84,7 +94,61 @@
                     android:layout_marginTop="16dp"
                     android:visibility="gone" />
 
-                <!-- Tarjeta: Bóveda -->
+                <!-- Accesos Rápidos de 1 toque (Cuadrícula limpia) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnQuickScan"
+                        style="@style/VxButtonSecondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/dash_quick_scan"
+                        app:icon="@drawable/ic_shield"
+                        app:iconGravity="top" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnQuickVault"
+                        style="@style/VxButtonSecondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_weight="1"
+                        android:text="@string/dash_quick_vault"
+                        app:icon="@drawable/ic_lock"
+                        app:iconGravity="top" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnQuickDns"
+                        style="@style/VxButtonSecondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_weight="1"
+                        android:text="@string/dash_quick_dns"
+                        app:icon="@drawable/ic_home"
+                        app:iconGravity="top" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnQuickTools"
+                        style="@style/VxButtonSecondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/dash_quick_tools"
+                        app:icon="@drawable/ic_chevron"
+                        app:iconGravity="top" />
+
+                </LinearLayout>
+
+                <!-- Tarjeta: Bóveda de Contraseñas -->
                 <LinearLayout
                     android:id="@+id/panelVaultCard"
                     android:layout_width="match_parent"
@@ -113,12 +177,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="@string/dash_vault_open"
+                        android:text="@string/dash_vault_go"
                         app:icon="@drawable/ic_lock" />
                 </LinearLayout>
 
                 <!-- Tarjeta: Último escaneo -->
                 <LinearLayout
+                    android:id="@+id/panelScanCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -149,47 +214,6 @@
                         app:icon="@drawable/ic_shield" />
                 </LinearLayout>
 
-                <!-- Tarjeta: Accesos rápidos -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_panel"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        style="@style/VxHeading"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dash_quick_heading" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickGenerator"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/dash_quick_generator" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickEncrypt"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/dash_quick_encrypt" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickFileCheck"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/dash_quick_filecheck"
-                        app:icon="@drawable/ic_file" />
-                </LinearLayout>
-
                 <!-- Controles del dispositivo -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -203,14 +227,13 @@
                         style="@style/VxHeading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="0dp"
                         android:text="@string/home_checks_heading" />
 
                     <LinearLayout
                         android:id="@+id/checksContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:divider="@drawable/divider_h"
                         android:orientation="vertical"
                         android:showDividers="middle" />
@@ -219,6 +242,7 @@
 
                 <!-- DNS privado -->
                 <LinearLayout
+                    android:id="@+id/panelDns"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -230,7 +254,6 @@
                         style="@style/VxHeading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="0dp"
                         android:text="@string/dns_heading" />
 
                     <TextView
@@ -260,7 +283,7 @@
                         style="@style/VxButtonSecondary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
                         android:text="@string/dns_quad9" />
 
                     <com.google.android.material.button.MaterialButton
@@ -268,7 +291,7 @@
                         style="@style/VxButtonSecondary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
                         android:text="@string/dns_auto" />
 
                     <include
@@ -276,10 +299,11 @@
                         layout="@layout/view_callout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="12dp"
                         android:visibility="gone" />
                 </LinearLayout>
 
+                <!-- ADB Assistant -->
                 <LinearLayout
                     android:id="@+id/panelAdb"
                     android:layout_width="match_parent"
@@ -294,7 +318,6 @@
                         style="@style/VxHeading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="0dp"
                         android:text="@string/adb_heading" />
 
                     <TextView
@@ -327,6 +350,7 @@
             </LinearLayout>
         </ScrollView>
 
+        <!-- 2. TAB ESCÁNER -->
         <ScrollView
             android:id="@+id/scrollFiles"
             android:layout_width="match_parent"
@@ -342,6 +366,7 @@
                 android:layout_height="wrap_content" />
         </ScrollView>
 
+        <!-- 3. TAB BÓVEDA -->
         <ScrollView
             android:id="@+id/scrollVault"
             android:layout_width="match_parent"
@@ -357,95 +382,10 @@
                 android:layout_height="wrap_content" />
         </ScrollView>
 
-        <ScrollView
-            android:id="@+id/scrollApps"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:fillViewport="true"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    style="@style/VxTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:text="@string/apps_title" />
-
-                <TextView
-                    style="@style/VxMuted"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/apps_subtitle" />
-
-                <include
-                    android:id="@+id/calloutAppsInfo"
-                    layout="@layout/view_callout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:visibility="gone" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRefreshApps"
-                    style="@style/VxButtonSecondary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/apps_refresh" />
-
-                <ProgressBar
-                    android:id="@+id/appsProgress"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:indeterminate="true"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/tvAppsEmpty"
-                    style="@style/VxMuted"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:id="@+id/panelApps"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_panel"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:id="@+id/appsContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:divider="@drawable/divider_h"
-                        android:orientation="vertical"
-                        android:showDividers="middle" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-        </ScrollView>
-
-        <!-- TAB SEGURIDAD: permisos sensibles, bloqueo de apps e historial -->
+        <!-- 4. TAB PRIVACIDAD (Unifica Apps + Auditoría de Permisos + Restricciones) -->
         <include
-            android:id="@+id/screenSecurity"
-            layout="@layout/screen_security"
+            android:id="@+id/screenPrivacy"
+            layout="@layout/screen_privacy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />

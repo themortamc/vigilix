@@ -3,22 +3,23 @@
 > Estado actual, decisiones tomadas y lo que el siguiente agente
 > (humano o IA) debe saber antes de tocar una línea de código.
 >
-> **Última actualización:** 2026-10-10 (v0.7.0 — Dashboard, pestaña Seguridad e Historial).
+> **Última actualización:** 2026-10-10 (v0.8.0 — Reorganización total de arquitectura de información).
 
 ## Estado actual
 
-- **Versión:** 0.7.0 (`versionCode=5`, `versionName="0.7.0"`).
+- **Versión:** 0.8.0 (`versionCode=6`, `versionName="0.8.0"`).
 - **CI:** `rust-tests` (21 tests) y `build-apk` en `.github/workflows/build.yml`.
-- **Estructura:** `app/` (Kotlin Android), `rust/` (núcleo cdylib + tests),
-  `.github/workflows/build.yml`, `SECURITY_AUDIT.md`.
-- **Ubicación:** `/home/mortamc/Downloads/vigilix/`.
+- **Estructura:** `app/` (Kotlin Android), `rust/` (núcleo cdylib + tests).
 
-## Cambios realizados (v0.7.0)
+## Reorganización IA v2.0 (2026-10-10)
 
-1. **Dashboard principal (Obsidian UI):** salud del dispositivo con porcentaje real, tarjeta de bóveda con recuento de contraseñas, tarjeta de último escaneo con tiempo relativo, y accesos rápidos.
-2. **Pestaña Seguridad:** detector de permisos sensibles en tiempo real (`PermissionMonitor`), bloqueo/desbloqueo de apps en segundo plano con root (`PrivilegedEngine`), y historial de los últimos 10 escaneos (`HistoryManager`).
-3. **Persistencia del escaneo:** `ScanEngine` guarda fecha, modo, archivos analizados y hallazgos en `Prefs` y `HistoryManager` al terminar.
-4. **Harness e Invariantes intactos:** 21 tests de Rust pasando verde. Sin secretos, sin dependencias externas pesadas, sin datos del usuario saliendo del teléfono.
+1. **4 Pestañas Principales en BottomNav:**
+   - 🏠 **Inicio**: Dashboard general con indicador de salud, estado de bóveda, último escaneo y controles del sistema.
+   - 🛡️ **Escáner**: Escaneo de teléfono (Rápido/Completo), verificación de archivos sueltos, historial y firmas/VT.
+   - 🔐 **Bóveda**: Bóveda de contraseñas limpia y enfocada en credenciales.
+   - 📱 **Privacidad**: Inspector unificado de apps con filtros por riesgo (Cámara/Mic, Ubicación, SMS) y restricción root.
+2. **Panel de Herramientas Modal (🔧):**
+   - Acceso desde la barra superior a Cifrador de Texto (`vgx1:`) y Generador de Contraseñas de alta entropía.
 
 ## Comandos de verificación
 

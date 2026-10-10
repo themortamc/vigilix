@@ -12,16 +12,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vigilix.app.databinding.ActivityMainBinding
+import com.vigilix.app.databinding.DialogToolsBinding
 import com.vigilix.app.databinding.ItemAppBinding
 import com.vigilix.app.databinding.ItemCheckBinding
-import com.vigilix.app.databinding.ItemSensitiveAppBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -29,9 +31,17 @@ import kotlinx.coroutines.withContext
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.ln
+import kotlin.math.roundToInt
 
 /**
- * Pantalla principal con cinco secciones: Inicio (Dashboard), Escáner, Bóveda, Apps y Seguridad.
+ * Pantalla principal de Vigilix (IA v2.0):
+ * 4 Pestañas:
+ * 1. 🏠 Inicio (Dashboard, Salud, Accesos Rápidos, DNS)
+ * 2. 🛡️ Escáner (Escaneo de Teléfono, Archivo Suelto, Historial, VT/DB)
+ * 3. 🔐 Bóveda (Gestor de Contraseñas, Autofill, Backup)
+ * 4. 📱 Privacidad (Inspector de Permisos por Riesgo, Restricción Root)
+ * + 🔧 Panel Modal de Herramientas Cripto desde la barra superior.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -39,8 +49,7 @@ class MainActivity : AppCompatActivity() {
         HOME(R.id.nav_home),
         FILES(R.id.nav_files),
         VAULT(R.id.nav_vault),
-        APPS(R.id.nav_apps),
-        SECURITY(R.id.nav_security),
+        PRIVACY(R.id.nav_privacy),
     }
 
     private class Check(
@@ -49,8 +58,6 @@ class MainActivity : AppCompatActivity() {
         val detail: String,
         val counted: Boolean = true,
     )
-
-    private class AppEntry(val pkg: String, val label: String, val icon: Drawable)
 
     private lateinit var b: ActivityMainBinding
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -61,8 +68,8 @@ class MainActivity : AppCompatActivity() {
 
     private var tab = Tab.HOME
     private var rootState: Boolean? = null
-    private var appsLoaded = false
-    private var appsJob: Job? = null
+    private var privacyAppsLoaded = false
+    private var privacyJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,9 +78,9 @@ class MainActivity : AppCompatActivity() {
 
         tab = savedInstanceState?.getInt(STATE_TAB)?.let { Tab.values().getOrNull(it) } ?: Tab.HOME
 
+        setupHeader()
         setupHome()
-        setupApps()
-        setupSecurity()
+        setupPrivacy()
         scanner = ScannerScreen(this, b.screenScanner).also { it.setup() }
         vault = VaultScreen(this, b.screenVault).also { it.setup() }
 
@@ -83,10 +90,9 @@ class MainActivity : AppCompatActivity() {
             if (target != null) {
                 showTab(target)
                 if (target == Tab.HOME) refreshHome()
-                if (target == Tab.APPS && !appsLoaded) loadApps()
                 if (target == Tab.FILES) scanner.refresh()
                 if (target == Tab.VAULT) vault.refresh()
-                if (target == Tab.SECURITY) refreshSecurity()
+                if (target == Tab.PRIVACY) loadPrivacyApps()
             }
             target != null
         }
@@ -107,10 +113,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         when (tab) {
             Tab.HOME -> refreshHome()
-            Tab.APPS -> if (appsLoaded) loadApps()
             Tab.FILES -> scanner.refresh()
             Tab.VAULT -> vault.refresh()
-            Tab.SECURITY -> refreshSecurity()
+            Tab.PRIVACY -> if (privacyAppsLoaded) loadPrivacyApps()
         }
     }
 
@@ -130,14 +135,17 @@ class MainActivity : AppCompatActivity() {
         b.scrollHome.isVisible = target == Tab.HOME
         b.scrollFiles.isVisible = target == Tab.FILES
         b.scrollVault.isVisible = target == Tab.VAULT
-        b.scrollApps.isVisible = target == Tab.APPS
-        b.screenSecurity.scrollSecurity.isVisible = target == Tab.SECURITY
+        b.screenPrivacy.scrollPrivacy.isVisible = target == Tab.PRIVACY
 
         if (target == Tab.VAULT) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
+    }
+
+    private fun setupHeader() {
+        b.btnTopTools.setOnClickListener { showToolsDialog() }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -151,11 +159,16 @@ class MainActivity : AppCompatActivity() {
         b.btnDnsQuad9.setOnClickListener { onDnsClicked(DnsProvider.QUAD9) }
         b.btnDnsAuto.setOnClickListener { onDnsClicked(DnsProvider.AUTOMATIC) }
 
+        // Botones de acceso rápido
+        b.btnQuickScan.setOnClickListener { showTab(Tab.FILES); b.bottomNav.selectedItemId = R.id.nav_files }
+        b.btnQuickVault.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
+        b.btnQuickDns.setOnClickListener {
+            b.scrollHome.smoothScrollTo(0, b.panelDns.top)
+        }
+        b.btnQuickTools.setOnClickListener { showToolsDialog() }
+
         b.btnVaultCard.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
         b.btnScanCard.setOnClickListener { showTab(Tab.FILES); b.bottomNav.selectedItemId = R.id.nav_files }
-        b.btnQuickGenerator.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
-        b.btnQuickEncrypt.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
-        b.btnQuickFileCheck.setOnClickListener { showTab(Tab.FILES); b.bottomNav.selectedItemId = R.id.nav_files }
 
         updateAccessChip()
     }
@@ -398,218 +411,195 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ---------------------------------------------------------------------------------------------
-    // APPS
+    // PRIVACIDAD & INSPECTOR DE APPS
     // ---------------------------------------------------------------------------------------------
 
-    private fun setupApps() {
-        b.calloutAppsInfo.show(
-            Status.INFO,
-            getString(R.string.apps_info_title),
-            getString(R.string.apps_info_body),
-        )
-        b.btnRefreshApps.setOnClickListener { loadApps() }
+    private fun setupPrivacy() {
+        val p = b.screenPrivacy
+        p.chipGroupFilters.setOnCheckedStateChangeListener { _, _ -> loadPrivacyApps() }
+        p.btnRestrictApp.setOnClickListener { runRestrictApp(restrict = true) }
+        p.btnUnrestrictApp.setOnClickListener { runRestrictApp(restrict = false) }
     }
 
-    private fun loadApps() {
-        appsJob?.cancel()
-        b.tvAppsEmpty.isVisible = false
-        b.appsProgress.isVisible = b.appsContainer.childCount == 0
-        appsJob = lifecycleScope.launch {
-            val apps = withContext(Dispatchers.IO) { queryApps() }
-            appsLoaded = true
-            b.appsProgress.isVisible = false
-            renderApps(apps)
+    private fun loadPrivacyApps() {
+        privacyJob?.cancel()
+        val p = b.screenPrivacy
+        p.tvPrivacyEmpty.isVisible = false
+        p.progressPrivacy.isVisible = p.privacyAppsContainer.childCount == 0
+
+        privacyJob = lifecycleScope.launch {
+            val apps = withContext(Dispatchers.IO) { PermissionMonitor.findSensitiveApps(applicationContext) }
+            privacyAppsLoaded = true
+            p.progressPrivacy.isVisible = false
+            renderPrivacyApps(apps)
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun queryApps(): List<AppEntry> {
-        val pm = packageManager
-        val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong()))
-        } else {
-            pm.getInstalledPackages(PackageManager.GET_PERMISSIONS)
+    private fun renderPrivacyApps(apps: List<PermissionMonitor.SensitiveApp>) {
+        val p = b.screenPrivacy
+        p.privacyAppsContainer.removeAllViews()
+
+        // Filtrar según chip seleccionado
+        val filtered = when (p.chipGroupFilters.checkedChipId) {
+            R.id.chipFilterCameraMic -> apps.filter { it.granted.contains("Cámara") || it.granted.contains("Micrófono") }
+            R.id.chipFilterLocation -> apps.filter { it.granted.contains("Ubicación") }
+            R.id.chipFilterSmsContacts -> apps.filter { it.granted.contains("SMS") || it.granted.contains("Contactos") }
+            else -> apps
         }
 
-        val result = ArrayList<AppEntry>()
-        for (info in packages) {
-            val appInfo = info.applicationInfo ?: continue
-            if (info.packageName == packageName) continue
-            val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            val isUpdatedSystem = (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
-            if (isSystem && !isUpdatedSystem) continue
-            if (!isGranted(info, android.Manifest.permission.CAMERA)) continue
-            if (!isGranted(info, android.Manifest.permission.RECORD_AUDIO)) continue
-            result.add(AppEntry(info.packageName, appInfo.loadLabel(pm).toString(), appInfo.loadIcon(pm)))
-        }
-        result.sortBy { it.label.lowercase(Locale.getDefault()) }
-        return result
-    }
+        p.tvPrivacyEmpty.isVisible = filtered.isEmpty()
+        if (filtered.isEmpty()) return
 
-    private fun isGranted(info: PackageInfo, permission: String): Boolean {
-        val requested = info.requestedPermissions ?: return false
-        val flags = info.requestedPermissionsFlags ?: return false
-        val index = requested.indexOf(permission)
-        return index >= 0 && index < flags.size &&
-            (flags[index] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
-    }
-
-    private fun renderApps(apps: List<AppEntry>) {
-        b.appsContainer.removeAllViews()
-        b.panelApps.isVisible = apps.isNotEmpty()
-        b.tvAppsEmpty.isVisible = apps.isEmpty()
-        if (apps.isEmpty()) {
-            b.tvAppsEmpty.text = getString(R.string.apps_empty)
-            return
-        }
-        for (app in apps) {
-            val row = ItemAppBinding.inflate(layoutInflater, b.appsContainer, false)
-            row.ivAppIcon.setImageDrawable(app.icon)
+        for (app in filtered) {
+            val row = ItemAppBinding.inflate(layoutInflater, p.privacyAppsContainer, false)
+            val icon = try {
+                packageManager.getApplicationIcon(app.packageName)
+            } catch (e: Exception) {
+                ContextCompat.getDrawable(this, R.drawable.ic_shield)
+            }
+            row.ivAppIcon.setImageDrawable(icon)
             row.tvAppName.text = app.label
-            row.tvAppPackage.text = app.pkg
-            row.root.setOnClickListener { showAppDialog(app) }
-            b.appsContainer.addView(row.root)
+            row.tvAppPackage.text = app.granted.joinToString(" · ")
+            row.root.setOnClickListener { showPrivacyAppDialog(app) }
+            p.privacyAppsContainer.addView(row.root)
         }
     }
 
-    private fun showAppDialog(app: AppEntry) {
+    private fun showPrivacyAppDialog(app: PermissionMonitor.SensitiveApp) {
         MaterialAlertDialogBuilder(this)
             .setTitle(app.label)
-            .setIcon(app.icon)
-            .setMessage(getString(R.string.app_dialog_body, app.pkg))
-            .setPositiveButton(R.string.app_open_settings) { _, _ -> openAppSettings(app.pkg) }
-            .setNeutralButton(R.string.app_more_root) { _, _ -> onRootOptions(app) }
+            .setMessage("${app.packageName}\n\nPermisos concedidos: ${app.granted.joinToString(", ")}")
+            .setPositiveButton(R.string.privacy_app_settings) { _, _ -> openAppSettings(app.packageName) }
+            .setNeutralButton(R.string.privacy_app_more_root) { _, _ ->
+                lifecycleScope.launch {
+                    if (!ensureRoot()) {
+                        toast(R.string.privacy_app_needs_root)
+                        return@launch
+                    }
+                    b.screenPrivacy.etRestrictApp.setText(app.packageName)
+                    b.screenPrivacy.scrollPrivacy.smoothScrollTo(0, b.screenPrivacy.tilRestrictApp.top)
+                }
+            }
             .setNegativeButton(R.string.close, null)
             .show()
     }
 
-    private fun onRootOptions(app: AppEntry) {
-        lifecycleScope.launch {
-            if (!ensureRoot()) {
-                toast(R.string.app_needs_root)
-                return@launch
-            }
-            MaterialAlertDialogBuilder(this@MainActivity)
-                .setTitle(getString(R.string.app_restrict_title, app.label))
-                .setMessage(R.string.app_restrict_body)
-                .setPositiveButton(R.string.app_restrict) { _, _ -> runBackgroundRule(app, restrict = true) }
-                .setNeutralButton(R.string.app_unrestrict) { _, _ -> runBackgroundRule(app, restrict = false) }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
-    }
-
-    private fun runBackgroundRule(app: AppEntry, restrict: Boolean) {
-        lifecycleScope.launch {
-            val result = if (restrict) {
-                PrivilegedEngine.restrictBackground(app.pkg)
-            } else {
-                PrivilegedEngine.allowBackground(app.pkg)
-            }
-            toast(
-                when {
-                    !result.ok -> R.string.app_rule_failed
-                    restrict -> R.string.app_restricted
-                    else -> R.string.app_unrestricted
-                },
-            )
-        }
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // SEGURIDAD
-    // ---------------------------------------------------------------------------------------------
-
-    private fun setupSecurity() {
-        val sec = b.screenSecurity
-        sec.btnRefreshPerms.setOnClickListener { loadSensitiveApps() }
-        sec.btnLockApp.setOnClickListener { runLockApp(restrict = true) }
-        sec.btnUnlockApp.setOnClickListener { runLockApp(restrict = false) }
-        sec.btnClearHistory.setOnClickListener { clearHistory() }
-    }
-
-    private fun refreshSecurity() {
-        loadSensitiveApps()
-        refreshHistory()
-    }
-
-    private fun loadSensitiveApps() {
-        val sec = b.screenSecurity
-        sec.progressPerms.isVisible = true
-        sec.tvPermsEmpty.isVisible = false
-        lifecycleScope.launch {
-            val apps = withContext(Dispatchers.IO) { PermissionMonitor.findSensitiveApps(applicationContext) }
-            sec.progressPerms.isVisible = false
-            renderSensitiveApps(apps)
-        }
-    }
-
-    private fun renderSensitiveApps(apps: List<PermissionMonitor.SensitiveApp>) {
-        val sec = b.screenSecurity
-        sec.permsContainer.removeAllViews()
-        sec.tvPermsEmpty.isVisible = apps.isEmpty()
-        if (apps.isEmpty()) {
-            sec.tvPermsEmpty.setText(R.string.sec_perms_empty)
-            return
-        }
-        for (app in apps) {
-            val row = ItemSensitiveAppBinding.inflate(layoutInflater, sec.permsContainer, false)
-            row.tvAppLabel.text = app.label
-            row.tvAppPerms.text = app.granted.joinToString(" · ")
-            row.root.setOnClickListener { openAppSettings(app.packageName) }
-            sec.permsContainer.addView(row.root)
-        }
-    }
-
-    private fun runLockApp(restrict: Boolean) {
-        val sec = b.screenSecurity
-        val pkg = sec.etLockApp.text?.toString().orEmpty().trim()
+    private fun runRestrictApp(restrict: Boolean) {
+        val p = b.screenPrivacy
+        val pkg = p.etRestrictApp.text?.toString().orEmpty().trim()
         if (!PrivilegedEngine.isValidPackage(pkg)) {
-            sec.tvLockStatus.setText(R.string.sec_lock_invalid)
+            p.tvRestrictStatus.setText(R.string.privacy_restrict_invalid)
             return
         }
         lifecycleScope.launch {
             if (!ensureRoot()) {
-                sec.tvLockStatus.setText(R.string.app_needs_root)
+                p.tvRestrictStatus.setText(R.string.privacy_app_needs_root)
                 return@launch
             }
-            sec.tvLockStatus.setText(R.string.sec_lock_working)
+            p.tvRestrictStatus.setText(R.string.privacy_restrict_working)
             val result = if (restrict) PrivilegedEngine.restrictBackground(pkg) else PrivilegedEngine.allowBackground(pkg)
-            sec.tvLockStatus.setText(
+            p.tvRestrictStatus.setText(
                 if (result.ok) {
-                    if (restrict) R.string.sec_lock_done else R.string.sec_unlock_done
+                    if (restrict) R.string.privacy_restrict_done else R.string.privacy_unrestrict_done
                 } else {
-                    R.string.sec_lock_failed
+                    R.string.privacy_restrict_failed
                 },
             )
         }
     }
 
-    private fun refreshHistory() {
-        val sec = b.screenSecurity
-        val entries = HistoryManager.recentEntries(this)
-        sec.historyList.removeAllViews()
-        sec.btnClearHistory.isVisible = entries.isNotEmpty()
+    // ---------------------------------------------------------------------------------------------
+    // MODAL DE HERRAMIENTAS CRIPTO (🔧)
+    // ---------------------------------------------------------------------------------------------
 
-        for (entry in entries.reversed()) {
-            val row = ItemCheckBinding.inflate(layoutInflater, sec.historyList, false)
-            row.ivCheck.setStatus(if (entry.findings == 0) Status.OK else Status.WARN)
-            row.tvCheckTitle.text = getString(R.string.sec_hist_title, entry.mode, timeAgo(entry.timestamp))
-            row.tvCheckDetail.text = getString(R.string.sec_hist_detail, entry.files, entry.findings, entry.vtUsed)
-            sec.historyList.addView(row.root)
+    private var toolEncrypt = true
+
+    private fun showToolsDialog() {
+        val d = DialogToolsBinding.inflate(LayoutInflater.from(this))
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.tools_title)
+            .setView(d.root)
+            .setNegativeButton(R.string.tools_close, null)
+            .create()
+
+        // Setup Generador
+        fun passwordLength() = 12 + d.sbToolLength.progress * 4
+        fun updateLengthLabel() {
+            d.tvToolLengthLabel.text = getString(R.string.gen_length, passwordLength())
         }
-    }
+        updateLengthLabel()
+        d.sbToolLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) = updateLengthLabel()
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+        })
 
-    private fun clearHistory() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.sec_history_clear_title)
-            .setMessage(R.string.sec_history_clear_body)
-            .setPositiveButton(R.string.sec_history_clear) { _, _ ->
-                HistoryManager.clear(this)
-                refreshHistory()
+        d.btnToolGenerate.setOnClickListener {
+            val length = passwordLength()
+            val pass = SecurityBridge.newPassword(length)
+            if (pass != null) {
+                d.tvToolPassword.text = pass
+                d.tvToolPassword.isVisible = true
+                val bits = (length * ln(88.0) / ln(2.0)).roundToInt()
+                d.tvToolPasswordMeta.text = getString(R.string.gen_meta, bits)
+                d.tvToolPasswordMeta.isVisible = true
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        }
+        d.btnToolCopyPassword.setOnClickListener {
+            val pass = d.tvToolPassword.text.toString()
+            if (pass.isNotEmpty()) copyToClipboard(pass, sensitive = true)
+        }
+
+        // Setup Cifrador
+        d.toggleToolCryptMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                toolEncrypt = checkedId == R.id.btnToolModeEncrypt
+                d.tilToolData.hint = getString(if (toolEncrypt) R.string.data_hint_encrypt else R.string.data_hint_decrypt)
+                d.btnToolRunCrypt.setText(if (toolEncrypt) R.string.run_encrypt else R.string.run_decrypt)
+            }
+        }
+
+        d.btnToolRunCrypt.setOnClickListener {
+            val key = d.etToolKey.text?.toString().orEmpty()
+            val data = d.etToolData.text?.toString().orEmpty()
+            d.tilToolKey.error = null
+            d.tilToolData.error = null
+
+            if (key.isEmpty()) {
+                d.tilToolKey.error = getString(R.string.key_empty)
+                return@setOnClickListener
+            }
+            if (data.isBlank()) {
+                d.tilToolData.error = getString(R.string.data_empty)
+                return@setOnClickListener
+            }
+
+            d.btnToolRunCrypt.isEnabled = false
+            d.btnToolRunCrypt.setText(R.string.working)
+
+            lifecycleScope.launch {
+                val out = withContext(Dispatchers.Default) {
+                    if (toolEncrypt) SecurityBridge.encrypt(key, data) else SecurityBridge.decrypt(key, data)
+                }
+                d.btnToolRunCrypt.isEnabled = true
+                d.btnToolRunCrypt.setText(if (toolEncrypt) R.string.run_encrypt else R.string.run_decrypt)
+
+                if (out != null) {
+                    d.tvToolCryptResult.text = out
+                    d.tvToolCryptResult.isVisible = true
+                    d.btnToolCopyResult.isVisible = true
+                } else {
+                    toast(if (toolEncrypt) R.string.error_encrypt_title else R.string.error_decrypt_title)
+                }
+            }
+        }
+
+        d.btnToolCopyResult.setOnClickListener {
+            val res = d.tvToolCryptResult.text.toString()
+            if (res.isNotEmpty()) copyToClipboard(res, sensitive = !toolEncrypt)
+        }
+
+        dialog.show()
     }
 
     private fun timeAgo(millis: Long): String {

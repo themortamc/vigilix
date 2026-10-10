@@ -6,18 +6,14 @@
         android:title="@string/nav_home" />
     <item
         android:id="@+id/nav_files"
-        android:icon="@drawable/ic_file"
+        android:icon="@drawable/ic_shield"
         android:title="@string/nav_files" />
     <item
         android:id="@+id/nav_vault"
         android:icon="@drawable/ic_lock"
         android:title="@string/nav_vault" />
     <item
-        android:id="@+id/nav_apps"
+        android:id="@+id/nav_privacy"
         android:icon="@drawable/ic_apps"
-        android:title="@string/nav_apps" />
-    <item
-        android:id="@+id/nav_security"
-        android:icon="@drawable/ic_shield"
-        android:title="@string/nav_security" />
+        android:title="@string/nav_privacy" />
 </menu>

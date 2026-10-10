@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Para listar qué apps tienen cámara y micrófono concedidos y revisar las apps instaladas. -->
+    <!-- Para listar qué apps tienen cámara y micrófonos concedidos y revisar las apps instaladas. -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
