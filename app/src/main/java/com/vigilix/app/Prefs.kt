@@ -19,6 +19,9 @@ object Prefs {
     private const val K_DB_URL = "db_url_box"
     private const val K_DB_UPDATED = "db_updated_at"
     private const val K_SCAN_FULL = "scan_full"
+    private const val K_LAST_SCAN_AT = "last_scan_at"
+    private const val K_LAST_SCAN_FINDINGS = "last_scan_findings"
+    private const val K_LAST_SCAN_FILES = "last_scan_files"
 
     private fun sp(context: Context): SharedPreferences =
         context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
@@ -118,4 +121,19 @@ object Prefs {
     }
 
     private fun today(): Long = System.currentTimeMillis() / 86_400_000L
+
+    /** Guarda el resultado del último escaneo para el dashboard. */
+    fun setLastScan(context: Context, files: Long, findings: Int) {
+        sp(context).edit()
+            .putLong(K_LAST_SCAN_AT, System.currentTimeMillis())
+            .putLong(K_LAST_SCAN_FILES, files)
+            .putInt(K_LAST_SCAN_FINDINGS, findings)
+            .apply()
+    }
+
+    fun lastScanAt(context: Context): Long = sp(context).getLong(K_LAST_SCAN_AT, 0L)
+
+    fun lastScanFiles(context: Context): Long = sp(context).getLong(K_LAST_SCAN_FILES, 0L)
+
+    fun lastScanFindings(context: Context): Int = sp(context).getInt(K_LAST_SCAN_FINDINGS, 0)
 }

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
@@ -125,6 +124,17 @@ object ScanEngine {
                 }
             }
             publish { it.copy(phase = ScanPhase.DONE, currentPath = "") }
+            Prefs.setLastScan(app, state.scannedFiles, findings.size)
+            HistoryManager.addEntry(
+                app,
+                HistoryManager.Entry(
+                    timestamp = System.currentTimeMillis(),
+                    mode = if (full) "Completo" else "Rápido",
+                    files = state.scannedFiles,
+                    findings = findings.size,
+                    vtUsed = state.vtDone,
+                ),
+            )
         } catch (e: CancellationException) {
             publish { it.copy(phase = ScanPhase.CANCELLED, currentPath = "") }
             throw e

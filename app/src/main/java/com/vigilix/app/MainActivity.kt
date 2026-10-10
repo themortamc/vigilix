@@ -7,41 +7,31 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.OpenableColumns
 import android.provider.Settings
-import android.text.format.Formatter
 import android.view.WindowManager
-import android.widget.SeekBar
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vigilix.app.databinding.ActivityMainBinding
 import com.vigilix.app.databinding.ItemAppBinding
 import com.vigilix.app.databinding.ItemCheckBinding
-import com.vigilix.app.databinding.ItemFileBinding
+import com.vigilix.app.databinding.ItemSensitiveAppBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.security.MessageDigest
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlin.math.ln
-import kotlin.math.roundToInt
 
 /**
- * Pantalla única con cuatro secciones: Inicio, Archivos, Bóveda y Apps.
- * Toda la lógica de seguridad vive en SecurityBridge (Rust), DnsController y PrivilegedEngine.
+ * Pantalla principal con cinco secciones: Inicio (Dashboard), Escáner, Bóveda, Apps y Seguridad.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -50,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         FILES(R.id.nav_files),
         VAULT(R.id.nav_vault),
         APPS(R.id.nav_apps),
+        SECURITY(R.id.nav_security),
     }
 
     private class Check(
@@ -73,10 +64,6 @@ class MainActivity : AppCompatActivity() {
     private var appsLoaded = false
     private var appsJob: Job? = null
 
-    // ---------------------------------------------------------------------------------------------
-    // Ciclo de vida
-    // ---------------------------------------------------------------------------------------------
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
@@ -86,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         setupHome()
         setupApps()
+        setupSecurity()
         scanner = ScannerScreen(this, b.screenScanner).also { it.setup() }
         vault = VaultScreen(this, b.screenVault).also { it.setup() }
 
@@ -94,10 +82,11 @@ class MainActivity : AppCompatActivity() {
             val target = Tab.values().firstOrNull { it.menuId == item.itemId }
             if (target != null) {
                 showTab(target)
-                if (target == Tab.HOME) refreshChecks()
+                if (target == Tab.HOME) refreshHome()
                 if (target == Tab.APPS && !appsLoaded) loadApps()
                 if (target == Tab.FILES) scanner.refresh()
                 if (target == Tab.VAULT) vault.refresh()
+                if (target == Tab.SECURITY) refreshSecurity()
             }
             target != null
         }
@@ -116,18 +105,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // La persona pudo cambiar ajustes o permisos en otra pantalla.
         when (tab) {
-            Tab.HOME -> refreshChecks()
+            Tab.HOME -> refreshHome()
             Tab.APPS -> if (appsLoaded) loadApps()
             Tab.FILES -> scanner.refresh()
             Tab.VAULT -> vault.refresh()
+            Tab.SECURITY -> refreshSecurity()
         }
     }
 
     override fun onStop() {
         super.onStop()
-        // Si la app queda en segundo plano, los datos sensibles se borran de la pantalla tras un rato.
         mainHandler.postDelayed(wipeScreenTask, VAULT_WIPE_DELAY_MS)
     }
 
@@ -143,8 +131,8 @@ class MainActivity : AppCompatActivity() {
         b.scrollFiles.isVisible = target == Tab.FILES
         b.scrollVault.isVisible = target == Tab.VAULT
         b.scrollApps.isVisible = target == Tab.APPS
+        b.screenSecurity.scrollSecurity.isVisible = target == Tab.SECURITY
 
-        // Capturas de pantalla y vista previa de "recientes" bloqueadas solo en la bóveda.
         if (target == Tab.VAULT) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
@@ -153,7 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ---------------------------------------------------------------------------------------------
-    // INICIO: controles reales del dispositivo + DNS privado
+    // DASHBOARD / INICIO
     // ---------------------------------------------------------------------------------------------
 
     private fun setupHome() {
@@ -162,7 +150,44 @@ class MainActivity : AppCompatActivity() {
         b.btnDnsAdguard.setOnClickListener { onDnsClicked(DnsProvider.ADGUARD) }
         b.btnDnsQuad9.setOnClickListener { onDnsClicked(DnsProvider.QUAD9) }
         b.btnDnsAuto.setOnClickListener { onDnsClicked(DnsProvider.AUTOMATIC) }
+
+        b.btnVaultCard.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
+        b.btnScanCard.setOnClickListener { showTab(Tab.FILES); b.bottomNav.selectedItemId = R.id.nav_files }
+        b.btnQuickGenerator.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
+        b.btnQuickEncrypt.setOnClickListener { showTab(Tab.VAULT); b.bottomNav.selectedItemId = R.id.nav_vault }
+        b.btnQuickFileCheck.setOnClickListener { showTab(Tab.FILES); b.bottomNav.selectedItemId = R.id.nav_files }
+
         updateAccessChip()
+    }
+
+    private fun refreshHome() {
+        refreshVaultCard()
+        refreshScanCard()
+        refreshChecks()
+    }
+
+    private fun refreshVaultCard() {
+        val exists = VaultStore.exists(this)
+        val unlocked = SecurityBridge.isLoaded && VaultStore.isUnlocked
+        b.tvVaultCard.text = when {
+            !SecurityBridge.isLoaded -> getString(R.string.dash_vault_engine_off)
+            !exists -> getString(R.string.dash_vault_empty)
+            unlocked -> getString(R.string.dash_vault_open_count, VaultStore.count())
+            else -> getString(R.string.dash_vault_locked)
+        }
+        b.btnVaultCard.text = if (unlocked) getString(R.string.dash_vault_go) else getString(R.string.dash_vault_unlock)
+    }
+
+    private fun refreshScanCard() {
+        val lastAt = Prefs.lastScanAt(this)
+        b.tvScanCard.text = if (lastAt == 0L) {
+            getString(R.string.dash_scan_never)
+        } else {
+            val files = Prefs.lastScanFiles(this)
+            val findings = Prefs.lastScanFindings(this)
+            val ago = timeAgo(lastAt)
+            getString(R.string.dash_scan_last, ago, files, findings)
+        }
     }
 
     private fun refreshChecks() {
@@ -177,7 +202,6 @@ class MainActivity : AppCompatActivity() {
             b.checksContainer.addView(row.root)
         }
 
-        // Resumen honesto: cuántos controles reales están en orden (no un porcentaje inventado).
         val counted = checks.filter { it.counted && it.status != Status.INFO }
         val okCount = counted.count { it.status == Status.OK }
         val worst = when {
@@ -284,7 +308,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /** Pide root solo cuando la persona eligió una acción que lo necesita. */
     private suspend fun ensureRoot(): Boolean {
         if (rootState == true) return true
         toast(R.string.root_asking)
@@ -338,7 +361,6 @@ class MainActivity : AppCompatActivity() {
                 return@launch
             }
             val result = PrivilegedEngine.setPrivateDns(provider)
-            // Se vuelve a leer el ajuste real: no se confía solo en el código de salida del comando.
             if (result.ok && DnsController.isApplied(this@MainActivity, provider)) {
                 showDnsDone(provider)
             } else {
@@ -376,7 +398,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ---------------------------------------------------------------------------------------------
-    // APPS: quién tiene cámara y micrófono realmente concedidos
+    // APPS
     // ---------------------------------------------------------------------------------------------
 
     private fun setupApps() {
@@ -416,7 +438,6 @@ class MainActivity : AppCompatActivity() {
             val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
             val isUpdatedSystem = (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
             if (isSystem && !isUpdatedSystem) continue
-            // Se cuentan permisos CONCEDIDOS, no solo pedidos en el manifiesto.
             if (!isGranted(info, android.Manifest.permission.CAMERA)) continue
             if (!isGranted(info, android.Manifest.permission.RECORD_AUDIO)) continue
             result.add(AppEntry(info.packageName, appInfo.loadLabel(pm).toString(), appInfo.loadIcon(pm)))
@@ -426,8 +447,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isGranted(info: PackageInfo, permission: String): Boolean {
-        // requestedPermissions y requestedPermissionsFlags son arreglos paralelos (mismo índice).
-        // Se mira el permiso de la app AJENA: checkSelfPermission() solo sirve para la propia.
         val requested = info.requestedPermissions ?: return false
         val flags = info.requestedPermissionsFlags ?: return false
         val index = requested.indexOf(permission)
@@ -494,6 +513,115 @@ class MainActivity : AppCompatActivity() {
                     else -> R.string.app_unrestricted
                 },
             )
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // SEGURIDAD
+    // ---------------------------------------------------------------------------------------------
+
+    private fun setupSecurity() {
+        val sec = b.screenSecurity
+        sec.btnRefreshPerms.setOnClickListener { loadSensitiveApps() }
+        sec.btnLockApp.setOnClickListener { runLockApp(restrict = true) }
+        sec.btnUnlockApp.setOnClickListener { runLockApp(restrict = false) }
+        sec.btnClearHistory.setOnClickListener { clearHistory() }
+    }
+
+    private fun refreshSecurity() {
+        loadSensitiveApps()
+        refreshHistory()
+    }
+
+    private fun loadSensitiveApps() {
+        val sec = b.screenSecurity
+        sec.progressPerms.isVisible = true
+        sec.tvPermsEmpty.isVisible = false
+        lifecycleScope.launch {
+            val apps = withContext(Dispatchers.IO) { PermissionMonitor.findSensitiveApps(applicationContext) }
+            sec.progressPerms.isVisible = false
+            renderSensitiveApps(apps)
+        }
+    }
+
+    private fun renderSensitiveApps(apps: List<PermissionMonitor.SensitiveApp>) {
+        val sec = b.screenSecurity
+        sec.permsContainer.removeAllViews()
+        sec.tvPermsEmpty.isVisible = apps.isEmpty()
+        if (apps.isEmpty()) {
+            sec.tvPermsEmpty.setText(R.string.sec_perms_empty)
+            return
+        }
+        for (app in apps) {
+            val row = ItemSensitiveAppBinding.inflate(layoutInflater, sec.permsContainer, false)
+            row.tvAppLabel.text = app.label
+            row.tvAppPerms.text = app.granted.joinToString(" · ")
+            row.root.setOnClickListener { openAppSettings(app.packageName) }
+            sec.permsContainer.addView(row.root)
+        }
+    }
+
+    private fun runLockApp(restrict: Boolean) {
+        val sec = b.screenSecurity
+        val pkg = sec.etLockApp.text?.toString().orEmpty().trim()
+        if (!PrivilegedEngine.isValidPackage(pkg)) {
+            sec.tvLockStatus.setText(R.string.sec_lock_invalid)
+            return
+        }
+        lifecycleScope.launch {
+            if (!ensureRoot()) {
+                sec.tvLockStatus.setText(R.string.app_needs_root)
+                return@launch
+            }
+            sec.tvLockStatus.setText(R.string.sec_lock_working)
+            val result = if (restrict) PrivilegedEngine.restrictBackground(pkg) else PrivilegedEngine.allowBackground(pkg)
+            sec.tvLockStatus.setText(
+                if (result.ok) {
+                    if (restrict) R.string.sec_lock_done else R.string.sec_unlock_done
+                } else {
+                    R.string.sec_lock_failed
+                },
+            )
+        }
+    }
+
+    private fun refreshHistory() {
+        val sec = b.screenSecurity
+        val entries = HistoryManager.recentEntries(this)
+        sec.historyList.removeAllViews()
+        sec.btnClearHistory.isVisible = entries.isNotEmpty()
+
+        for (entry in entries.reversed()) {
+            val row = ItemCheckBinding.inflate(layoutInflater, sec.historyList, false)
+            row.ivCheck.setStatus(if (entry.findings == 0) Status.OK else Status.WARN)
+            row.tvCheckTitle.text = getString(R.string.sec_hist_title, entry.mode, timeAgo(entry.timestamp))
+            row.tvCheckDetail.text = getString(R.string.sec_hist_detail, entry.files, entry.findings, entry.vtUsed)
+            sec.historyList.addView(row.root)
+        }
+    }
+
+    private fun clearHistory() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.sec_history_clear_title)
+            .setMessage(R.string.sec_history_clear_body)
+            .setPositiveButton(R.string.sec_history_clear) { _, _ ->
+                HistoryManager.clear(this)
+                refreshHistory()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun timeAgo(millis: Long): String {
+        val diff = System.currentTimeMillis() - millis
+        val minutes = diff / 60_000L
+        val hours = diff / 3_600_000L
+        val days = diff / 86_400_000L
+        return when {
+            minutes < 1 -> "hace unos segundos"
+            minutes < 60 -> "hace $minutes min"
+            hours < 24 -> "hace $hours h"
+            else -> "hace $days d"
         }
     }
 

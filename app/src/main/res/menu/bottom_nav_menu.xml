@@ -16,4 +16,8 @@
         android:id="@+id/nav_apps"
         android:icon="@drawable/ic_apps"
         android:title="@string/nav_apps" />
+    <item
+        android:id="@+id/nav_security"
+        android:icon="@drawable/ic_shield"
+        android:title="@string/nav_security" />
 </menu>
