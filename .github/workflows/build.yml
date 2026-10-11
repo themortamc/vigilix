@@ -52,15 +52,15 @@ jobs:
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
           unzip -q gradle-8.5-bin.zip
-          export GRADLE_HOME=$PWD/gradle-8.5
-          export PATH=$GRADLE_HOME/bin:$PATH
+          echo "GRADLE_HOME=$PWD/gradle-8.5" >> $GITHUB_ENV
+          echo "$PWD/gradle-8.5/bin" >> $GITHUB_PATH
           gradle --version
 
       - name: Ejecutar tests unitarios
         run: |
-          $GRADLE_HOME/bin/gradle --stop
+          gradle --stop
           rm -rf ~/.gradle/caches
-          $GRADLE_HOME/bin/gradle testDebugUnitTest --stacktrace --info --no-daemon --no-build-cache
+          gradle testDebugUnitTest --stacktrace --info --no-daemon --no-build-cache
 
   build-apk:
     runs-on: ubuntu-latest
@@ -106,20 +106,20 @@ jobs:
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
           unzip -q gradle-8.5-bin.zip
-          export GRADLE_HOME=$PWD/gradle-8.5
-          export PATH=$GRADLE_HOME/bin:$PATH
+          echo "GRADLE_HOME=$PWD/gradle-8.5" >> $GITHUB_ENV
+          echo "$PWD/gradle-8.5/bin" >> $GITHUB_PATH
           gradle --version
 
       - name: Compilar APK (debug)
         run: |
-          $GRADLE_HOME/bin/gradle --stop
+          gradle --stop
           rm -rf ~/.gradle/caches
-          $GRADLE_HOME/bin/gradle assembleDebug --stacktrace --no-daemon --no-build-cache
+          gradle assembleDebug --stacktrace --no-daemon --no-build-cache
 
       # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
       - name: Verificar compilación release (R8)
         continue-on-error: true
-        run: $GRADLE_HOME/bin/gradle assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace
 
       - name: Subir APK generado
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
