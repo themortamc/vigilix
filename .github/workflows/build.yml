@@ -72,21 +72,24 @@ jobs:
           fi
           cargo ndk -t arm64-v8a -t x86_64 -o ../app/src/main/jniLibs build --release $LOCKED
 
-      - name: Generar Gradle Wrapper 8.5
+      - name: Configurar Gradle 8.5
         run: |
-          gradle wrapper --gradle-version 8.5 --distribution-type bin
-          chmod +x gradlew
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          export GRADLE_HOME=$PWD/gradle-8.5
+          export PATH=$GRADLE_HOME/bin:$PATH
+          gradle --version
 
       - name: Compilar APK (debug)
         run: |
-          ./gradlew --stop
+          $GRADLE_HOME/bin/gradle --stop
           rm -rf ~/.gradle/caches
-          ./gradlew assembleDebug --stacktrace --no-daemon --no-build-cache
+          $GRADLE_HOME/bin/gradle assembleDebug --stacktrace --no-daemon --no-build-cache
 
       # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
       - name: Verificar compilación release (R8)
         continue-on-error: true
-        run: ./gradlew assembleRelease --stacktrace
+        run: $GRADLE_HOME/bin/gradle assembleRelease --stacktrace
 
       - name: Subir APK generado
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
