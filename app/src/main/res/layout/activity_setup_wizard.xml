@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <data>
-        <variable
-            name="viewModel"
-            type="com.vigilix.app.SetupWizardViewModel" />
-    </data>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/vx_bg">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/vx_bg">
 
         <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
@@ -86,4 +78,3 @@
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
-</layout>
