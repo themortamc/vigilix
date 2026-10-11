@@ -14,7 +14,9 @@
 
 ## Decisiones Arquitectónicas Clave (2026-10-11)
 
-1. **Dual Mode Architecture**: `ModeDetector` (root/debug/magisk) → `AppMode.Root` / `AppMode.NonRoot` → `FeatureGate` expone capacidades por modo + entitlement Pro.
+1. **Regla de Oro Post-Incidente**: **Cero afirmaciones sin confirmación de CI/compilación real.** NUNCA declarar que un cambio compila o está listo sin verificar el estado verde en el log de GitHub Actions o la ejecución local.
+2. **DataBinding vs ViewBinding**: Desactivado `dataBinding` (`dataBinding = false`) en `app/build.gradle.kts` para evitar errores de mutación en `dataBindingMergeDependencyArtifactsDebug` con Gradle 9.x.
+3. **Dual Mode Architecture**: `ModeDetector` (root/debug/magisk) → `AppMode.Root` / `AppMode.NonRoot` → `FeatureGate` expone capacidades por modo + entitlement Pro.
 2. **Experience System**: `ExperienceLevel` (Basic/Advanced/Expert) persistido → `ExperienceManager` → UI adaptativa + wizard dinámico.
 3. **Cloud Gratuita**: Threat Intel en GitHub Pages + Firebase Remote Config (free tier) + workflow diario de sync.
 4. **Subscription $2/mes**: Google Play Billing v6 + fallback → `EntitlementManager` → Pro features gate.

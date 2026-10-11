@@ -22,25 +22,23 @@
 - [x] **Cifrador texto standalone** (formato vgx1:)
 - [x] **VirusTotal por hash** (API key usuario, cache 7 días, rate limit)
 - [x] **Tema claro/oscuro Material 3** (adaptativo)
-- [x] **CI/CD**: Rust tests + Android tests matrix API 26/28/30/34
-- [x] **Subscription $2/mes** (Play Billing v6 + RevenueCat fallback)
-- [x] **Duress PIN / Bóveda falsa**
-- [x] **Testing Android** (JUnit4/Robolectric + Espresso)
+- [x] **CI/CD**: Rust tests + Android unit tests matrix API 26/28/30/34
+- [x] **Export CSV/JSON** (Pro) - Historial escaneos, bóveda (cifrada vgx1:), reportes APK
+- [x] **Crash reporting local cifrado** (opt-in, zero PII, vgx1:)
+- [x] **Quick Settings Tile** "Escanear ahora" + TileService
+- [x] **Cloud Sync WebDAV** (Pro) - Sync bóveda a Nextcloud/ownCloud
 
 ## En curso
 
 - [ ] **Behavioral Analysis Sandbox** (Root + Pro) - Análisis dinámico APK en perfil restringido
-- [ ] **Cloud Sync WebDAV** (Pro) - Sync bóveda a Nextcloud/ownCloud
 - [ ] **Temas extra Material You** (Pro) - 8 temas extra + custom color picker
-- [ ] **Export CSV/HTML/JSON** (Pro) - Historial escaneos, bóveda, reportes APK
 - [ ] **F-Droid build reproducible** - Metadata + build determinista
 
 ## Pendientes — Corto plazo
 
-- [ ] **Widget 1×1 "Escanear ahora"** + Quick Settings Tile
+- [ ] **Widget 1×1 "Escanear ahora"**
 - [ ] **Onboarding coach marks** (tooltips contextuales first-run)
 - [ ] **Accesibilidad TalkBack** completa en todos los flujos
-- [ ] **Crash reporting local cifrado** (opt-in, zero PII)
 - [ ] **Feature flags remotas completas** (kill switch, feature toggles)
 
 ## Pendientes — Mediano plazo
