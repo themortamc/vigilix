@@ -136,4 +136,16 @@ object Prefs {
     fun lastScanFiles(context: Context): Long = sp(context).getLong(K_LAST_SCAN_FILES, 0L)
 
     fun lastScanFindings(context: Context): Int = sp(context).getInt(K_LAST_SCAN_FINDINGS, 0)
+
+    // ----- Generic string storage (para WebDav config, etc.) -----
+
+    fun setString(context: Context, key: String, value: String) {
+        sp(context).edit().putString(key, value).apply()
+    }
+
+    fun getString(context: Context, key: String): String? = sp(context).getString(key, null)
+
+    fun remove(context: Context, key: String) {
+        sp(context).edit().remove(key).apply()
+    }
 }

@@ -101,5 +101,28 @@
                 android:name="android.autofill"
                 android:resource="@xml/autofill_service_config" />
         </service>
+
+        <!-- Quick Settings Tile: "Escanear ahora" -->
+        <service
+            android:name=".ScanTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_scan"
+            android:label="@string/tile_scan"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- FileProvider para exportar archivos (CSV/JSON) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

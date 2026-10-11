@@ -510,4 +510,7 @@
     <string name="next">Siguiente</string>
     <string name="finish">Finalizar</string>
     <string name="skip">Saltar</string>
+    <string name="tile_scan">Escanear</string>
+    <string name="tile_ready">Listo</string>
+    <string name="tile_scanning">Escaneando…</string>
 </resources>

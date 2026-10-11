@@ -553,7 +553,148 @@ strategy:
 
 ---
 
-## 12. Archivos de Configuración Clave
+## 12. Export Manager (Pro Feature)
+
+### 12.1 Propósito
+Permitir al usuario (solo Pro) exportar sus datos en formatos estándar:
+- **Historial de escaneos** → CSV, JSON
+- **Bóveda de contraseñas** → CSV (sin contraseñas por seguridad), JSON (cifrado vgx1:)
+- **Reportes de análisis APK** → HTML (ya existe), JSON
+
+### 12.2 Arquitectura
+```
+ExportManager
+├── exportHistory(context, format, callback)
+├── exportVault(context, format, masterPassword, callback)
+├── exportApkReport(report, format, callback)
+└── shareFile(file, mimeType, context)
+```
+
+### 12.3 Formatos
+| Datos | CSV | JSON |
+|-------|-----|------|
+| Historial | timestamp,mode,files,findings,vtUsed | Array de objetos Entry |
+| Bóveda | id,title,url,package,user,notes,fav,updatedAt (sin pass) | Array de Credential (pass omitido o placeholder) |
+| APK Report | N/A (usa HTML/JSON existente) | AnalysisResult completo |
+
+### 12.4 Seguridad
+- Exportar bóveda requiere desbloqueo con clave maestra (o biometría)
+- Contraseñas **nunca** en CSV plano. En JSON se exporta formato `vgx1:` cifrado
+- Archivo temporal en `cacheDir`, se elimina tras compartir
+
+---
+
+## 13. Crash Reporting Local Cifrado (Opt-in)
+
+### 13.1 Propósito
+Registrar crashes/ANRs localmente con cifrado para diagnóstico sin enviar datos a red.
+
+### 13.2 Arquitectura
+```kotlin
+object CrashLog {
+    fun init(context: Context)        // Instala UncaughtExceptionHandler
+    fun log(context: Context, throwable: Throwable)
+    fun getReports(context): List<CrashReport>
+    fun clear(context: Context)
+}
+```
+
+### 13.3 CrashReport
+```kotlin
+data class CrashReport(
+    val id: String,
+    val timestamp: Long,
+    val thread: String,
+    val exceptionClass: String,
+    val message: String,
+    val stackTrace: String,        // Cifrado vgx1:
+    val deviceInfo: String,        // Modelo, API, versión app
+    val userAction: String?        // Contexto opcional
+)
+```
+
+### 13.4 Políticas
+- **Opt-in explícito** en Settings (solo Expert/Advanced)
+- Cifrado con `SecurityBridge.encrypt()` (vgx1:)
+- Almacenamiento en `filesDir/crash_logs/`
+- Límite: 50 reports, rotación FIFO
+- Cero PII: no URLs, no IPs, no credenciales
+- El usuario puede ver y borrar en Settings
+
+---
+
+## 14. Quick Settings Tile (Escanear Ahora)
+
+### 14.1 Propósito
+Tile en el panel de ajustes rápidos para lanzar escaneo rápido sin abrir la app.
+
+### 14.2 Arquitectura
+```kotlin
+class ScanTileService : TileService() {
+    override fun onClick() {
+        // Lanza ScanService en modo rápido
+        // Actualiza tile state: ACTIVE/INACTIVE/UNAVAILABLE
+    }
+    override fun onTileAdded() { requestListening() }
+}
+```
+
+### 14.3 Manifest
+```xml
+<service
+    android:name=".ScanTileService"
+    android:icon="@drawable/ic_tile_scan"
+    android:label="@string/tile_scan"
+    android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.service.quicksettings.action.QS_TILE" />
+    </intent-filter>
+</service>
+```
+
+---
+
+## 15. Cloud Sync WebDAV (Pro)
+
+### 15.1 Propósito
+Sincronizar bóveda cifrada a Nextcloud/ownCloud/WebDAV compatible. El usuario controla el servidor.
+
+### 15.2 Arquitectura
+```kotlin
+class WebDavSyncManager {
+    suspend fun sync(context: Context, config: WebDavConfig): Result<SyncResult>
+    suspend fun testConnection(config: WebDavConfig): Result<Unit>
+}
+```
+
+### 15.3 WebDavConfig (guardado cifrado con KeystoreCrypto)
+```kotlin
+data class WebDavConfig(
+    val url: String,           // https://cloud.example.com/remote.php/dav/files/user/
+    val username: String,
+    val password: String,      // App password, no contraseña principal
+    val path: String = "vigilix/vault.vgv"
+)
+```
+
+### 15.4 Flujo
+1. Usuario configura en Settings (Pro, Expert)
+2. Test de conexión → OK → Guardar config cifrada
+3. Sync automático cada 24h (WiFi + cargando) o manual
+4. Sube `vault.vgv` (ya cifrado Argon2id+ChaCha20-Poly1305)
+5. Descarga → verifica integridad → importa con `VaultStore.importBlob()`
+6. Conflictos: gana el más reciente por `updatedAt` de credentials
+
+### 15.5 Seguridad
+- Credenciales WebDAV cifradas con KeystoreCrypto (AES-GCM)
+- Solo HTTPS (validación estricta)
+- El servidor nunca ve contraseñas en claro (vault ya cifrado)
+- Fallback: si falla, reintenta en 1h (exponential backoff)
+
+---
+
+## 16. Archivos de Configuración Clave
 
 | Archivo | Propósito |
 |---------|-----------|
@@ -563,10 +704,10 @@ strategy:
 | `MEMORY.md` | Estado actual, decisiones, comandos |
 | `constitution.md` | Invariantes de seguridad |
 | `AGENTS.md` | Guía para agentes IA |
-| `constitution.md` | Invariantes no negociables |
 | `.github/workflows/*.yml` | CI/CD pipelines |
+| `.fdir/f-droid.yml` | Metadata F-Droid (reproducible build) |
 
 ---
 
 **Última actualización:** 2026-10-11 (v1.0 spec)
-**Estado:** En implementación activa — Fase 2/3 (Setup Wizard + Dual Mode)
+**Estado:** En implementación activa — Fase 2/3 (Setup Wizard + Dual Mode + Export + CrashLog + Tile + WebDAV)
