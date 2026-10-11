@@ -78,7 +78,10 @@ jobs:
           chmod +x gradlew
 
       - name: Compilar APK (debug)
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          ./gradlew --stop
+          rm -rf ~/.gradle/caches
+          ./gradlew assembleDebug --stacktrace --no-daemon --no-build-cache
 
       # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
       - name: Verificar compilación release (R8)
