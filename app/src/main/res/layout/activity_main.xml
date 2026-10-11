@@ -6,72 +6,36 @@
     android:background="@color/vx_bg"
     android:orientation="vertical">
 
-    <!-- Barra superior -->
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/vx_bg_alt"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
-
-        <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_shield"
-            app:tint="@color/vx_accent" />
-
-        <TextView
-            style="@style/VxTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:text="@string/app_name"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/tvAccess"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:text="@string/access_standard"
-            android:textColor="@color/vx_accent_text"
-            android:textSize="12sp" />
-
-        <ImageButton
-            android:id="@+id/btnTopTools"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/tools_title"
-            android:src="@drawable/ic_lock"
-            app:tint="@color/vx_text" />
-    </LinearLayout>
+        android:minHeight="?attr/actionBarSize"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        app:navigationIcon="@drawable/ic_shield"
+        app:navigationIconTint="@color/vx_accent"
+        app:title="@string/app_name"
+        app:titleCentered="false" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- 1. TAB INICIO: Dashboard general -->
         <ScrollView
             android:id="@+id/scrollHome"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="vertical">
 
                 <TextView
                     style="@style/VxTitle"
@@ -94,153 +58,15 @@
                     android:layout_marginTop="16dp"
                     android:visibility="gone" />
 
-                <!-- Accesos Rápidos de 1 toque (Cuadrícula limpia) -->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal"
-                    android:weightSum="4">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickScan"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:text="@string/dash_quick_scan"
-                        app:icon="@drawable/ic_shield"
-                        app:iconGravity="top" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickVault"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="2dp"
-                        android:layout_weight="1"
-                        android:text="@string/dash_quick_vault"
-                        app:icon="@drawable/ic_lock"
-                        app:iconGravity="top" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickDns"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="2dp"
-                        android:layout_weight="1"
-                        android:text="@string/dash_quick_dns"
-                        app:icon="@drawable/ic_home"
-                        app:iconGravity="top" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnQuickTools"
-                        style="@style/VxButtonSecondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:text="@string/dash_quick_tools"
-                        app:icon="@drawable/ic_chevron"
-                        app:iconGravity="top" />
-
-                </LinearLayout>
-
-                <!-- Tarjeta: Bóveda de Contraseñas -->
-                <LinearLayout
-                    android:id="@+id/panelVaultCard"
+                    android:id="@+id/checksContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp" />
 
-                    <TextView
-                        style="@style/VxHeading"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dash_vault_card" />
-
-                    <TextView
-                        android:id="@+id/tvVaultCard"
-                        style="@style/VxBody"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnVaultCard"
-                        style="@style/VxButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/dash_vault_go"
-                        app:icon="@drawable/ic_lock" />
-                </LinearLayout>
-
-                <!-- Tarjeta: Último escaneo -->
-                <LinearLayout
-                    android:id="@+id/panelScanCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_panel"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        style="@style/VxHeading"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dash_scan_card" />
-
-                    <TextView
-                        android:id="@+id/tvScanCard"
-                        style="@style/VxBody"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnScanCard"
-                        style="@style/VxButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/dash_scan_now"
-                        app:icon="@drawable/ic_shield" />
-                </LinearLayout>
-
-                <!-- Controles del dispositivo -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_panel"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        style="@style/VxHeading"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/home_checks_heading" />
-
-                    <LinearLayout
-                        android:id="@+id/checksContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:divider="@drawable/divider_h"
-                        android:orientation="vertical"
-                        android:showDividers="middle" />
-
-                </LinearLayout>
-
-                <!-- DNS privado -->
                 <LinearLayout
                     android:id="@+id/panelDns"
                     android:layout_width="match_parent"
@@ -248,7 +74,8 @@
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/VxHeading"
@@ -303,7 +130,6 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- ADB Assistant -->
                 <LinearLayout
                     android:id="@+id/panelAdb"
                     android:layout_width="match_parent"
@@ -350,23 +176,13 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- 2. TAB ESCÁNER -->
-        <ScrollView
-            android:id="@+id/scrollFiles"
+        <include
+            android:id="@+id/screenSecurity"
+            layout="@layout/screen_security"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:fillViewport="true"
-            android:visibility="gone">
+            android:visibility="gone" />
 
-            <include
-                android:id="@+id/screenScanner"
-                layout="@layout/screen_scanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </ScrollView>
-
-        <!-- 3. TAB BÓVEDA -->
         <ScrollView
             android:id="@+id/scrollVault"
             android:layout_width="match_parent"
@@ -381,14 +197,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </ScrollView>
-
-        <!-- 4. TAB PRIVACIDAD (Unifica Apps + Auditoría de Permisos + Restricciones) -->
-        <include
-            android:id="@+id/screenPrivacy"
-            layout="@layout/screen_privacy"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
 
     </FrameLayout>
 
