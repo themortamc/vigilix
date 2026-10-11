@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                style="@style/VxTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="@string/wizard_experience_title" />
+
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:gravity="center"
+                android:text="@string/wizard_experience_subtitle" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupExperience"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/radioBasic"
+                    style="@style/VxRadioButtonCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:padding="16dp"
+                    android:text="@string/experience_basic"
+                    android:drawableEnd="@drawable/ic_shield"
+                    android:drawablePadding="12dp" />
+
+                <RadioButton
+                    android:id="@+id/radioAdvanced"
+                    style="@style/VxRadioButtonCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:padding="16dp"
+                    android:text="@string/experience_advanced"
+                    android:drawableEnd="@drawable/ic_shield"
+                    android:drawablePadding="12dp" />
+
+                <RadioButton
+                    android:id="@+id/radioExpert"
+                    style="@style/VxRadioButtonCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="@string/experience_expert"
+                    android:drawableEnd="@drawable/ic_shield"
+                    android:drawablePadding="12dp" />
+            </RadioGroup>
+
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/wizard_experience_note" />
+        </LinearLayout>
+    </ScrollView>
+</layout>

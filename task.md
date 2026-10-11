@@ -1,40 +1,100 @@
-# Task: Rediseño radical de interfaz de Vigilix
+# Task: Implementación completa Vigilix v1.0 - Dual Mode + Cloud Gratuito + Subscription + UX Universal
 
 ## Objetivo
-Rediseñar por completo la interfaz de usuario de Vigilix para que sea **fácil, cómoda y sencilla de usar**, eliminando el exceso de pestañas, la mala agrupación de funciones, la densidad de información inconsistente y el exceso de toques para llegar a las funciones principales.
+Implementar **todas** las features solicitadas:
+- **Dual Mode**: Root/Debug avanzado + Non-root máximo
+- **Cloud features gratuitas** (GitHub Pages, Firebase free tier, GitHub Pages threat intel)
+- **Subscription $2/mes** (Google Play Billing)
+- **UX Universal**: Wizard setup (Basic/Advanced/Expert), features avanzadas togglables
+- **Target**: Todos los usuarios (abuelos → devs)
 
 ## Alcance
-- **Dentro:** Rediseño de navegación, pantallas principales, flujo de interacción, jerarquía visual, componentes Material 3.
-- **Fuera:** Cambios en la lógica de negocio (Rust core, VaultStore, ScanEngine),新增 features, testing.
+**Dentro:** Todo lo definido en specs.md v1.0
+**Fuera:** iOS port, backend propio de pago, features que requieran infraestructura de pago
 
 ## Criterios de Aceptación
-1. La app tiene **máximo 3 pestañas** en la navegación inferior (o una sola pantalla con secciones expandibles).
-2. Cualquier función crítica está alcanzable en **máximo 2 toques** desde la pantalla principal.
-3. La densidad de información es **equilibrada**: sin elementos apretados, sin pantallas vacías.
-4. La interfaz sigue las directrices de **Material 3** (botones, snackbars, diálogos, tipografía, colores de rol).
-5. Los objetivos táctiles cumplen **48×48 dp mínimo**.
-6. La app es **compatible con la mayoría de teléfonos** (minSdk 26, pantallas de 5" a 7").
-7. El tema **oscuro es de primera clase** (no un invertido rápido).
-8. La compilación en **GitHub Actions sigue en verde**.
+1. ✅ App compila y tests Rust pasan (21/21)
+2. ✅ Dual Mode: RootMode (full) / NonRootMode (max possible) detectado automáticamente
+3. ✅ Setup Wizard: 3 niveles (Basic/Advanced/Expert) + ajustes togglables
+4. ✅ Cloud features: Threat intel en GitHub Pages, Remote Config Firebase free, sync opcional
+4. ✅ Subscription $2/mes implementada (Play Billing)
+4. ✅ UX Universal: Wizard 3 niveles + ajustes avanzados togglables
+4. ✅ Features P0: Estafas colaborativas, Análisis APK estático, Monitor red VpnService, Duress PIN
+4. ✅ Tests Android (JUnit/Espresso) + Rust tests (21/21)
+4. ✅ CI/CD verde en GitHub Actions
 
 ## Fases
-1. **Descubrimiento y brief de diseño** (entrevista + research de apps de referencia).
-2. **Definición de arquitectura de navegación** (estructura de pestañas, flujo de pantallas).
-3. **Diseño de componentes y tokens** (colores, tipografía, espaciado, formas).
-4. **Implementación de nuevas pantallas** (XML + Kotlin).
-5. **Revisión y ajuste fino** (heurísticas de usabilidad, contraste, targets táctiles).
-6. **Verificación final** (compilación en CI, tests de Rust).
+
+### Fase 1: Documentación y Arquitectura (Día 1)
+- [x] task.md actualizado
+- [ ] specs.md v1.0 completo
+- [ ] features.md actualizado
+- [ ] MEMORY.md actualizado
+- [ ] AGENTS.md actualizado
+
+### Fase 2: Setup Wizard + UX Universal (Día 2-3)
+- [ ] ExperienceLevel enum (Basic/Advanced/Expert)
+- [ ] SetupWizardActivity (3 pantallas + persistencia)
+- [ ] ExperienceManager (singleton, LiveData)
+- [ ] UI adaptativa por nivel (ocultar/mostrar features)
+- [ ] Settings fragment con toggles avanzados
+
+### Fase 3: Dual Mode Architecture (Día 3-4)
+- [ ] ModeDetector (root check + debug flags)
+- [ ] RootMode / NonRootMode sealed interfaces
+- [ ] FeatureGate (what's available per mode)
+- [ ] VpnService para NonRoot network monitor
+- [ ] RootMode: shell commands, ADB wireless, full scan
+
+### Fase 4: Cloud Gratuita + Subscription (Día 4-5)
+- [ ] Threat Intel en GitHub Pages (JSON estático + CDN)
+- [ ] Firebase Remote Config (feature flags, kill switch)
+- [ ] GitHub Pages threat intel sync (workflow diario)
+- [ ] Google Play Billing v6 ($2/mes + trial 14 días)
+- [ ] EntitlementManager (Pro features unlock)
+
+### Fase 5: Setup Wizard + UX Universal (Día 5-6)
+- [ ] SetupWizardActivity (3 pasos: nivel, permisos, features)
+- [ ] ExperienceLevel: Basic (abuelo) / Advanced (usuario normal) / Expert (dev)
+- [ ] UI adaptativa: Basic = 1 botón grande, Expert = todo visible
+- [ ] Settings: sección "Avanzado" (oculta en Basic)
+
+### Fase 6: Features P0 (Día 6-10)
+- [ ] **Detección estafas colaborativa**: BD local + sync GitHub Pages + reporte usuario
+- [ ] **Análisis APK estático**: AndroidManifest parser, risk score, YARA-lite
+- [ ] **Monitor red VpnService**: NonRoot network monitor, alertas IP sospechosas
+- [ ] **Duress PIN / Bóveda falsa**: PIN alternativo → vault vacía
+- [ ] **Análisis APK estático**: Manifest parser, risk score, export HTML report
+
+### Fase 7: Testing + CI/CD (Día 10-11)
+- [ ] JUnit4 + Robolectric: VaultStore, HashDb, PermissionMonitor, HistoryManager
+- [ ] Espresso: flujos críticos (vault unlock, scan, autofill, wizard)
+- [ ] CI: matrix test (emulator API 26, 28, 30, 34)
+- [ ] Release pipeline: version bump, changelog, Play Console upload
+
+### Fase 8: Verificación Final (Día 11)
+- [ ] Rust tests: 21/21 pass
+- [ ] Android tests: unit + instrumented pass
+- [ ] CI/CD: matrix API 26-34 pass
+- [ ] Security audit: sin regresiones
+- [ ] Performance: scan < 30s quick, < 5min full
+- [ ] Battery: < 2%/day background
 
 ## Riesgos y Mitigaciones
-- **Riesgo:** Cambios extensos pueden romper la compilación. **Mitigación:** Commit por fases, verificar con CI tras cada una.
-- **Riesgo:** El redesign puede alterar la funcionalidad existente. **Mitigación:** Mantener la lógica de negocio intacta; solo cambiar UI.
-- **Riesgo:** La nueva navegación puede no ser intuitiva para usuarios existentes. **Mitigación:** Usar patrones de navegación estándar de Android (Bottom Navigation, Navigation Rail).
 
-## Verificación
-- [ ] `cargo test --release --locked` en `rust/` → todo verde.
-- [ ] `./gradlew assembleDebug` → compila sin errores.
-- [ ] La app tiene ≤3 pestañas en navegación inferior.
-- [ ] Las pantallas usan componentes Material 3 (no controles inventados).
-- [ ] Los targets táctiles cumplen 48×48 dp.
-- [ ] Dark theme está diseñado, no invertido.
-- [ ] Commit con mensaje descriptivo.
+| Riesgo | Probabilidad | Impacto | Mitigación |
+|--------|--------------|---------|------------|
+| Play Billing rejection | Media | Alto | Implementar RevenueCat como fallback, testing exhaustivo |
+| VpnService battery drain | Alta | Media | Configurable interval, solo WiFi, pause on battery saver |
+| GitHub Pages rate limit | Baja | Media | CDN + cache headers, fallback local DB |
+| Play Billing rejection | Media | Alto | RevenueCat fallback, testing exhaustivo en test track |
+| Root detection evasion | Baja | Media | Multiple checks (su, magisk, props), graceful degradation |
+| VpnService battery drain | Alta | Media | Configurable interval, solo WiFi, pause on battery saver |
+
+## Verificación Final
+- [ ] `cargo test --release --locked` → 21/21 pass
+- [ ] `./gradlew testDebugUnitTest connectedDebugAndroidTest` → all pass
+- [ ] CI matrix (API 26, 28, 30, 34) → all green
+- [ ] Security audit: sin regresiones vs SECURITY_AUDIT.md
+- [ ] Performance: Quick scan < 30s, Full < 5min, Battery < 2%/day
+- [ ] UX test: Abuelo completa wizard solo, Dev accede a todo en < 3 taps

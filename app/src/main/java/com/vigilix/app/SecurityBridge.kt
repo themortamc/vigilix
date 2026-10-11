@@ -33,6 +33,7 @@ object SecurityBridge {
     private external fun vaultOpen(password: String, blob: String): String?
     private external fun vaultPeek(password: String, blob: String): String?
     private external fun vaultOpenWithKey(key: ByteArray, blob: String): String?
+    private external fun vaultOpenWithDuress(duressPin: String, blob: String): String?
     private external fun vaultSave(plaintext: String): String?
     private external fun vaultLock()
     private external fun vaultIsUnlocked(): Boolean
@@ -93,6 +94,10 @@ object SecurityBridge {
     /** Abre la bóveda con la clave derivada protegida por la huella. */
     fun vaultOpenBlobWithKey(key: ByteArray, blob: String): String? =
         guarded(null) { vaultOpenWithKey(key, blob) }
+
+    /** Abre la bóveda con PIN de coacción (duress). Genera bóveda falsa. */
+    fun vaultOpenBlobWithDuress(duressPin: String, blob: String): String? =
+        guarded(null) { vaultOpenWithDuress(duressPin, blob) }
 
     /** Vuelve a cifrar el contenido con la sesión abierta. null si está bloqueada. */
     fun vaultSaveBlob(plaintext: String): String? = guarded(null) { vaultSave(plaintext) }

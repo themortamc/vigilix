@@ -152,6 +152,65 @@ object VaultStore {
         return true
     }
 
+    // ----- Duress PIN (Bóveda falsa) -----
+
+    private const val DURESS_PREFIX = "DURESS_"
+
+    /** Verifica si un PIN es el PIN de coacción (duress). */
+    fun isDuressPin(pin: String): Boolean = pin.startsWith(DURESS_PREFIX)
+
+    /** Genera un PIN de coacción derivado del PIN real. */
+    fun generateDuressPin(realPin: String): String = "$DURESS_PREFIX$realPin"
+
+    /** Desbloquea con PIN de coacción: crea bóveda falsa creíble. */
+    fun unlockWithDuress(context: Context, duressPin: String): UnlockResult {
+        if (!isDuressPin(duressPin)) return unlockWithPassword(context, duressPin)
+
+        // Extraer PIN real
+        val realPin = duressPin.substring(DURESS_PREFIX.length)
+        val blob = readBlob(context) ?: return UnlockResult.NO_VAULT
+
+        // Verificar que el PIN real es correcto
+        val realJson = SecurityBridge.vaultPeekBlob(realPin, blob) ?: return UnlockResult.WRONG_KEY
+
+        // Generar bóveda falsa creíble
+        val fakeVault = generateFakeVault()
+        val fakeBlob = SecurityBridge.vaultCreateBlob(duressPin, fakeVault) ?: return UnlockResult.ENGINE_UNAVAILABLE
+
+        if (!writeBlob(context, fakeBlob)) {
+            return UnlockResult.ENGINE_UNAVAILABLE
+        }
+
+        // Abrir sesión con la clave derivada del duress PIN
+        val duressKey = SecurityBridge.vaultExportKey() ?: return UnlockResult.ENGINE_UNAVAILABLE
+        val json = SecurityBridge.vaultOpenBlobWithKey(duressKey, fakeBlob) ?: return UnlockResult.WRONG_KEY
+
+        return finishUnlock(json)
+    }
+
+    /** Genera una bóveda falsa creíble con entradas típicas pero falsas. */
+    private fun generateFakeVault(): String {
+        return JSONObject().put("v", FORMAT_VERSION).put("items", JSONArray().apply {
+            put(generateFakeCredential("Gmail", "usuario@gmail.com", "********"))
+            put(generateFakeCredential("Banco", "usuario@banco.com", "********"))
+            put(generateFakeCredential("WiFi Casa", "Casa", "********"))
+            put(generateFakeCredential("Netflix", "usuario@netflix.com", "********"))
+            put(generateFakeCredential("Amazon", "usuario@amazon.com", "********"))
+        ).toString()
+    }
+
+    private fun generateFakeCredential(title: String, username: String, password: String): JSONObject {
+        return JSONObject().put("id", java.util.UUID.randomUUID().toString())
+            .put("title", title)
+            .put("url", "")
+            .put("pkg", "")
+            .put("user", username)
+            .put("pass", password)
+            .put("notes", "")
+            .put("fav", false)
+            .put("ts", System.currentTimeMillis())
+    }
+
     // ----- Copias -----
 
     /** Contenido cifrado del archivo, tal cual (se puede copiar a cualquier lado: no es legible sin la clave). */

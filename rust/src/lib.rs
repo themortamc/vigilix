@@ -57,6 +57,7 @@ const ARGON_P: u32 = 1;
 
 const MIN_PASSWORD_LEN: usize = 8;
 const MAX_PASSWORD_LEN: usize = 128;
+const FORMAT_VERSION: u32 = 1;
 const CHARSET: &[u8] =
     b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 
@@ -310,6 +311,71 @@ pub fn vault_export_key() -> Option<Zeroizing<Vec<u8>>> {
     let guard = session();
     let s = guard.as_ref()?;
     Some(Zeroizing::new(s.key.to_vec()))
+}
+
+/// Genera una bóveda falsa creíble con entradas típicas pero falsas.
+fn generate_fake_vault() -> String {
+    use serde_json::json;
+    json!({
+        "v": FORMAT_VERSION,
+        "items": [
+            {
+                "id": "fake-1",
+                "title": "Gmail",
+                "url": "",
+                "pkg": "",
+                "user": "usuario@gmail.com",
+                "pass": "********",
+                "notes": "",
+                "fav": false,
+                "ts": 0
+            },
+            {
+                "id": "fake-2",
+                "title": "Banco",
+                "url": "",
+                "pkg": "",
+                "user": "usuario@banco.com",
+                "pass": "********",
+                "notes": "",
+                "fav": false,
+                "ts": 0
+            },
+            {
+                "id": "fake-3",
+                "title": "WiFi Casa",
+                "url": "",
+                "pkg": "",
+                "user": "Casa",
+                "pass": "********",
+                "notes": "",
+                "fav": false,
+                "ts": 0
+            },
+            {
+                "id": "fake-4",
+                "title": "Netflix",
+                "url": "",
+                "pkg": "",
+                "user": "usuario@netflix.com",
+                "pass": "********",
+                "notes": "",
+                "fav": false,
+                "ts": 0
+            },
+            {
+                "id": "fake-5",
+                "title": "Amazon",
+                "url": "",
+                "pkg": "",
+                "user": "usuario@amazon.com",
+                "pass": "********",
+                "notes": "",
+                "fav": false,
+                "ts": 0
+            }
+        ]
+    }).to_string()
 }
 
 // ---------------------------------------------------------------------------
@@ -746,6 +812,45 @@ pub extern "system" fn Java_com_vigilix_app_SecurityBridge_vaultExportKey(
         None => std::ptr::null_mut(),
     }))
     .unwrap_or(std::ptr::null_mut())
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_vigilix_app_SecurityBridge_vaultOpenWithDuress(
+    mut env: JNIEnv,
+    _class: JClass,
+    duress_pin: JString,
+    blob: JString,
+) -> jstring {
+    catch_unwind(AssertUnwindSafe(|| {
+        let pin = match read_jstring(&mut env, &duress_pin) {
+            Some(v) => v,
+            None => return NULL_STR,
+        };
+        let data = match read_jstring(&mut env, &blob) {
+            Some(v) => v,
+            None => return NULL_STR,
+        };
+        // Check if it's a duress PIN (starts with "DURESS_")
+        if !pin.starts_with("DURESS_") {
+            return NULL_STR;
+        }
+        let real_pin = &pin["DURESS_".len()..];
+
+        // First verify the real PIN works
+        match vault_peek(real_pin, data.as_str()) {
+            Some(_) => {
+                // Generate fake vault
+                let fake_vault = generate_fake_vault();
+                // Create blob with duress PIN
+                match vault_create(pin.as_str(), fake_vault.as_bytes()) {
+                    Some(fake_blob) => to_jstring(&mut env, &fake_blob),
+                    None => NULL_STR,
+                }
+            }
+            None => NULL_STR,
+        }
+    }))
+    .unwrap_or(NULL_STR)
 }
 
 #[no_mangle]

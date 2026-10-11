@@ -463,4 +463,47 @@
     <string name="af_unlock_subtitle">Tocá para abrir tus contraseñas</string>
     <string name="af_auth_title">Desbloquear Vigilix</string>
     <string name="af_auth_body">Para completar tu usuario y contraseña, desbloqueá la bóveda.</string>
+
+    <!-- Setup Wizard -->
+    <string name="wizard_step_experience">Experiencia</string>
+    <string name="wizard_step_permissions">Permisos</string>
+    <string name="wizard_step_features">Funciones</string>
+    <string name="wizard_experience_title">¿Cómo querés usar Vigilix?</string>
+    <string name="wizard_experience_subtitle">Elegí el nivel que mejor se adapte a vos</string>
+    <string name="experience_basic">🔰 Básico\n"Solo lo esencial: escanear y bóveda"</string>
+    <string name="experience_advanced">⚡ Avanzado\n"Control total: permisos, historial, DNS"</string>
+    <string name="experience_expert">🛠 Experto\n"Todo: monitor red, análisis APK, root, logs"</string>
+    <string name="wizard_experience_note">Podés cambiar esto después en Ajustes</string>
+    <string name="wizard_permissions_title">Permisos necesarios</string>
+    <string name="wizard_permissions_subtitle">Vigilix solo pide lo que necesita para protegerte</string>
+    <string name="wizard_permissions_request">Conceder permisos</string>
+    <string name="wizard_features_title">Funciones activadas</string>
+    <string name="wizard_features_subtitle">Activá lo que necesites según tu nivel</string>
+    <string name="wizard_pro_features">Funciones Pro (suscripción $2/mes)</string>
+    <string name="wizard_view_plans">Ver planes</string>
+
+    <!-- Experience Levels -->
+    <string name="experience_basic_short">Básico</string>
+    <string name="experience_advanced_short">Avanzado</string>
+    <string name="experience_expert_short">Experto</string>
+
+    <!-- Pro Features -->
+    <string name="pro_feature_cloud_sync">Sincronización cloud (WebDAV)</string>
+    <string name="pro_feature_extra_themes">Temas extra + color picker</string>
+    <string name="pro_feature_export_csv">Exportar CSV/HTML/JSON</string>
+    <string name="pro_feature_unlimited_history">Historial ilimitado</string>
+    <string name="pro_feature_priority_support">Soporte prioritario</string>
+    <string name="pro_feature_behavior_analysis">Análisis comportamiento (sandbox)</string>
+
+    <!-- Subscription -->
+    <string name="sub_monthly">$2/mes</string>
+    <string name="sub_yearly">$20/año (ahorra 17%)</string>
+    <string name="sub_trial">14 días gratis</string>
+    <string name="sub_manage">Gestionar suscripción</string>
+
+    <!-- Permissions descriptions -->
+    <string name="perm_storage_desc">Para escanear tus archivos y apps</string>
+    <string name="perm_biometric_desc">Para desbloquear la bóveda con huella</string>
+    <string name="perm_dns_desc">Para cambiar DNS sin root (requiere ADB)</string>
+    <string name="perm_vpn_desc">Para monitor de conexiones de red</string>
 </resources>
