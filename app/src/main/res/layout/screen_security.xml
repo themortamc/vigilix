@@ -189,6 +189,82 @@
 
         </LinearLayout>
 
+        <!-- Escáner rápido -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sec_scan_heading" />
+
+            <TextView
+                style="@style/VxMuted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/sec_scan_explain" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScanCard"
+                style="@style/VxButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/dash_scan_now"
+                app:icon="@drawable/ic_shield" />
+
+            <include
+                android:id="@+id/calloutSec"
+                layout="@layout/view_callout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Historial de escaneos -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                style="@style/VxHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sec_history_heading" />
+
+            <LinearLayout
+                android:id="@+id/historyList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:divider="@drawable/divider_h"
+                android:orientation="vertical"
+                android:showDividers="middle" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearHistory"
+                style="@style/VxTextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/sec_history_clear"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </ScrollView>

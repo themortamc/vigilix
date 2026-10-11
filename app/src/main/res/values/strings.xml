@@ -56,6 +56,8 @@
     <string name="sec_lock_failed">No se pudo aplicar el cambio.</string>
     <string name="sec_history_heading">Historial de escaneos</string>
     <string name="sec_history_clear">Borrar historial</string>
+    <string name="sec_scan_heading">Escanear el teléfono</string>
+    <string name="sec_scan_explain">Un toque para buscar malware en tus archivos y apps. Rápido o completo, con o sin VirusTotal.</string>
     <string name="sec_history_clear_title">¿Borrar historial?</string>
     <string name="sec_history_clear_body">Se eliminan todos los registros de escaneos guardados.</string>
     <string name="perm_location">Ubicación</string>
