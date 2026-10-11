@@ -12,7 +12,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -419,8 +421,8 @@ class MainActivity : AppCompatActivity() {
                 ContextCompat.getDrawable(this, R.drawable.ic_shield)
             }
             row.ivAppIcon.setImageDrawable(icon)
-            row.tvAppLabel.text = app.label
-            row.tvAppPerms.text = app.granted.joinToString(" · ")
+            row.tvAppName.text = app.label
+            row.tvAppPackage.text = app.granted.joinToString(" · ")
             row.root.setOnClickListener { showPrivacyAppDialog(app) }
             p.privacyAppsContainer.addView(row.root)
         }

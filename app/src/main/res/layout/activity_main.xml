@@ -17,7 +17,20 @@
         app:navigationIcon="@drawable/ic_shield"
         app:navigationIconTint="@color/vx_accent"
         app:title="@string/app_name"
-        app:titleCentered="false" />
+        app:titleCentered="false">
+
+        <TextView
+            android:id="@+id/tvAccess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_chip"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="@string/access_standard"
+            android:textColor="@color/vx_accent_text"
+            android:textSize="12sp" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <FrameLayout
         android:layout_width="match_parent"
