@@ -82,7 +82,6 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha03")
     implementation("com.google.android.gms:play-services-ads-identifier:18.0.1")
     implementation("com.android.billingclient:billing:6.2.1")
-    implementation("com.revenuecat.purchases:purchases-hybrid-common:8.4.0")
     implementation("com.google.firebase:firebase-config-ktx:21.6.0")
     implementation("com.google.firebase:firebase-bom:32.8.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
