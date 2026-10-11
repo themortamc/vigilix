@@ -72,9 +72,9 @@ jobs:
           fi
           cargo ndk -t arm64-v8a -t x86_64 -o ../app/src/main/jniLibs build --release $LOCKED
 
-      - name: Generar Gradle Wrapper 8.6
+      - name: Generar Gradle Wrapper 8.5
         run: |
-          gradle wrapper --gradle-version 8.6 --distribution-type bin
+          gradle wrapper --gradle-version 8.5 --distribution-type bin
           chmod +x gradlew
 
       - name: Compilar APK (debug)
