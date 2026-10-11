@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentStateAdapter
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
@@ -41,7 +44,7 @@ class SetupWizardActivity : AppCompatActivity() {
         binding = ActivitySetupWizardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[SetupWizardViewModel::class.java]
+        viewModel = ViewModelProvider(this, SetupWizardViewModel.Factory(applicationContext))[SetupWizardViewModel::class.java]
 
         setupViewPager()
         setupTabs()
@@ -135,7 +138,7 @@ class SetupWizardPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter
 }
 
 /** ViewModel compartido entre los 3 pasos. */
-class SetupWizardViewModel : androidx.lifecycle.ViewModel() {
+class SetupWizardViewModel(private val appContext: android.content.Context) : androidx.lifecycle.ViewModel() {
     private val _currentStep = MutableLiveData<Int>(0)
     val currentStep: androidx.lifecycle.LiveData<Int> = _currentStep
 
@@ -155,16 +158,25 @@ class SetupWizardViewModel : androidx.lifecycle.ViewModel() {
 
     fun skipWizard() {
         // Si salta, usar nivel por defecto (Basic) y marcar completado
-        ExperienceManager.getInstance(FragmentActivity()).setLevel(ExperienceLevel.BASIC)
-        ExperienceManager.getInstance(FragmentActivity()).markWizardCompleted()
+        val exp = ExperienceManager.getInstance(appContext)
+        exp.setLevel(ExperienceLevel.BASIC)
+        exp.markWizardCompleted()
         _wizardCompleted.value = true
     }
 
     fun finishWizard() {
         val level = _selectedExperience.value ?: ExperienceLevel.BASIC
-        ExperienceManager.getInstance(FragmentActivity()).setLevel(level)
-        ExperienceManager.getInstance(FragmentActivity()).markWizardCompleted()
+        val exp = ExperienceManager.getInstance(appContext)
+        exp.setLevel(level)
+        exp.markWizardCompleted()
         _wizardCompleted.value = true
+    }
+
+    class Factory(private val context: android.content.Context) : androidx.lifecycle.ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+            return SetupWizardViewModel(context.applicationContext) as T
+        }
     }
 }
 
@@ -173,7 +185,9 @@ class SetupExperienceFragment : Fragment() {
 
     private var _binding: FragmentSetupExperienceBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() })
+    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() }) {
+        SetupWizardViewModel.Factory(requireActivity().applicationContext)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSetupExperienceBinding.inflate(inflater, container, false)
@@ -208,7 +222,9 @@ class SetupPermissionsFragment : Fragment() {
 
     private var _binding: FragmentSetupPermissionsBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() })
+    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() }) {
+        SetupWizardViewModel.Factory(requireActivity().applicationContext)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSetupPermissionsBinding.inflate(inflater, container, false)
@@ -251,11 +267,40 @@ class SetupPermissionsFragment : Fragment() {
     }
 
     private fun createPermissionRow(item: PermissionItem): View {
-        val view = LayoutInflater.from(requireContext()).inflate(android.R.layout.simple_list_item_2, binding.permissionsContainer, false)
-        view.findViewById<android.widget.TextView>(android.R.id.text1).text = item.title
-        view.findViewById<android.widget.TextView>(android.R.id.text2).text = item.description
-        // TODO: Add checkbox/button to request permission
-        return view
+        val row = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 16, 0, 16)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        val textLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val titleView = android.widget.TextView(requireContext()).apply {
+            text = item.title
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_MaterialComponents_Body1)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.vx_text))
+        }
+
+        val descView = android.widget.TextView(requireContext()).apply {
+            text = item.description
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_MaterialComponents_Caption)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.vx_text_muted))
+        }
+
+        textLayout.addView(titleView)
+        textLayout.addView(descView)
+
+        val check = com.google.android.material.checkbox.MaterialCheckBox(requireContext()).apply {
+            isChecked = item.required
+            isEnabled = !item.required
+        }
+
+        row.addView(textLayout)
+        row.addView(check)
+        return row
     }
 
     data class PermissionItem(
@@ -271,7 +316,9 @@ class SetupFeaturesFragment : Fragment() {
 
     private var _binding: FragmentSetupFeaturesBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() })
+    private val viewModel: SetupWizardViewModel by viewModels({ requireActivity() }) {
+        SetupWizardViewModel.Factory(requireActivity().applicationContext)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSetupFeaturesBinding.inflate(inflater, container, false)
@@ -284,14 +331,95 @@ class SetupFeaturesFragment : Fragment() {
         viewModel.selectedExperience.observe(viewLifecycleOwner) { level ->
             updateFeaturesForLevel(level)
         }
+
+        binding.btnViewPlans.setOnClickListener {
+            // Ir a pantalla de suscripción / planes Pro
+            android.widget.Toast.makeText(requireContext(), getString(R.string.wizard_view_plans), android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateFeaturesForLevel(level: ExperienceLevel) {
-        // Mostrar features según nivel
-        // Basic: solo Scan + Vault
-        // Advanced: + Privacy + History
-        // Expert: + Network Monitor + Apk Analyzer + Duress + Cloud Sync (Pro)
+        val baseFeatures = when (level) {
+            ExperienceLevel.BASIC -> listOf(
+                FeatureItem("Escáner de virus/archivos", "Análisis por hash SHA-256", true),
+                FeatureItem("Bóveda de contraseñas", "Almacén seguro local cifrado", true)
+            )
+            ExperienceLevel.ADVANCED -> listOf(
+                FeatureItem("Escáner de virus/archivos", "Análisis por hash SHA-256", true),
+                FeatureItem("Bóveda de contraseñas", "Almacén seguro local cifrado", true),
+                FeatureItem("Monitor de permisos", "Detección de accesos a cámara/mic", true),
+                FeatureItem("DNS seguro", "AdGuard / Quad9 para bloqueo de anuncios", true)
+            )
+            ExperienceLevel.EXPERT -> listOf(
+                FeatureItem("Escáner de virus/archivos", "Análisis por hash SHA-256", true),
+                FeatureItem("Bóveda de contraseñas", "Almacén seguro local cifrado", true),
+                FeatureItem("Monitor de permisos", "Detección de accesos a cámara/mic", true),
+                FeatureItem("DNS seguro", "AdGuard / Quad9 para bloqueo de anuncios", true),
+                FeatureItem("Monitor de red VPN", "Análisis de tráfico de apps en tiempo real", true),
+                FeatureItem("Análisis de APKs", "Inspección estática de manifiestos y riesgo", true),
+                FeatureItem("PIN de Coacción", "Bóveda falsa ante PIN secundario", true)
+            )
+        }
+
+        val proFeatures = listOf(
+            FeatureItem(getString(R.string.pro_feature_cloud_sync), "Sincronización segura WebDAV", false),
+            FeatureItem(getString(R.string.pro_feature_behavior_analysis), "Sandbox dinámico de ejecución", false),
+            FeatureItem(getString(R.string.pro_feature_extra_themes), "Personalización completa Material You", false)
+        )
+
+        binding.featuresContainer.removeAllViews()
+        baseFeatures.forEach { feat ->
+            binding.featuresContainer.addView(createFeatureSwitch(feat, isPro = false))
+        }
+
+        binding.proFeaturesContainer.removeAllViews()
+        proFeatures.forEach { feat ->
+            binding.proFeaturesContainer.addView(createFeatureSwitch(feat, isPro = true))
+        }
     }
+
+    private fun createFeatureSwitch(item: FeatureItem, isPro: Boolean): View {
+        val row = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 12, 0, 12)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        val textLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val titleView = android.widget.TextView(requireContext()).apply {
+            text = if (isPro) "${item.title} (Pro)" else item.title
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_MaterialComponents_Body2)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, if (isPro) R.color.vx_accent else R.color.vx_text))
+        }
+
+        val descView = android.widget.TextView(requireContext()).apply {
+            text = item.description
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_MaterialComponents_Caption)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.vx_text_muted))
+        }
+
+        textLayout.addView(titleView)
+        textLayout.addView(descView)
+
+        val switch = com.google.android.material.switchmaterial.SwitchMaterial(requireContext()).apply {
+            isChecked = item.enabled
+            isEnabled = !isPro
+        }
+
+        row.addView(textLayout)
+        row.addView(switch)
+        return row
+    }
+
+    data class FeatureItem(
+        val title: String,
+        val description: String,
+        val enabled: Boolean
+    )
 
     override fun onDestroyView() {
         super.onDestroyView()

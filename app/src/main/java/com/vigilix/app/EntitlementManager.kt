@@ -28,7 +28,7 @@ class EntitlementManager private constructor(context: Context) {
     private val _isPro = MutableLiveData<Boolean>()
     private val _billingReady = MutableLiveData<Boolean>()
 
-    val isPro: LiveData<Boolean> = _isPro
+    val isProLiveData: LiveData<Boolean> = _isPro
     val billingReady: LiveData<Boolean> = _billingReady
 
     private var isProCached = false
@@ -67,14 +67,12 @@ class EntitlementManager private constructor(context: Context) {
     }
 
     private fun queryPurchases() {
-        withContext(Dispatchers.IO) {
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build()
-            billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    handlePurchases(purchases ?: emptyList())
-                }
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                handlePurchases(purchases)
             }
         }
     }
@@ -88,10 +86,8 @@ class EntitlementManager private constructor(context: Context) {
         _isPro.postValue(nowPro)
     }
 
-    /** Consulta si el usuario tiene Pro activo (cache + query fresca). */
-    fun isPro(): Boolean {
-        return isProCached
-    }
+    val isPro: Boolean
+        get() = isProCached
 
     /** Inicia flujo de compra del plan mensual. */
     fun launchPurchase(activity: android.app.Activity, onResult: (Boolean) -> Unit) {
@@ -104,31 +100,29 @@ class EntitlementManager private constructor(context: Context) {
     }
 
     private fun launchPurchaseFlow(activity: android.app.Activity, productId: String, onResult: (Boolean) -> Unit) {
-        withContext(Dispatchers.IO) {
-            val params = QueryProductDetailsParams.newBuilder()
-                .setProductList(listOf(QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(productId)
-                    .setProductType(BillingClient.ProductType.SUBS)
-                    .build()))
-                .build()
+        val params = QueryProductDetailsParams.newBuilder()
+            .setProductList(listOf(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(productId)
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build()))
+            .build()
 
-            billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList?.isNotEmpty() == true) {
-                    val productDetails = productDetailsList[0]
-                    val params = BillingFlowParams.newBuilder()
-                        .setProductDetailsParamsList(listOf(BillingFlowParams.ProductDetailsParams.newBuilder()
-                            .setProductDetails(productDetails)
-                            .build()))
-                        .build()
-                    activity.runOnUiThread {
-                        val result = billingClient.launchBillingFlow(activity, params)
-                        if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                            onResult(false)
-                        }
+        billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
+                val productDetails = productDetailsList[0]
+                val flowParams = BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(listOf(BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .build()))
+                    .build()
+                activity.runOnUiThread {
+                    val result = billingClient.launchBillingFlow(activity, flowParams)
+                    if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                        onResult(false)
                     }
-                } else {
-                    onResult(false)
                 }
+            } else {
+                onResult(false)
             }
         }
     }

@@ -89,7 +89,7 @@ class NetworkMonitorVpnService : VpnService() {
     }
 
     private fun startVpn() {
-        val builder = Builder()
+        val builder = VpnService.Builder()
             .addAddress("10.0.0.1", 24)
             .addRoute("0.0.0.0", 0)
             .setBlocking(false)
@@ -97,7 +97,7 @@ class NetworkMonitorVpnService : VpnService() {
             .addDnsServer(DNS_SERVER)
 
         try {
-            vpnInterface = Builder().establish()
+            vpnInterface = builder.establish()
             if (vpnInterface == null) {
                 Log.e(TAG, "Failed to establish VPN")
                 return
@@ -108,7 +108,6 @@ class NetworkMonitorVpnService : VpnService() {
             running = true
 
             scope.launch { processPackets() }
-            scope.launch { processAlerts() }
 
             Log.i(TAG, "VPN started successfully")
         } catch (e: Exception) {
@@ -204,8 +203,8 @@ class NetworkMonitorVpnService : VpnService() {
 
     private fun isSuspiciousIp(ip: String): Boolean {
         // Check against local threat intel (C2 IPs)
-        // In production, check against ThreatIntelManager
-        return false // Placeholder - integrate with ThreatIntelManager
+        val threatIntel = ThreatIntelManager.getInstance(this)
+        return threatIntel.isC2Ip(ip)
     }
 
     data class NetworkAlert(

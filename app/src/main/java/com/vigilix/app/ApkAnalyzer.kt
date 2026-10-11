@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
-import android.content.res.AssetManager
 import android.util.Base64
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +17,6 @@ import java.security.MessageDigest
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.jar.JarFile
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Analizador estático de APKs. Extrae información del manifest,
@@ -276,7 +274,18 @@ ${riskFactors.map { "<div class='factor ${when(it.weight){in 25..30->\"high\" in
 """.trimIndent()
     }
 
-    fun exportJson(): String = kotlinx.serialization.json.Json.encodeToString(this)
+    fun exportJson(): String {
+        val json = org.json.JSONObject()
+        json.put("packageName", packageName)
+        json.put("versionName", versionName)
+        json.put("versionCode", versionCode)
+        json.put("permissions", org.json.JSONArray(permissions))
+        json.put("dangerousPermissions", org.json.JSONArray(dangerousPermissions))
+        json.put("riskScore", riskScore)
+        json.put("riskFactors", org.json.JSONArray(riskFactors.map { it.description }))
+        json.put("certificates", org.json.JSONArray(certificates.map { it.sha256 }))
+        return json.toString(2)
+    }
 }
 
 sealed class RiskFactor(val weight: Int, val description: String) {

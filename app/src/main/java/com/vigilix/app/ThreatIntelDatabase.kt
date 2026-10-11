@@ -38,7 +38,6 @@ abstract class ThreatIntelDatabase : RoomDatabase() {
     }
 }
 
-@TypeConverters
 object Converters {
     @androidx.room.TypeConverter
     fun fromScamType(value: ScamType): String = value.name

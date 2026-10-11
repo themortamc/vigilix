@@ -2,8 +2,8 @@ package com.vigilix.app
 
 import android.content.Context
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.ktx.andAwait
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /**
@@ -39,7 +39,7 @@ enum class Feature {
  * - Entitlement Pro
  * - Remote Config (Firebase)
  */
-class FeatureGate @Inject constructor(
+class FeatureGate constructor(
     private val mode: AppMode,
     private val entitlementManager: EntitlementManager,
     private val remoteConfig: FirebaseRemoteConfig
@@ -103,10 +103,12 @@ class FeatureGate @Inject constructor(
         @Volatile private var INSTANCE: FeatureGate? = null
 
         fun getInstance(context: Context): FeatureGate = INSTANCE ?: synchronized(this) {
-            INSTANCE ?: FeatureGate(
-                mode = ModeDetector.detect(context.applicationContext),
-                entitlementManager = EntitlementManager.getInstance(context),
-                remoteConfig = FirebaseRemoteConfig.getInstance()
-            ).also { INSTANCE = it }
+            INSTANCE ?: runBlocking {
+                FeatureGate(
+                    mode = ModeDetector.detect(context.applicationContext),
+                    entitlementManager = EntitlementManager.getInstance(context),
+                    remoteConfig = FirebaseRemoteConfig.getInstance()
+                )
+            }.also { INSTANCE = it }
         }
 }

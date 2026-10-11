@@ -190,13 +190,14 @@ object VaultStore {
 
     /** Genera una bóveda falsa creíble con entradas típicas pero falsas. */
     private fun generateFakeVault(): String {
-        return JSONObject().put("v", FORMAT_VERSION).put("items", JSONArray().apply {
+        val itemsArray = JSONArray().apply {
             put(generateFakeCredential("Gmail", "usuario@gmail.com", "********"))
             put(generateFakeCredential("Banco", "usuario@banco.com", "********"))
             put(generateFakeCredential("WiFi Casa", "Casa", "********"))
             put(generateFakeCredential("Netflix", "usuario@netflix.com", "********"))
             put(generateFakeCredential("Amazon", "usuario@amazon.com", "********"))
-        ).toString()
+        }
+        return JSONObject().put("v", FORMAT_VERSION).put("items", itemsArray).toString()
     }
 
     private fun generateFakeCredential(title: String, username: String, password: String): JSONObject {

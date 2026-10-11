@@ -74,6 +74,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Si es el primer inicio y no completó el asistente, mostrar SetupWizardActivity
+        val exp = ExperienceManager.getInstance(this)
+        if (!exp.isWizardCompleted()) {
+            startActivity(Intent(this, SetupWizardActivity::class.java))
+        }
+
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
 

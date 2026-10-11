@@ -95,7 +95,7 @@ class ThreatIntelManager private constructor(context: Context) {
 
     // ===== Private implementation =====
 
-    private data class SyncResult(val version: Int, val totalAdded: Long)
+    data class SyncResult(val version: Int, val totalAdded: Long)
     private data class Manifest(val version: Int, val files: List<ManifestFile>, val updated: String)
     private data class ManifestFile(val name: String, val sha256: String)
     private var scamNumbers = mutableSetOf<String>()
@@ -212,38 +212,4 @@ class ThreatIntelManager private constructor(context: Context) {
     }
 }
 
-enum class ScamType { CALL, SMS, URL }
-
-enum class ReportStatus { PENDING, VERIFIED, FALSE_POSITIVE }
-
-data class ScamReport(
-    val id: String,
-    val type: ScamType,
-    val indicator: String,
-    val description: String?,
-    val timestamp: Long,
-    val reportedByUser: Boolean,
-    val status: ReportStatus
-) {
-    fun toJson(): JSONObject = JSONObject().apply {
-        put("id", id)
-        put("type", type.name)
-        put("indicator", indicator)
-        put("description", description ?: "")
-        put("timestamp", timestamp)
-        put("reportedByUser", reportedByUser)
-        put("status", status.name)
-    }
-
-    companion object {
-        fun fromJson(json: JSONObject): ScamReport = ScamReport(
-            id = json.getString("id"),
-            type = ScamType.valueOf(json.getString("type")),
-            indicator = json.getString("indicator"),
-            description = json.optString("description", null),
-            timestamp = json.getLong("timestamp"),
-            reportedByUser = json.getBoolean("reportedByUser"),
-            status = ReportStatus.valueOf(json.getString("status"))
-        )
-    }
-}
+// Fin de ThreatIntelManager

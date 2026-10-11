@@ -70,6 +70,13 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Wizard de configuración inicial (3 pasos: experiencia, permisos, features). -->
+        <activity
+            android:name=".SetupWizardActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <service
             android:name=".ScanService"
             android:exported="false"

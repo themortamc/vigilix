@@ -506,4 +506,8 @@
     <string name="perm_biometric_desc">Para desbloquear la bóveda con huella</string>
     <string name="perm_dns_desc">Para cambiar DNS sin root (requiere ADB)</string>
     <string name="perm_vpn_desc">Para monitor de conexiones de red</string>
+    <string name="back">Atrás</string>
+    <string name="next">Siguiente</string>
+    <string name="finish">Finalizar</string>
+    <string name="skip">Saltar</string>
 </resources>

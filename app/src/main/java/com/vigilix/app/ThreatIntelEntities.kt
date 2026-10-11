@@ -2,6 +2,11 @@ package com.vigilix.app
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.json.JSONObject
+
+enum class ScamType { CALL, SMS, URL }
+
+enum class ReportStatus { PENDING, VERIFIED, FALSE_POSITIVE }
 
 @Entity(tableName = "scam_reports")
 data class ScamReport(

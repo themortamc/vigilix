@@ -3,6 +3,7 @@ package com.vigilix.app
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

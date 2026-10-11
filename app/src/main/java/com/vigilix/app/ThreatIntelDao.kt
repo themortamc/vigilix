@@ -29,10 +29,6 @@ interface ScamReportDao {
     @Query("SELECT * FROM scam_reports ORDER BY timestamp DESC LIMIT :limit")
     suspend fun getRecent(limit: Int): List<ScamReport>
 
-    @Transaction
-    @Query("SELECT * FROM scam_reports WHERE indicator = :indicator AND type = :type")
-    suspend fun upsertReport(report: ScamReport)
-
     @Query("DELETE FROM scam_reports WHERE id = :id")
     suspend fun delete(id: String)
 
