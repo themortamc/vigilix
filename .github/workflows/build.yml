@@ -60,7 +60,7 @@ jobs:
         run: |
           $GRADLE_HOME/bin/gradle --stop
           rm -rf ~/.gradle/caches
-          $GRADLE_HOME/bin/gradle testDebugUnitTest --stacktrace --no-daemon --no-build-cache
+          $GRADLE_HOME/bin/gradle testDebugUnitTest --stacktrace --info --no-daemon --no-build-cache
 
   build-apk:
     runs-on: ubuntu-latest
