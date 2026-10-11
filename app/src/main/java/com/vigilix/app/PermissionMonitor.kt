@@ -21,7 +21,7 @@ object PermissionMonitor {
     )
 
     /** Permisos sensibles: (permiso, nombre legible). */
-    private val SENSITIVE = listOf(
+    internal val SENSITIVE = listOf(
         "android.permission.ACCESS_FINE_LOCATION" to "Ubicación",
         "android.permission.ACCESS_COARSE_LOCATION" to "Ubicación",
         "android.permission.RECORD_AUDIO" to "Micrófono",

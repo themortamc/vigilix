@@ -30,10 +30,16 @@ object HashDb {
     /** SHA-256 del archivo de prueba EICAR, que todos los antivirus detectan a propósito. */
     const val EICAR_SHA256 = "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"
 
-    private const val MAX_ENTRIES = 2_000_000
-    private const val MAX_BYTES = 300L * 1024 * 1024
+    /** Límite de entradas en la base de hashes. */
+    internal const val MAX_ENTRIES = 2_000_000
+
+    /** Límite de bytes al importar. */
+    internal const val MAX_BYTES = 300L * 1024 * 1024
 
     private class TooBig : IOException()
+
+    /** Solo para testing: verifica si un hash es el EICAR. */
+    internal fun lookupEicarOnly(hash: String): String? = if (hash == EICAR_SHA256) "EICAR (archivo de prueba)" else null
 
     fun file(context: Context) = File(context.applicationContext.filesDir, "malware_hashes.vxdb")
 

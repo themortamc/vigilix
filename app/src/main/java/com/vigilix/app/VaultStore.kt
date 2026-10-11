@@ -189,7 +189,7 @@ object VaultStore {
     }
 
     /** Genera una bóveda falsa creíble con entradas típicas pero falsas. */
-    private fun generateFakeVault(): String {
+    internal fun generateFakeVault(): String {
         val itemsArray = JSONArray().apply {
             put(generateFakeCredential("Gmail", "usuario@gmail.com", "********"))
             put(generateFakeCredential("Banco", "usuario@banco.com", "********"))
@@ -282,13 +282,22 @@ object VaultStore {
 
     // ----- Archivo y formato -----
 
+    /** Serializa la bóveda actual (estado en memoria). */
     private fun serialize(): String {
         val array = JSONArray()
         synchronized(items) { items.forEach { array.put(it.toJson()) } }
+        return serializeCreds(synchronized(items) { items.toList() })
+    }
+
+    /** Serializa una lista de credentials al formato de bóveda. */
+    internal fun serializeCreds(creds: List<Credential>): String {
+        val array = JSONArray()
+        creds.forEach { array.put(it.toJson()) }
         return JSONObject().put("v", FORMAT_VERSION).put("items", array).toString()
     }
 
-    private fun parse(json: String): List<Credential> {
+    /** Parsea el JSON de la bóveda a lista de credentials. Lanza JSONException si el formato es inválido. */
+    internal fun parse(json: String): List<Credential> {
         val root = JSONObject(json)
         val array = root.optJSONArray("items") ?: JSONArray()
         return (0 until array.length()).map { Credential.fromJson(array.getJSONObject(it)) }

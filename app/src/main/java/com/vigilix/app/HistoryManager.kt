@@ -15,7 +15,8 @@ object HistoryManager {
     private const val PREFS = "vx_history"
     private const val KEY_COUNT = "history_count"
     private const val KEY_PREFIX = "entry_"
-    private const val MAX_ENTRIES = 10
+    /** Límite de entradas en el historial. */
+    internal const val MAX_ENTRIES = 10
 
     data class Entry(
         val timestamp: Long,
@@ -75,7 +76,8 @@ object HistoryManager {
     private fun Entry.toLine(): String =
         "$timestamp|$mode|$files|$findings|$vtUsed"
 
-    private fun fromLine(line: String): Entry? {
+    /** Parsea una línea de historial. Visible para testing. */
+    internal fun fromLine(line: String): Entry? {
         val parts = line.split("|")
         if (parts.size != 5) return null
         return Entry(

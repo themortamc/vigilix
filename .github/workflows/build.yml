@@ -32,6 +32,36 @@ jobs:
           if [ -f Cargo.lock ]; then LOCKED="--locked"; fi
           cargo test --release $LOCKED
 
+  # Tests unitarios Kotlin (Robolectric + JUnit4)
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Configurar Java JDK 17
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Gradle 8.5
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          export GRADLE_HOME=$PWD/gradle-8.5
+          export PATH=$GRADLE_HOME/bin:$PATH
+          gradle --version
+
+      - name: Ejecutar tests unitarios
+        run: |
+          $GRADLE_HOME/bin/gradle --stop
+          rm -rf ~/.gradle/caches
+          $GRADLE_HOME/bin/gradle testDebugUnitTest --stacktrace --no-daemon --no-build-cache
+
   build-apk:
     runs-on: ubuntu-latest
     timeout-minutes: 45
