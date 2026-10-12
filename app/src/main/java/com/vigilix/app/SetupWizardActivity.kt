@@ -2,6 +2,7 @@ package com.vigilix.app
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -21,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.vigilix.app.databinding.ActivitySetupWizardBinding
@@ -237,6 +240,70 @@ class SetupPermissionsFragment : Fragment() {
         viewModel.selectedExperience.observe(viewLifecycleOwner) { level ->
             updatePermissionsForLevel(level)
         }
+
+        // Botón "Conceder permisos" - solicita permisos de runtime
+        binding.btnRequestPermissions.setOnClickListener {
+            requestRuntimePermissions()
+        }
+    }
+
+    private fun requestRuntimePermissions() {
+        val level = viewModel.selectedExperience.value ?: ExperienceLevel.BASIC
+        val permissions = when (level) {
+            ExperienceLevel.BASIC -> arrayOf(
+                android.Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                android.Manifest.permission.USE_BIOMETRIC
+            )
+            ExperienceLevel.ADVANCED -> arrayOf(
+                android.Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                android.Manifest.permission.USE_BIOMETRIC,
+                android.Manifest.permission.WRITE_SECURE_SETTINGS
+            )
+            ExperienceLevel.EXPERT -> arrayOf(
+                android.Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                android.Manifest.permission.USE_BIOMETRIC,
+                android.Manifest.permission.WRITE_SECURE_SETTINGS,
+                android.Manifest.permission.BIND_VPN_SERVICE
+            )
+        }
+
+        // Filtrar solo los permisos que no están concedidos
+        val toRequest = permissions.filter { ContextCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED }
+
+        if (toRequest.isNotEmpty()) {
+            requestPermissions(toRequest.toTypedArray(), PERMISSION_REQUEST_CODE)
+        } else {
+            // Todos ya concedidos
+            showPermissionResult(true)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            showPermissionResult(allGranted)
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    private fun showPermissionResult(allGranted: Boolean) {
+        val msg = if (allGranted) {
+            getString(R.string.permissions_all_granted)
+        } else {
+            getString(R.string.permissions_some_denied)
+        }
+        com.google.android.material.snackbar.Snackbar.make(
+            binding.root, msg, com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    companion object {
+        const val PERMISSION_REQUEST_CODE = 1001
     }
 
     private fun updatePermissionsForLevel(level: ExperienceLevel) {

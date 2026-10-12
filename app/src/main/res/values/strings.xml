@@ -478,6 +478,10 @@
     <string name="wizard_permissions_title">Permisos necesarios</string>
     <string name="wizard_permissions_subtitle">Vigilix solo pide lo que necesita para protegerte</string>
     <string name="wizard_permissions_request">Conceder permisos</string>
+
+    <!-- Permission results -->
+    <string name="permissions_all_granted">✅ Todos los permisos concedidos</string>
+    <string name="permissions_some_denied">⚠️ Algunos permisos denegados. Podrás concederlos después en Ajustes.</string>
     <string name="wizard_features_title">Funciones activadas</string>
     <string name="wizard_features_subtitle">Activá lo que necesites según tu nivel</string>
     <string name="wizard_pro_features">Funciones Pro (suscripción $2/mes)</string>

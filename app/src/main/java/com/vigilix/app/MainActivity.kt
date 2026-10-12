@@ -77,12 +77,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Si es el primer inicio y no completó el asistente, mostrar SetupWizardActivity
-        val exp = ExperienceManager.getInstance(this)
-        if (!exp.isWizardCompleted()) {
-            startActivity(Intent(this, SetupWizardActivity::class.java))
-        }
-
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
 
@@ -108,18 +102,14 @@ class MainActivity : AppCompatActivity() {
         showTab(tab)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(STATE_TAB, tab.ordinal)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mainHandler.removeCallbacks(wipeScreenTask)
-    }
-
     override fun onResume() {
         super.onResume()
+        // Verificar wizard al reanudar (incluye retorno desde SetupWizardActivity)
+        val exp = ExperienceManager.getInstance(this)
+        if (!exp.isWizardCompleted()) {
+            startActivity(Intent(this, SetupWizardActivity::class.java))
+            return
+        }
         when (tab) {
             Tab.HOME -> refreshHome()
             Tab.SECURITY -> if (securityAppsLoaded) loadSecurityApps()
