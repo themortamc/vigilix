@@ -89,8 +89,8 @@ class FeatureGate constructor(
             } catch (_: Exception) {
                 defaultValue
             }
-        }
-    } as Boolean
+        } as Boolean
+    }
 
     /**
      * Fuerza refresh del cache de Remote Config (llamar tras fetchAndActivate).

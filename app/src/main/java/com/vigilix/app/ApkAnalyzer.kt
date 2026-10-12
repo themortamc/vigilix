@@ -256,6 +256,28 @@ data class AnalysisResult(
     val providers: List<String>
 ) {
     fun exportHtmlReport(): String {
+        val riskFactorsHtml = riskFactors.map { rf ->
+            val severity = when (rf.weight) {
+                in 25..30 -> "high"
+                in 15..20 -> "medium"
+                else -> "low"
+            }
+            "<div class='factor $severity'><b>${rf.description}</b> (${rf.weight} pts)</div>"
+        }.joinToString("")
+
+        val permissionsHtml = permissions.map { perm ->
+            val dangerous = if (perm in dangerousPermissions) " <b style='color:red'>(Peligroso)</b>" else ""
+            "<li>$perm$dangerous</li>"
+        }.joinToString("")
+
+        val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val certificatesHtml = certificates.map { cert ->
+            val signer = if (cert.isSelfSigned) "Autofirmado" else cert.issuerDN
+            val validity = if (cert.isExpired) "EXPIRADO" else "Válido hasta ${dateFormat.format(java.util.Date(cert.notAfter))}"
+            val weakAlg = if (cert.weakAlgorithm) " <b style='color:red'>(Algoritmo débil)</b>" else ""
+            "<li>${cert.subjectDN} ($signer) $validity$weakAlg</li>"
+        }.joinToString("")
+
         return """
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Análisis APK: $packageName</title>
@@ -265,11 +287,11 @@ data class AnalysisResult(
 <p><b>Versión:</b> $versionName (code $versionCode)</p>
 <div class="risk">Risk Score: <b>$riskScore/100</b></div>
 <h2>Factores de riesgo</h2>
-${riskFactors.map { "<div class='factor ${when(it.weight){in 25..30->\"high\" in 15..20->\"medium\" else->\"low\"}}'><b>${it.description}</b> (${it.weight} pts)</div>".trimIndent() }.joinToString("")}
+$riskFactorsHtml
 <h2>Permisos (${permissions.size})</h2>
-<ul>${permissions.map { "<li>$it${if (it in dangerousPermissions) \" <b style='color:red'>(Peligroso)</b>\"" else "\""}</li>" }.joinToString("")}</ul>
+<ul>$permissionsHtml</ul>
 <h2>Certificados (${certificates.size})</h2>
-<ul>${certificates.map { "<li>${it.subjectDN} (${if (it.isSelfSigned) \"Autofirmado\" else it.issuerDN}) ${if (it.isExpired) \"EXPIRADO\" else \"Válido hasta \" + java.text.SimpleDateFormat(\"dd/MM/yyyy\").format(java.util.Date(it.notAfter))} ${if (it.weakAlgorithm) \"<b style='color:red'>(Algoritmo débil)</b>\" else \"\"}</li>" }.joinToString("")}</ul>
+<ul>$certificatesHtml</ul>
 </body></html>
 """.trimIndent()
     }
