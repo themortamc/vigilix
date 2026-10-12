@@ -13,8 +13,8 @@ android {
         applicationId = "com.vigilix.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "0.6.0"
+        versionCode = 7
+        versionName = "1.0.0"
 
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "x86_64"))

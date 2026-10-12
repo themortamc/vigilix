@@ -111,4 +111,5 @@ class FeatureGate constructor(
                 )
             }.also { INSTANCE = it }
         }
+    }
 }
