@@ -72,6 +72,10 @@ jobs:
           find app/build -path "*kapt*generateStubs*" -name "*.kt" 2>/dev/null | head -20 | xargs -r cat
           echo "=== Gradle daemon logs ==="
           ls -la ~/.gradle/daemon/ 2>/dev/null || true
+          echo "=== Gradle daemon logs content ==="
+          find ~/.gradle/daemon -name "*.log" 2>/dev/null | head -3 | xargs -r cat
+          echo "=== KAPT worker logs ==="
+          find ~/.gradle -name "*kapt*" -name "*.log" 2>/dev/null | head -5 | xargs -r cat
 
   build-apk:
     runs-on: ubuntu-latest
