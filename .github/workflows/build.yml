@@ -126,7 +126,12 @@ jobs:
           gradle --stop
           rm -rf ~/.gradle/caches
           gradle assembleDebug --stacktrace --info --no-daemon --no-build-cache
-        continue-on-error: true
+
+      - name: Listar salidas de build para debug
+        run: |
+          echo "=== Build outputs ==="
+          find app/build/outputs -type f -name "*.apk" 2>/dev/null | head -20
+          ls -la app/build/outputs/apk/debug/ 2>/dev/null || true
 
       - name: Volcar log de KAPT si falla
         if: failure()
@@ -135,16 +140,9 @@ jobs:
           find app/build -name "*.log" -path "*kapt*" 2>/dev/null | head -5 | xargs -r cat
           echo "=== KAPT generateStubs output ==="
           find app/build -path "*kapt*generateStubs*" -name "*.kt" 2>/dev/null | head -20 | xargs -r cat
-          echo "=== Gradle daemon logs ==="
-          ls -la ~/.gradle/daemon/ 2>/dev/null || true
-
-      # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
-      - name: Verificar compilación release (R8)
-        continue-on-error: true
-        run: gradle assembleRelease --stacktrace
 
       - name: Subir APK generado
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: Vigilix-Debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/*.apk
