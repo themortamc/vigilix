@@ -48,6 +48,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Configurar Android SDK
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
       - name: Configurar Gradle 8.5
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
@@ -100,10 +105,10 @@ jobs:
       - name: Instalar cargo-ndk (versión fija)
         run: cargo install cargo-ndk --version 4.1.2 --locked
 
-      - name: Aceptar licencias del SDK de Android e instalar NDK
+      - name: Aceptar licencias del SDK de Android e instalar NDK y plataforma
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.2.9519653"
 
       - name: Compilar núcleo en Rust (.so)
         working-directory: rust
