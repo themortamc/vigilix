@@ -62,4 +62,10 @@ class ExperienceManager private constructor(context: Context) {
         prefs.edit().putBoolean(KEY_WIZARD_COMPLETED, false).apply()
         _wizardCompleted.value = false
     }
+
+    /** Solo para tests: resetea el singleton y limpia SharedPreferences. */
+    internal fun resetForTesting() {
+        INSTANCE = null
+        prefs.edit().clear().apply()
+    }
 }

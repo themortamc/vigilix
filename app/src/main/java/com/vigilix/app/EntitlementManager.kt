@@ -85,6 +85,11 @@ class EntitlementManager private constructor(context: Context) {
         }
     }
 
+    /** Fuerza una consulta de compras al Play Store (para "Restaurar compras"). */
+    fun refreshPurchases() {
+        queryPurchases()
+    }
+
     private fun handlePurchases(purchases: List<Purchase>) {
         val nowPro = purchases.any { purchase ->
             (purchase.products.contains(PRO_MONTHLY) || purchase.products.contains(PRO_YEARLY)) &&

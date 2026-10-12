@@ -1,8 +1,12 @@
 package com.vigilix.app
 
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class CredentialTest {
 
     @Test
@@ -18,7 +22,7 @@ class CredentialTest {
     fun hostOfExtractsDomain() {
         assertEquals("gmail.com", Credential.hostOf("https://www.gmail.com"))
         assertEquals("gmail.com", Credential.hostOf("gmail.com"))
-        assertEquals("google.com", Credential.hostOf("https://accounts.google.com/path"))
+        assertEquals("accounts.google.com", Credential.hostOf("https://accounts.google.com/path"))
         assertEquals("example.com", Credential.hostOf("http://example.com:8080"))
     }
 

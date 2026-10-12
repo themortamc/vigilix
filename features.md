@@ -9,6 +9,7 @@
 - [x] **Setup Wizard UX Universal** (Basic/Advanced/Expert + ajustes togglables)
 - [x] **Cloud Gratuita** (GitHub Pages threat intel, Firebase Remote Config, sync workflow)
 - [x] **Subscription $2/mes** (Google Play Billing + RevenueCat fallback)
+- [x] **Subscription UI** (SubscriptionActivity, toolbar menu, vault menu, wizard nav, restaurar compras)
 - [x] **Escáner archivos SHA-256** (Fast/Full) contra base firmas local
 - [x] **Bóveda contraseñas** (Argon2id + ChaCha20-Poly1305, cambio clave, biometría)
 - [x] **Autocompletado sistema** (AutofillService + pantalla desbloqueo)
@@ -27,6 +28,8 @@
 - [x] **Crash reporting local cifrado** (opt-in, zero PII, vgx1:)
 - [x] **Quick Settings Tile** "Escanear ahora" + TileService
 - [x] **Cloud Sync WebDAV** (Pro) - Sync bóveda a Nextcloud/ownCloud
+- [x] **Build system fixed** (Gradle 8.9, Kotlin 2.0.21, KSP 2.0.21, JDK 21, Android SDK local)
+- [x] **Tests unitarios verdes** (44/44 Kotlin + 21/21 Rust)
 
 ## En curso
 

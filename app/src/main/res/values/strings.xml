@@ -421,6 +421,7 @@
     <string name="menu_change_password">Cambiar la clave maestra</string>
     <string name="menu_export">Exportar copia cifrada</string>
     <string name="menu_import">Importar una copia cifrada</string>
+    <string name="menu_manage_subscription">Gestionar suscripción Pro</string>
     <string name="lock_immediate">al salir de la app</string>
     <string name="lock_1m">1 minuto después de salir</string>
     <string name="lock_5m">5 minutos después de salir</string>
@@ -500,6 +501,43 @@
     <string name="sub_yearly">$20/año (ahorra 17%)</string>
     <string name="sub_trial">14 días gratis</string>
     <string name="sub_manage">Gestionar suscripción</string>
+
+    <!-- Subscription Screen -->
+    <string name="sub_title">Vigilix Pro</string>
+    <string name="sub_subtitle">Desbloquea funciones avanzadas y apoya el desarrollo</string>
+    <string name="sub_current_plan_free">Plan actual: Gratis</string>
+    <string name="sub_current_plan_pro">Plan actual: Pro (%1$s)</string>
+    <string name="sub_trial_available">Prueba gratis de 14 días disponible</string>
+    <string name="sub_trial_active">Prueba activa: %1$d días restantes</string>
+    <string name="sub_feature_cloud_sync">Sincronización WebDAV (Nextcloud, ownCloud)</string>
+    <string name="sub_feature_extra_themes">8 temas Material You + selector de color</string>
+    <string name="sub_feature_export">Exportar CSV/HTML/JSON (historial y bóveda)</string>
+    <string name="sub_feature_unlimited_history">Historial de escaneos ilimitado</string>
+    <string name="sub_feature_priority_support">Soporte prioritario por email</string>
+    <string name="sub_feature_behavior_analysis">Análisis de comportamiento (sandbox, requiere Root)</string>
+    <string name="sub_btn_monthly">Suscribirse mensual - $2/mes</string>
+    <string name="sub_btn_yearly">Suscribirse anual - $20/año (ahorra 17%)</string>
+    <string name="sub_btn_restore">Restaurar compras</string>
+    <string name="sub_btn_manage">Gestionar en Play Store</string>
+    <string name="sub_loading">Cargando planes…</string>
+    <string name="sub_error_load">No se pudieron cargar los planes. Verifica tu conexión e inténtalo de nuevo.</string>
+    <string name="sub_error_purchase">Error al iniciar la compra: %1$s</string>
+    <string name="sub_purchase_pending">Compra pendiente. Se activará cuando se complete el pago.</string>
+    <string name="sub_purchase_success">¡Bienvenido a Vigilix Pro! Todas las funciones están activas.</string>
+    <string name="sub_already_pro">Ya eres usuario Pro. ¡Gracias por tu apoyo!</string>
+    <string name="sub_free_features">Funciones Gratis (siempre incluidas)</string>
+    <string name="sub_pro_features">Funciones Pro (requieren suscripción)</string>
+    <string name="sub_free_feature_scan">Escáner de virus/archivos (SHA-256)</string>
+    <string name="sub_free_feature_vault">Bóveda de contraseñas cifrada local</string>
+    <string name="sub_free_feature_perms">Inspector de permisos en tiempo real</string>
+    <string name="sub_free_feature_network">Monitor de red (VpnService)</string>
+    <string name="sub_free_feature_apk">Análisis APK estático + export HTML</string>
+    <string name="sub_free_feature_scam">Detección estafas colaborativa</string>
+    <string name="sub_free_feature_duress">PIN de coacción / Bóveda falsa</string>
+    <string name="sub_free_feature_dns">DNS privado AdGuard/Quad9</string>
+    <string name="sub_free_feature_autofill">Autocompletado sistema</string>
+    <string name="sub_free_feature_vt">VirusTotal (tu API key)</string>
+    <string name="sub_free_feature_backup">Backup/Restore bóveda cifrado</string>
 
     <!-- Permissions descriptions -->
     <string name="perm_storage_desc">Para escanear tus archivos y apps</string>

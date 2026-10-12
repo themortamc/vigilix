@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SubscriptionScreen: Pantalla de planes Pro de Vigilix.
+    Muestra el estado actual de la suscripción, lista de funciones Pro,
+    y botones para suscribirse mensual/anual o gestionar la suscripción.
+    Diseño: tarjeta hero + lista de beneficios + botones de acción.
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vx_bg">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/vx_bg"
+            app:navigationIcon="@drawable/ic_chevron"
+            app:title="@string/sub_title"
+            app:titleTextColor="@color/vx_text" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:paddingTop="16dp">
+
+        <!-- ===== Estado actual ===== -->
+        <TextView
+            android:id="@+id/tvSubStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/VxHeading"
+            android:text="@string/sub_current_plan_free" />
+
+        <TextView
+            android:id="@+id/tvSubTrial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textAppearance="@style/VxMuted"
+            android:visibility="gone" />
+
+        <!-- ===== Funciones Gratis ===== -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/sub_free_features"
+            android:textAppearance="@style/VxHeading" />
+
+        <LinearLayout
+            android:id="@+id/containerFreeFeatures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <!-- ===== Funciones Pro ===== -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/sub_pro_features"
+            android:textAppearance="@style/VxHeading"
+            android:textColor="@color/vx_accent_text" />
+
+        <LinearLayout
+            android:id="@+id/containerProFeatures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <!-- ===== Botones de acción ===== -->
+        <Button
+            android:id="@+id/btnSubMonthly"
+            style="@style/VxButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/sub_btn_monthly" />
+
+        <Button
+            android:id="@+id/btnSubYearly"
+            style="@style/VxButtonSecondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/sub_btn_yearly" />
+
+        <Button
+            android:id="@+id/btnSubRestore"
+            style="@style/VxTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/sub_btn_restore" />
+
+        <Button
+            android:id="@+id/btnSubManage"
+            style="@style/VxTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/sub_btn_manage"
+            android:visibility="gone" />
+
+        <!-- ===== Mensaje de error ===== -->
+        <include
+            android:id="@+id/calloutSubError"
+            layout="@layout/view_callout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+        <!-- ===== Progress ===== -->
+        <ProgressBar
+            android:id="@+id/progressSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

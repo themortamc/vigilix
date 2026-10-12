@@ -1,5 +1,7 @@
 package com.vigilix.app
 
+import com.vigilix.app.HistoryManager.Entry
+import com.vigilix.app.HistoryManager.toLine
 import org.junit.Assert.*
 import org.junit.Test
 

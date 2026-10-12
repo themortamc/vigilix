@@ -15,6 +15,8 @@ class ExperienceManagerTest {
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        // Reset singleton for test isolation
+        ExperienceManager.getInstance(context).resetForTesting()
         experienceManager = ExperienceManager.getInstance(context)
     }
 

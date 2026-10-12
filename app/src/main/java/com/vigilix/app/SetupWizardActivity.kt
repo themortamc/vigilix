@@ -334,7 +334,8 @@ class SetupFeaturesFragment : Fragment() {
 
         binding.btnViewPlans.setOnClickListener {
             // Ir a pantalla de suscripción / planes Pro
-            android.widget.Toast.makeText(requireContext(), getString(R.string.wizard_view_plans), android.widget.Toast.LENGTH_SHORT).show()
+            val intent = Intent(requireContext(), SubscriptionActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -73,7 +73,7 @@ object HistoryManager {
     private fun getCount(s: android.content.SharedPreferences): Int =
         s.getInt(KEY_COUNT, 0)
 
-    private fun Entry.toLine(): String =
+    internal fun Entry.toLine(): String =
         "$timestamp|$mode|$files|$findings|$vtUsed"
 
     /** Parsea una línea de historial. Visible para testing. */

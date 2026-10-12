@@ -412,6 +412,11 @@ class VaultScreen(private val activity: AppCompatActivity, private val v: Screen
         entries.add(activity.getString(R.string.menu_change_password) to { changePasswordDialog() })
         entries.add(activity.getString(R.string.menu_export) to { exportLauncher.launch("vigilix-boveda.vgv") })
         entries.add(activity.getString(R.string.menu_import) to { importLauncher.launch(arrayOf("*/*")) })
+        // Pro subscription
+        entries.add(activity.getString(R.string.menu_manage_subscription) to {
+            val intent = Intent(activity, SubscriptionActivity::class.java)
+            activity.startActivity(intent)
+        })
 
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.vault_menu)

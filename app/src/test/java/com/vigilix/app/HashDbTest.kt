@@ -15,7 +15,7 @@ class HashDbTest {
 
     @Test
     fun maxEntriesConstant() {
-        assertEquals(2_000_000L, HashDb.MAX_ENTRIES)
+        assertEquals(2_000_000, HashDb.MAX_ENTRIES)
     }
 
     @Test
