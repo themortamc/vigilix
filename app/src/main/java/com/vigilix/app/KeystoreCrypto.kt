@@ -60,7 +60,7 @@ object KeystoreCrypto {
     fun encryptString(text: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, existingOrNew(ALIAS_PLAIN))
-        val ct = cipher.doFinal(text.toByteArray(Charsets.UTF_8))
+        val ct = cipher.doFinal(text.toByteArray(StandardCharsets.UTF_8))
         return Base64.encodeToString(cipher.iv, Base64.NO_WRAP) + ":" + Base64.encodeToString(ct, Base64.NO_WRAP)
     }
 
@@ -73,7 +73,7 @@ object KeystoreCrypto {
             val key = keyStore().getKey(ALIAS_PLAIN, null) as? SecretKey ?: return null
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(TAG_BITS, iv))
-            String(cipher.doFinal(ct), Charsets.UTF_8)
+            String(cipher.doFinal(ct), StandardCharsets.UTF_8)
         } catch (e: GeneralSecurityException) {
             null
         } catch (e: IllegalArgumentException) {

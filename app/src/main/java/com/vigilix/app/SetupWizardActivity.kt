@@ -57,7 +57,7 @@ class SetupWizardActivity : AppCompatActivity() {
     }
 
     private fun setupViewPager() {
-        binding.viewPager.adapter = SetupWizardPagerAdapter(this)
+        binding.viewPager.adapter = SetupWizardPagerAdapter(this) as androidx.recyclerview.widget.RecyclerView.Adapter<*>
         binding.viewPager.isUserInputEnabled = false // Solo navegación por botones
     }
 

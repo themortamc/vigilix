@@ -1,11 +1,9 @@
 package com.vigilix.app
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import androidx.core.content.ContextCompat
 
 /**
  * Quick Settings Tile para "Escanear ahora".
@@ -15,7 +13,7 @@ class ScanTileService : TileService() {
 
     override fun onTileAdded() {
         super.onTileAdded()
-        requestListeningState(context)
+        requestListeningState(this)
     }
 
     override fun onTileRemoved() {
@@ -32,10 +30,10 @@ class ScanTileService : TileService() {
         val tile = qsTile
         // Toggle: si estaba activo, cancela; si inactivo, inicia escaneo rápido
         if (tile.state == Tile.STATE_ACTIVE) {
-            ScanService.stop(context)
+            ScanService.stop(this)
             tile.state = Tile.STATE_INACTIVE
         } else {
-            ScanService.start(context, full = false)
+            ScanService.start(this, full = false, useVirusTotal = false)
             tile.state = Tile.STATE_ACTIVE
         }
         tile.update()
@@ -53,7 +51,7 @@ class ScanTileService : TileService() {
     }
 
     /** Solicita al sistema que mantenga el tile escuchando. */
-    private fun requestListeningState(context: Context) {
+    private fun requestListeningState(context: android.content.Context) {
         // Android 7.0+ requiere que el usuario añada el tile manualmente.
         // No se puede forzar, solo solicitar.
         try {

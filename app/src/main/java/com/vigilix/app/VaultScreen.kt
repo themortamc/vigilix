@@ -525,7 +525,7 @@ class VaultScreen(private val activity: AppCompatActivity, private val v: Screen
         activity.lifecycleScope.launch {
             val ok = withContext(Dispatchers.IO) {
                 try {
-                    activity.contentResolver.openOutputStream(uri, "wt")?.use { it.write(blob.toByteArray(Charsets.UTF_8)) } != null
+                    activity.contentResolver.openOutputStream(uri, "wt")?.use { it.write(blob.toByteArray(StandardCharsets.UTF_8)) } != null
                 } catch (e: IOException) {
                     false
                 }
@@ -544,7 +544,7 @@ class VaultScreen(private val activity: AppCompatActivity, private val v: Screen
                 try {
                     activity.contentResolver.openInputStream(uri)?.use { input ->
                         val bytes = input.readBytes()
-                        if (bytes.size > MAX_IMPORT_BYTES) null else String(bytes, Charsets.UTF_8)
+                        if (bytes.size > MAX_IMPORT_BYTES) null else String(bytes, StandardCharsets.UTF_8)
                     }
                 } catch (e: IOException) {
                     null

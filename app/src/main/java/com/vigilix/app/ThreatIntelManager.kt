@@ -116,7 +116,8 @@ class ThreatIntelManager private constructor(context: Context) {
 
     private fun fetchManifest(): Manifest? = try {
         val request = Request.Builder().url("$baseUrl/manifest.json").build()
-        client.newCall(request).execute().use { response ->
+        val response = client.newCall(request).execute()
+        try {
             if (!response.isSuccessful) return null
             val json = JSONObject(response.body?.string())
             Manifest(
@@ -127,6 +128,8 @@ class ThreatIntelManager private constructor(context: Context) {
                 },
                 updated = json.getString("updated")
             )
+        } finally {
+            response.close()
         }
     } catch (_: Exception) {
         null
@@ -134,7 +137,8 @@ class ThreatIntelManager private constructor(context: Context) {
 
     private fun downloadAndSave(fileName: String, expectedSha256: String): Result<Long> = try {
         val request = Request.Builder().url("$baseUrl/threat-intel/$fileName").build()
-        client.newCall(request).execute().use { response ->
+        val response = client.newCall(request).execute()
+        try {
             if (!response.isSuccessful) return Result.failure(IOException("HTTP ${response.code}"))
             val body = response.body?.bytes() ?: return Result.failure(IOException("Empty body"))
             
@@ -153,6 +157,8 @@ class ThreatIntelManager private constructor(context: Context) {
             // Parse and add to sets
             val added = parseAndAdd(file)
             Result.success(added.toLong())
+        } finally {
+            response.close()
         }
     } catch (e: Exception) {
         Result.failure(e)

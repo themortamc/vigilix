@@ -23,12 +23,9 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.channels.FileChannel
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.channels.ReceiveChannel
 
 /**
  * VpnService para monitor de red NonRoot.
@@ -161,11 +158,11 @@ class NetworkMonitorVpnService : VpnService() {
         if (packet.size < 20) return // Minimum IP header
 
         // Parse IP header
-        val versionIhl = packet[0] and 0xFF
+        val versionIhl = (packet[0].toInt() and 0xFF)
         val ihl = (versionIhl and 0x0F) * 4
         if (ihl < 20) return
 
-        val protocol = packet[9] and 0xFF
+        val protocol = (packet[9].toInt() and 0xFF)
         val srcIp = InetAddress.getByAddress(packet.copyOfRange(12, 16)).hostAddress
         val dstIp = InetAddress.getByAddress(packet.copyOfRange(16, 20)).hostAddress
 
@@ -185,8 +182,8 @@ class NetworkMonitorVpnService : VpnService() {
         // Check suspicious ports if TCP/UDP
         if (protocol == 6 || protocol == 17) { // TCP or UDP
             if (packet.size >= ihl + 4) {
-                val srcPort = ((packet[ihl] and 0xFF) shl 8) or (packet[ihl + 1] and 0xFF)
-                val dstPort = ((packet[ihl + 2] and 0xFF) shl 8) or (packet[ihl + 3] and 0xFF)
+                val srcPort = ((packet[ihl].toInt() and 0xFF) shl 8) or (packet[ihl + 1].toInt() and 0xFF)
+                val dstPort = ((packet[ihl + 2].toInt() and 0xFF) shl 8) or (packet[ihl + 3].toInt() and 0xFF)
 
                 if (suspiciousPorts.contains(dstPort) && !standardPorts.contains(dstPort)) {
                     val alert = NetworkAlert(

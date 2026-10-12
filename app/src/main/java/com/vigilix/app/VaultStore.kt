@@ -9,7 +9,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.util.Locale
 
 enum class UnlockResult { OK, WRONG_KEY, ENGINE_UNAVAILABLE, NO_VAULT, CORRUPT }
@@ -319,7 +319,7 @@ object VaultStore {
         val tmp = File(target.parentFile, "$FILE_NAME.tmp")
         return try {
             FileOutputStream(tmp).use { out ->
-                out.write(blob.toByteArray(Charsets.UTF_8))
+                out.write(blob.toByteArray(StandardCharsets.UTF_8))
                 out.fd.sync()
             }
             tmp.renameTo(target)

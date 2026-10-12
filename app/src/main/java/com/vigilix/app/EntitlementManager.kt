@@ -23,6 +23,12 @@ class EntitlementManager private constructor(context: Context) {
     companion object {
         const val PRO_MONTHLY = "vigilix_pro_monthly"
         const val PRO_YEARLY = "vigilix_pro_yearly"
+
+        @Volatile private var INSTANCE: EntitlementManager? = null
+
+        fun getInstance(context: Context): EntitlementManager = INSTANCE ?: synchronized(this) {
+            INSTANCE ?: EntitlementManager(context.applicationContext).also { INSTANCE = it }
+        }
     }
 
     private val context: Context = context.applicationContext
@@ -126,14 +132,6 @@ class EntitlementManager private constructor(context: Context) {
             } else {
                 onResult(false)
             }
-        }
-    }
-
-    companion object {
-        @Volatile private var INSTANCE: EntitlementManager? = null
-
-        fun getInstance(context: Context): EntitlementManager = INSTANCE ?: synchronized(this) {
-            INSTANCE ?: EntitlementManager(context.applicationContext).also { INSTANCE = it }
         }
     }
 }

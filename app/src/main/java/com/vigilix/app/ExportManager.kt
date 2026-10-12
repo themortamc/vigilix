@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -140,7 +140,7 @@ object ExportManager {
 
     private fun writeHistoryCsv(file: File, entries: List<HistoryManager.Entry>) {
         FileOutputStream(file).use { out ->
-            OutputStreamWriter(out, Charsets.UTF_8).use { w ->
+            OutputStreamWriter(out, StandardCharsets.UTF_8).use { w ->
                 w.write("timestamp,mode,files,findings,vtUsed\n")
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 for (e in entries) {
@@ -163,13 +163,13 @@ object ExportManager {
             })
         }
         FileOutputStream(file).use { out ->
-            out.write(json.toString(2).toByteArray(Charsets.UTF_8))
+            out.write(json.toString(2).toByteArray(StandardCharsets.UTF_8))
         }
     }
 
     private fun writeVaultCsv(file: File, creds: List<Credential>) {
         FileOutputStream(file).use { out ->
-            OutputStreamWriter(out, Charsets.UTF_8).use { w ->
+            OutputStreamWriter(out, StandardCharsets.UTF_8).use { w ->
                 w.write("id,title,url,package,username,notes,favorite,updatedAt\n")
                 for (c in creds) {
                     w.write("${escapeCsv(c.id)},${escapeCsv(c.title)},${escapeCsv(c.url)},${escapeCsv(c.packageName)},${escapeCsv(c.username)},${escapeCsv(c.notes)},${c.favorite},${c.updatedAt}\n")
@@ -188,13 +188,13 @@ object ExportManager {
             put("blob", blob)
         }
         FileOutputStream(file).use { out ->
-            out.write(json.toString(2).toByteArray(Charsets.UTF_8))
+            out.write(json.toString(2).toByteArray(StandardCharsets.UTF_8))
         }
     }
 
     private fun writeApkReportCsv(file: File, report: ApkAnalyzer.AnalysisResult) {
         FileOutputStream(file).use { out ->
-            OutputStreamWriter(out, Charsets.UTF_8).use { w ->
+            OutputStreamWriter(out, StandardCharsets.UTF_8).use { w ->
                 w.write("field,value\n")
                 w.write("packageName,${report.packageName}\n")
                 w.write("versionName,${report.versionName}\n")
@@ -211,7 +211,7 @@ object ExportManager {
 
     private fun writeApkReportJson(file: File, report: ApkAnalyzer.AnalysisResult) {
         FileOutputStream(file).use { out ->
-            out.write(report.exportJson().toByteArray(Charsets.UTF_8))
+            out.write(report.exportJson().toByteArray(StandardCharsets.UTF_8))
         }
     }
 

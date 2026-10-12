@@ -23,6 +23,12 @@ class ExperienceManager private constructor(context: Context) {
         const val PREFS_NAME = "vx_experience"
         const val KEY_LEVEL = "experience_level"
         const val KEY_WIZARD_COMPLETED = "wizard_completed"
+
+        @Volatile private var INSTANCE: ExperienceManager? = null
+
+        fun getInstance(context: Context): ExperienceManager = INSTANCE ?: synchronized(this) {
+            INSTANCE ?: ExperienceManager(context.applicationContext).also { INSTANCE = it }
+        }
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -55,13 +61,5 @@ class ExperienceManager private constructor(context: Context) {
     fun resetWizard() {
         prefs.edit().putBoolean(KEY_WIZARD_COMPLETED, false).apply()
         _wizardCompleted.value = false
-    }
-
-    companion object {
-        @Volatile private var INSTANCE: ExperienceManager? = null
-
-        fun getInstance(context: Context): ExperienceManager = INSTANCE ?: synchronized(this) {
-            INSTANCE ?: ExperienceManager(context.applicationContext).also { INSTANCE = it }
-        }
     }
 }

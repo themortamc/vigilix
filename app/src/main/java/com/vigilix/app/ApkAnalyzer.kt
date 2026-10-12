@@ -311,7 +311,7 @@ $riskFactorsHtml
     }
 }
 
-sealed class RiskFactor(val weight: Int, val description: String) {
+sealed class RiskFactor(open val weight: Int, val description: String) {
     object InstallPackages : RiskFactor(25, "REQUEST_INSTALL_PACKAGES - Puede instalar otras apps")
     object DeletePackages : RiskFactor(25, "REQUEST_DELETE_PACKAGES - Puede desinstalar apps")
     object SystemAlertWindow : RiskFactor(20, "SYSTEM_ALERT_WINDOW - Dibuja sobre otras apps")

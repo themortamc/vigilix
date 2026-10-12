@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -139,7 +139,7 @@ object CrashLog {
         }
         try {
             FileOutputStream(file).use { out ->
-                out.write(json.toString(2).toByteArray(Charsets.UTF_8))
+                out.write(json.toString(2).toByteArray(StandardCharsets.UTF_8))
             }
         } catch (e: Exception) {
             // Silent fail
