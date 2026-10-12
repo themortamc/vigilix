@@ -49,7 +49,7 @@ jobs:
           java-version: '17'
 
       - name: Configurar Android SDK
-        uses: android-actions/setup-android@26e48e2e6a8f23b8f6b9e7b5f6b7e8f9c3d4e5f6 # v3
+        uses: android-actions/setup-android@v3
         with:
           api-level: 34
           ndk-version: 25.2.9519653
@@ -108,7 +108,7 @@ jobs:
         run: cargo install cargo-ndk --version 4.1.2 --locked
 
       - name: Configurar Android SDK
-        uses: android-actions/setup-android@26e48e2e6a8f23b8f6b9e7b5f6b7e8f9c3d4e5f6 # v3
+        uses: android-actions/setup-android@v3
         with:
           api-level: 34
           ndk-version: 25.2.9519653
