@@ -22,6 +22,7 @@ class ScanTileService : TileService() {
         super.onTileRemoved()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStartListening() {
         super.onStartListening()
         updateTile()
