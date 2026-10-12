@@ -49,9 +49,11 @@ jobs:
           java-version: '17'
 
       - name: Configurar Android SDK
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
+        uses: android-actions/setup-android@26e48e2e6a8f23b8f6b9e7b5f6b7e8f9c3d4e5f6 # v3
+        with:
+          api-level: 34
+          ndk-version: 25.2.9519653
+          build-tools: 34.0.0
 
       - name: Configurar Gradle 8.5
         run: |
@@ -105,10 +107,12 @@ jobs:
       - name: Instalar cargo-ndk (versión fija)
         run: cargo install cargo-ndk --version 4.1.2 --locked
 
-      - name: Aceptar licencias del SDK de Android e instalar NDK y plataforma
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.2.9519653"
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@26e48e2e6a8f23b8f6b9e7b5f6b7e8f9c3d4e5f6 # v3
+        with:
+          api-level: 34
+          ndk-version: 25.2.9519653
+          build-tools: 34.0.0
 
       - name: Compilar núcleo en Rust (.so)
         working-directory: rust
