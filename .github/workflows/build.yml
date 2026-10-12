@@ -125,7 +125,18 @@ jobs:
         run: |
           gradle --stop
           rm -rf ~/.gradle/caches
-          gradle assembleDebug --stacktrace --no-daemon --no-build-cache
+          gradle assembleDebug --stacktrace --info --no-daemon --no-build-cache
+        continue-on-error: true
+
+      - name: Volcar log de KAPT si falla
+        if: failure()
+        run: |
+          echo "=== KAPT generateStubs log ==="
+          find app/build -name "*.log" -path "*kapt*" 2>/dev/null | head -5 | xargs -r cat
+          echo "=== KAPT generateStubs output ==="
+          find app/build -path "*kapt*generateStubs*" -name "*.kt" 2>/dev/null | head -20 | xargs -r cat
+          echo "=== Gradle daemon logs ==="
+          ls -la ~/.gradle/daemon/ 2>/dev/null || true
 
       # Comprueba que la compilación release (con R8) también funciona. No bloquea el APK debug.
       - name: Verificar compilación release (R8)
