@@ -88,6 +88,13 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // Fragment, ViewPager2, Activity Result
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
+
+    // VpnService (included in SDK)
+    
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("androidx.test:core:1.5.0")

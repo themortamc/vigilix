@@ -183,7 +183,7 @@ object VaultStore {
         }
 
         // Abrir sesión con la clave derivada del duress PIN
-        val duressKey = SecurityBridge.vaultExportKey() ?: return UnlockResult.ENGINE_UNAVAILABLE
+        val duressKey = SecurityBridge.exportVaultKey() ?: return UnlockResult.ENGINE_UNAVAILABLE
         val json = SecurityBridge.vaultOpenBlobWithKey(duressKey, fakeBlob) ?: return UnlockResult.WRONG_KEY
 
         return finishUnlock(json)

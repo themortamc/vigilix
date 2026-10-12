@@ -132,7 +132,7 @@ object WebDavSyncManager {
 
         val remotePath = buildRemotePath(config)
         val fileBytes = FileInputStream(vaultFile).readBytes()
-        val requestBody = RequestBody.create(fileBytes, "application/octet-stream".toMediaType())
+        val requestBody = RequestBody.create("application/octet-stream".toMediaType(), fileBytes)
 
         val request = Request.Builder()
             .url(remotePath)
@@ -199,7 +199,7 @@ object WebDavSyncManager {
         return Request.Builder()
             .url(url)
             .header("Authorization", Credentials.basic(config.username, config.password))
-            .method(method, RequestBody.create("", "text/xml".toMediaType()))
+            .method(method, RequestBody.create("text/xml".toMediaType(), "".toByteArray()))
             .apply { depth?.let { header("Depth", it) } }
     }
 }

@@ -122,12 +122,15 @@ class ThreatIntelManager private constructor(context: Context) {
                 if (!response.isSuccessful) null
                 else {
                     val json = JSONObject(response.body?.string())
+                    val filesArray = json.getJSONArray("files")
+                    val files = mutableListOf<ManifestFile>()
+                    for (i in 0 until filesArray.length()) {
+                        val obj = filesArray.getJSONObject(i)
+                        files.add(ManifestFile(obj.getString("name"), obj.getString("sha256")))
+                    }
                     Manifest(
                         version = json.getInt("version"),
-                        files = json.getJSONArray("files").map { o ->
-                            val obj = o as JSONObject
-                            ManifestFile(obj.getString("name"), obj.getString("sha256"))
-                        },
+                        files = files,
                         updated = json.getString("updated")
                     )
                 }
@@ -185,7 +188,12 @@ class ThreatIntelManager private constructor(context: Context) {
     private fun parseJsonArray(file: File): List<String> {
         return try {
             val json = JSONObject(file.readText())
-            json.getJSONArray("data").toList().map { it.toString() }
+            val array = json.getJSONArray("data")
+            val result = mutableListOf<String>()
+            for (i in 0 until array.length()) {
+                result.add(array.getString(i))
+            }
+            result
         } catch (_: Exception) {
             emptyList()
         }
