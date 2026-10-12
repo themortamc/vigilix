@@ -28,14 +28,14 @@ sealed interface AppMode {
  */
 object ModeDetector {
 
-    private const val MAGISK_PATHS = arrayOf(
+    private val MAGISK_PATHS = arrayOf(
         "/sbin/.magisk",
         "/data/adb/magisk",
         "/system/bin/magisk",
         "/system/xbin/magisk"
     )
 
-    private const val KERNEL_SU_PATHS = arrayOf(
+    private val KERNEL_SU_PATHS = arrayOf(
         "/system/bin/su",
         "/system/xbin/su",
         "/system/sbin/su",

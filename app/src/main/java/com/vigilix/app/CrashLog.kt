@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.charset.Charsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -19,6 +20,7 @@ object CrashLog {
     private const val DIR_NAME = "crash_logs"
     private const val MAX_REPORTS = 50
     private const val PREF_ENABLED = "crash_log_enabled"
+    private const val PREFS_FILE = "vx_prefs"
 
     private val handlerRef = AtomicReference<Thread.UncaughtExceptionHandler?>(null)
 
@@ -105,13 +107,13 @@ object CrashLog {
 
     /** Habilita/deshabilita el crash logging. */
     fun setEnabled(context: Context, enabled: Boolean) {
-        val prefs = context.getSharedPreferences(Prefs.FILE, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(PREF_ENABLED, enabled).apply()
         if (enabled) init(context) else disable(context)
     }
 
     fun isEnabled(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(Prefs.FILE, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
         return prefs.getBoolean(PREF_ENABLED, false)
     }
 

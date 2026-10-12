@@ -17,6 +17,7 @@ import java.security.MessageDigest
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.jar.JarFile
+import java.util.Locale
 
 /**
  * Analizador estático de APKs. Extrae información del manifest,
@@ -173,7 +174,7 @@ class ApkAnalyzer private constructor(context: Context) {
     }
 
     private fun extractCertificates(jarFile: JarFile): List<CertInfo> {
-        val certs = mutableListOf<CertInfo>()
+        val certInfos = mutableListOf<CertInfo>()
         val entries = jarFile.entries()
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
@@ -183,12 +184,12 @@ class ApkAnalyzer private constructor(context: Context) {
                         CertificateFactory.getInstance("X.509").generateCertificates(input) as List<X509Certificate>
                     }
                     for (cert in certs) {
-                        certs.add(extractCertInfo(cert))
+                        certInfos.add(extractCertInfo(cert))
                     }
                 } catch (_: Exception) { /* ignore */ }
             }
         }
-        return certs.distinctBy { it.sha256 }
+        return certInfos.distinctBy { it.sha256 }
     }
 
     private fun extractCertInfo(cert: X509Certificate): CertInfo {
@@ -320,7 +321,7 @@ sealed class RiskFactor(val weight: Int, val description: String) {
     object ReadContacts : RiskFactor(15, "READ_CONTACTS - Lee contactos")
     object DeviceAdmin : RiskFactor(30, "BIND_DEVICE_ADMIN - Admin de dispositivo (control total)")
     object UnknownSources : RiskFactor(10, "INSTALL_UNKNOWN_APPS - Orígenes desconocidos")
-    data class Custom(val name: String, val weight: Int, val desc: String) : RiskFactor(weight, "$name: $desc")
+    data class Custom(val name: String, override val weight: Int, val desc: String) : RiskFactor(weight, "$name: $desc")
 }
 
 data class CertInfo(

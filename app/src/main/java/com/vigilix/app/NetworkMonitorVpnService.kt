@@ -1,5 +1,6 @@
 package com.vigilix.app
 
+import android.app.Service
 import android.app.VpnService
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -79,7 +81,7 @@ class NetworkMonitorVpnService : VpnService() {
         if (!running) {
             startVpn()
         }
-        return START_STICKY
+        return Service.START_STICKY
     }
 
     override fun onDestroy() {
@@ -89,7 +91,7 @@ class NetworkMonitorVpnService : VpnService() {
     }
 
     private fun startVpn() {
-        val builder = VpnService.Builder()
+        val builder = Builder()
             .addAddress("10.0.0.1", 24)
             .addRoute("0.0.0.0", 0)
             .setBlocking(false)

@@ -20,11 +20,12 @@ import kotlinx.coroutines.withContext
  */
 class EntitlementManager private constructor(context: Context) {
 
-    private const val PRO_MONTHLY = "vigilix_pro_monthly"
-    private const val PRO_YEARLY = "vigilix_pro_yearly"
+    companion object {
+        const val PRO_MONTHLY = "vigilix_pro_monthly"
+        const val PRO_YEARLY = "vigilix_pro_yearly"
+    }
 
     private val context: Context = context.applicationContext
-    private val billingClient: BillingClient
     private val _isPro = MutableLiveData<Boolean>()
     private val _billingReady = MutableLiveData<Boolean>()
 
@@ -32,24 +33,25 @@ class EntitlementManager private constructor(context: Context) {
     val billingReady: LiveData<Boolean> = _billingReady
 
     private var isProCached = false
-
-    init {
-        billingClient = BillingClient.newBuilder(context)
-            .setListener(purchasesUpdatedListener)
-            .enablePendingPurchases()
-            .build()
-
-        startConnection()
-    }
-
+    private var billingClient: BillingClient? = null
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             handlePurchases(purchases)
         }
     }
 
+    init {
+        val client = BillingClient.newBuilder(context)
+            .setListener(purchasesUpdatedListener)
+            .enablePendingPurchases()
+            .build()
+        billingClient = client
+
+        startConnection()
+    }
+
     private fun startConnection() {
-        billingClient.startConnection(object : BillingClientStateListener {
+        billingClient!!.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     _billingReady.postValue(true)
@@ -70,7 +72,7 @@ class EntitlementManager private constructor(context: Context) {
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.SUBS)
             .build()
-        billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
+        billingClient!!.queryPurchasesAsync(params) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 handlePurchases(purchases)
             }
@@ -107,7 +109,7 @@ class EntitlementManager private constructor(context: Context) {
                 .build()))
             .build()
 
-        billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+        billingClient!!.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
                 val productDetails = productDetailsList[0]
                 val flowParams = BillingFlowParams.newBuilder()
@@ -116,7 +118,7 @@ class EntitlementManager private constructor(context: Context) {
                         .build()))
                     .build()
                 activity.runOnUiThread {
-                    val result = billingClient.launchBillingFlow(activity, flowParams)
+                    val result = billingClient!!.launchBillingFlow(activity, flowParams)
                     if (result.responseCode != BillingClient.BillingResponseCode.OK) {
                         onResult(false)
                     }

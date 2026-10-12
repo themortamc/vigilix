@@ -9,6 +9,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.charset.Charsets
 import java.util.Locale
 
 enum class UnlockResult { OK, WRONG_KEY, ENGINE_UNAVAILABLE, NO_VAULT, CORRUPT }

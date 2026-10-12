@@ -19,9 +19,11 @@ enum class ExperienceLevel {
  */
 class ExperienceManager private constructor(context: Context) {
 
-    private const val PREFS_NAME = "vx_experience"
-    private const val KEY_LEVEL = "experience_level"
-    private const val KEY_WIZARD_COMPLETED = "wizard_completed"
+    companion object {
+        const val PREFS_NAME = "vx_experience"
+        const val KEY_LEVEL = "experience_level"
+        const val KEY_WIZARD_COMPLETED = "wizard_completed"
+    }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val _level = MutableLiveData<ExperienceLevel>()

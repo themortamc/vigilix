@@ -25,15 +25,15 @@ class ScamDetectionManager private constructor(context: Context) {
     val reportStatus: LiveData<ReportStatus> = _reportStatus
 
     /** Verifica si un número es scam conocido (local + threat intel). */
-    fun isScamNumber(number: String): Boolean {
+    suspend fun isScamNumber(number: String): Boolean = withContext(Dispatchers.IO) {
         val normalized = normalizePhone(number)
-        return threatIntel.isScamNumber(normalized) || db.scamNumberDao().exists(normalized)
+        threatIntel.isScamNumber(normalized) || db.scamNumberDao().exists(normalized)
     }
 
     /** Verifica si una URL es phishing conocida. */
-    fun isPhishingUrl(url: String): Boolean {
+    suspend fun isPhishingUrl(url: String): Boolean = withContext(Dispatchers.IO) {
         val normalized = normalizeUrl(url)
-        return threatIntel.isPhishingUrl(normalized) || db.phishingUrlDao().exists(normalized)
+        threatIntel.isPhishingUrl(normalized) || db.phishingUrlDao().exists(normalized)
     }
 
     /** Reporta un número/URL por el usuario. Guarda localmente para el siguiente sync. */
