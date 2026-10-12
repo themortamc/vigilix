@@ -99,6 +99,12 @@ class FeatureGate constructor(
         remoteConfigCache.clear()
     }
 
+    /** Solo para tests: resetea el singleton y cache. */
+    internal fun resetForTesting() {
+        INSTANCE = null
+        remoteConfigCache.clear()
+    }
+
     companion object {
         @Volatile private var INSTANCE: FeatureGate? = null
 

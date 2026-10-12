@@ -139,4 +139,12 @@ class EntitlementManager private constructor(context: Context) {
             }
         }
     }
+
+    /** Solo para tests: resetea el singleton y estado. */
+    internal fun resetForTesting() {
+        INSTANCE = null
+        isProCached = false
+        _isPro.postValue(false)
+        _billingReady.postValue(false)
+    }
 }
