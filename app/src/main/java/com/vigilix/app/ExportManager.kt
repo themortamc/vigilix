@@ -100,7 +100,7 @@ object ExportManager {
      */
     suspend fun exportApkReport(
         context: Context,
-        report: ApkAnalyzer.AnalysisResult,
+        report: AnalysisResult,
         format: Format = Format.JSON,
         onComplete: (ExportResult) -> Unit
     ) = withContext(Dispatchers.IO) {
@@ -192,7 +192,7 @@ object ExportManager {
         }
     }
 
-    private fun writeApkReportCsv(file: File, report: ApkAnalyzer.AnalysisResult) {
+    private fun writeApkReportCsv(file: File, report: AnalysisResult) {
         FileOutputStream(file).use { out ->
             OutputStreamWriter(out, StandardCharsets.UTF_8).use { w ->
                 w.write("field,value\n")
@@ -209,7 +209,7 @@ object ExportManager {
         }
     }
 
-    private fun writeApkReportJson(file: File, report: ApkAnalyzer.AnalysisResult) {
+    private fun writeApkReportJson(file: File, report: AnalysisResult) {
         FileOutputStream(file).use { out ->
             out.write(report.exportJson().toByteArray(StandardCharsets.UTF_8))
         }
