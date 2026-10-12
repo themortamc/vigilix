@@ -1,7 +1,7 @@
 package com.vigilix.app
 
 import android.app.Service
-import android.app.VpnService
+import android.net.VpnService
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager

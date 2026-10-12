@@ -36,7 +36,7 @@ class ScanTileService : TileService() {
             ScanService.start(this, full = false, useVirusTotal = false)
             tile.state = Tile.STATE_ACTIVE
         }
-        tile.update()
+        tile.updateTile()
     }
 
     private fun updateTile() {
@@ -47,7 +47,7 @@ class ScanTileService : TileService() {
         tile.subtitle = if (isScanning) getString(R.string.tile_scanning) else getString(R.string.tile_ready)
         // Icono: usar ic_scan del drawable
         tile.icon = Icon.createWithResource(this, R.drawable.ic_scan)
-        tile.update()
+        tile.updateTile()
     }
 
     /** Solicita al sistema que mantenga el tile escuchando. */
@@ -55,7 +55,7 @@ class ScanTileService : TileService() {
         // Android 7.0+ requiere que el usuario añada el tile manualmente.
         // No se puede forzar, solo solicitar.
         try {
-            val intent = Intent(android.provider.Settings.ACTION_QUICK_SETTINGS)
+            val intent = Intent("android.settings.QUICK_SETTINGS_SETTINGS")
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
         } catch (e: Exception) {

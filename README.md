@@ -1,29 +1,29 @@
 <div align="center">
 
 # 🛡️ Vigilix
-### *Mobile Cybersecurity & Privacy Shield for Android*
+### *Herramienta de Ciberseguridad y Escudo de Privacidad para Android*
 
-[![CI Status](https://github.com/themortamc/vigilix/actions/workflows/build.yml/badge.svg)](https://github.com/themortamc/vigilix/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform: Android](https://img.shields.io/badge/Platform-Android_8.0%2B-green.svg)]()
-[![Rust Core](https://img.shields.io/badge/Core-Rust_JNI-orange.svg)]()
+[![Estado de CI](https://github.com/themortamc/vigilix/actions/workflows/build.yml/badge.svg)](https://github.com/themortamc/vigilix/actions)
+[![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](LICENSE)
+[![Plataforma: Android](https://img.shields.io/badge/Plataforma-Android_8.0%2B-green.svg)]()
+[![Núcleo Rust](https://img.shields.io/badge/N%C3%BAcleo-Rust_JNI-orange.svg)]()
 
-**Vigilix** es una herramienta avanzada de ciberseguridad móvil diseñada para Android. Combina la potencia y seguridad de un núcleo nativo en **Rust** con una interfaz intuitiva en **Kotlin**, ofreciendo protección integral de grado militar (*privacy-first, local-first, dual-mode*).
+**Vigilix** es una suite de seguridad móvil diseñada para Android con un enfoque estricto en la privacidad (*privacy-first, local-first, dual-mode*). Combina un núcleo nativo en **Rust** para operaciones criptográficas y cálculo de hashes de alta velocidad, con una interfaz moderna y adaptativa en **Kotlin**.
 
 </div>
 
 ---
 
-## 🌟 Características Principales (v1.0)
+## 🌟 Funcionalidades Principales (v1.0)
 
-- **🔄 Dual Mode Architecture**: Detección automática de entorno (`RootMode` con acceso completo o `NonRootMode` maximizado con `VpnService`).
-- **🔐 Bóveda de Contraseñas de Alta Seguridad**: Cifrado extremo con `Argon2id` (64 MiB, t=3, p=1) + `ChaCha20-Poly1305` (AEAD). Soporte para desbloqueo biométrico y **Duress PIN** (bóveda falsa ante coacción).
-- **🦠 Escáner Antimalware SHA-256**: Escaneo rápido y completo de almacenamiento y aplicaciones con verificación de base de firmas local.
-- **🌐 Monitor de Red (VpnService)**: Detección en tiempo real de conexiones sospechosas y servidores C2 sin permisos root.
-- **📦 Analizador de APKs Estático**: Inspección de manifiestos, permisos peligrosos, certificados y cálculo automático de *Risk Score (0-100)*.
-- **📞 Detección de Estafas Colaborativa**: Base de datos local sincronizada con Threat Intelligence comunitaria (GitHub Pages) y reporte local de llamadas/SMS/URLs.
-- **💎 Suscripción y Entitlements**: Integración con Google Play Billing v6 ($2/mes con 14 días de prueba) para funciones Pro (Cloud Sync WebDAV, temas extra, exportación).
-- **🧙 Setup Wizard de 3 Niveles**: Experiencia adaptada para cualquier usuario (Básico / Avanzado / Experto).
+- **🔄 Arquitectura Dual Mode**: Detección inteligente del dispositivo para operar en `RootMode` (control total y análisis de bajo nivel) o `NonRootMode` (máxima protección mediante `VpnService`).
+- **🔐 Bóveda de Contraseñas Militar**: Cifrado seguro utilizando `Argon2id` (64 MiB, t=3, p=1) + `ChaCha20-Poly1305` (AEAD). Admite desbloqueo biométrico y **Duress PIN** (creación de una bóveda señuelo ante situaciones de coacción).
+- **🦠 Escáner Antimalware SHA-256**: Modos de escaneo Rápido y Completo contra bases de firmas de malware locales sin enviar archivos a servidores externos.
+- **🌐 Monitor de Red Local (VpnService)**: Detección en tiempo real de tráfico saliente hacia servidores C2 e IPs maliciosas sin necesidad de permisos root.
+- **📦 Analizador de APKs Estático**: Lectura y análisis de manifiestos de aplicaciones, certificados, permisos peligrosos y cálculo automático de puntuación de riesgo (*Risk Score 0-100*).
+- **📞 Detección Colaborativa de Estafas**: Base de datos local contra números de spam, SMS sospechosos y URLs de phishing alimentada por la comunidad.
+- **💎 Suscripción y Funciones Pro**: Integración con Google Play Billing v6 para desbloqueo de sincronización en la nube vía WebDAV (Nextcloud/ownCloud), temas adicionales y exportación avanzada.
+- **🧙 Asistente de Configuración (Setup Wizard)**: Flujo de bienvenida en 3 pasos adaptado a tres perfiles de usuario: Básico (un solo botón), Avanzado y Experto.
 
 ---
 
@@ -31,63 +31,64 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ UI (Kotlin, ViewBinding, Material 3, Coroutines)            │
-│  MainActivity (3 tabs) + SetupWizard + Settings + Dialogs   │
+│ Capa UI (Kotlin, ViewBinding, Material Design 3)            │
+│  MainActivity (3 pestañas) + SetupWizard + Ajustes          │
 ├─────────────────────────────────────────────────────────────┤
-│ ViewModels / Managers (Kotlin)                              │
+│ Gestores y Lógica de Negocio (Kotlin)                       │
 │  ExperienceManager | ModeDetector | FeatureGate             │
 │  VaultStore | ScanEngine | HistoryManager | PermissionMonitor│
 ├─────────────────────────────────────────────────────────────┤
-│ SecurityBridge (Kotlin object — único puente JNI)           │
+│ SecurityBridge (Objeto Kotlin — Frontera Única JNI)         │
 ├─────────────────────────────────────────────────────────────┤
 │ rust/ — vigilix_core (cdylib, JNI)                          │
-│  Crypto: Argon2id / ChaCha20-Poly1305 / Zeroizing           │
-│  Vault: session + AAD separation (vgx1:/vgv1:)              │
+│  Criptografía: Argon2id / ChaCha20-Poly1305 / Zeroizing     │
+│  Bóveda: Manejo de sesión + separación de AAD (vgx1:/vgv1:) │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tecnologías Empleadas
 
-| Capa | Tecnología |
+| Componente | Tecnología |
 | :--- | :--- |
-| **Android UI & Architectura** | Kotlin, ViewBinding, Material 3, Lifecycle, Coroutines, Room DB |
-| **Núcleo Criptográfico** | Rust 2021 edition (`cdylib`, `jni`, `argon2`, `chacha20poly1305`) |
-| **Seguridad & Auth** | AndroidX Biometric, AndroidX Security Crypto (`KeystoreCrypto`) |
-| **Redes & Cloud** | OkHttp 4, Google Play Billing v6, Firebase Remote Config |
-| **CI/CD** | GitHub Actions (Pruebas unitarias Rust 21/21 + Gradle Build APK) |
+| **Interfaz y Lógica Android** | Kotlin, ViewBinding, Jetpack Lifecycle, Coroutines, Room DB |
+| **Motor Criptográfico** | Rust 2021 (`cdylib`, `jni`, `argon2`, `chacha20poly1305`, `zeroize`) |
+| **Seguridad de Claves** | AndroidX Biometric, Android Keystore System (`KeystoreCrypto`) |
+| **Conectividad y Facturación** | OkHttp 4, Google Play Billing v6, Firebase Remote Config |
+| **Integración Continua** | GitHub Actions (Suite de pruebas en Rust 21/21 + Compilación de APK) |
 
 ---
 
 ## 🚀 Compilación y Desarrollo
 
-### Requisitos Previos
-- **Rust** (stable) con targets Android (`aarch64-linux-android`, `x86_64-linux-android`) y `cargo-ndk`.
-- **Android Studio** (AGP 8.2.2+, Kotlin 1.9.20+, JDK 17, Android SDK API 34).
+### Requisitos
+- **Rust** (canal stable) con targets de compilación cruzada para Android (`aarch64-linux-android`, `x86_64-linux-android`) y la herramienta `cargo-ndk`.
+- **Android Studio / SDK** con herramientas de compilación para API 34 y NDK versión `25.2.9519653`.
+- **JDK 17**.
 
-### Comandos Clave
+### Comandos de Verificación
 
 ```bash
-# 1. Compilar y ejecutar pruebas del núcleo en Rust
+# 1. Ejecutar las pruebas unitarias del núcleo en Rust
 cd rust
 cargo test --release --locked
 
-# 2. Compilar APK Debug en Android
+# 2. Compilar el APK de depuración
 ./gradlew assembleDebug
 ```
 
 ---
 
-## 🔒 Garantías de Seguridad
+## 🔒 Compromisos de Seguridad
 
-1. **Cero Secretos en el Repo**: El material de firmado se inyecta exclusivamente mediante variables de entorno (`KEYSTORE_FILE`, etc.).
-2. **Memoria Ceroizada**: Las claves y contraseñas en Rust se protegen con `Zeroizing<T>` y en Kotlin se limpian con `fill(0)`.
-3. **Frontera JNI Protegida**: Todo `extern "system"` en Rust está envuelto en `catch_unwind`. Ningún *panic* cruza a Kotlin.
-4. **Consentimiento Explícito**: Ningún dato o archivo del usuario se envía a la red sin interacción y aprobación explícita en la UI.
+1. **Sin Secretos en el Repositorio**: Los certificados de firma de producción se proporcionan exclusivamente a través de variables de entorno de CI.
+2. **Protección de Memoria**: Las claves y datos sensibles en Rust se liberan de memoria usando `Zeroizing<T>`, y en Kotlin los arrays de bytes se limpian de inmediato con `fill(0)`.
+3. **Frontera JNI Hermética**: Cada función nativa expuesta está envuelta en `catch_unwind` para impedir que los *panics* crucen al entorno de Android.
+4. **Consentimiento Explícito**: Ninguna información personal o archivo sale del dispositivo sin la autorización clara y visible del usuario.
 
 ---
 
 ## 📄 Licencia
 
-Distribuido bajo la licencia **MIT**. Consulta [`LICENSE`](LICENSE) para más detalles.
+Este proyecto está distribuido bajo la licencia **MIT**. Para más detalles, consulta el archivo [`LICENSE`](LICENSE).

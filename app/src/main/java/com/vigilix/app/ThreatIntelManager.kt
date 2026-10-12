@@ -147,26 +147,22 @@ class ThreatIntelManager private constructor(context: Context) {
             val request = Request.Builder().url("$baseUrl/threat-intel/$fileName").build()
             val response = client.newCall(request).execute()
             try {
-                if (!response.isSuccessful) Result.failure(IOException("HTTP ${response.code}"))
-                else {
-                    val body = response.body?.bytes() ?: Result.failure(IOException("Empty body"))
-                    
-                    // Verify SHA-256
-                    val digest = java.security.MessageDigest.getInstance("SHA-256").digest(body)
-                    val actualSha256 = body?.let { bytes ->
-                        java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
-                    } ?: ""
-                    if (actualSha256 != expectedSha256) {
-                        Result.failure(SecurityException("SHA-256 mismatch for $fileName"))
-                    } else {
-                        val file = File(filesDir, fileName)
-                        FileOutputStream(file).use { it.write(body) }
-                        
-                        // Parse and add to sets
-                        val added = parseAndAdd(file)
-                        Result.success(added.toLong())
-                    }
+                if (!response.isSuccessful) return Result.failure(IOException("HTTP ${response.code}"))
+                val body = response.body?.bytes() ?: return Result.failure(IOException("Empty body"))
+                
+                // Verify SHA-256
+                val digest = java.security.MessageDigest.getInstance("SHA-256").digest(body)
+                val actualSha256 = digest.joinToString("") { "%02x".format(it) }
+                if (actualSha256 != expectedSha256) {
+                    return Result.failure(SecurityException("SHA-256 mismatch for $fileName"))
                 }
+
+                val file = File(filesDir, fileName)
+                FileOutputStream(file).use { it.write(body) }
+                
+                // Parse and add to sets
+                val added = parseAndAdd(file)
+                Result.success(added.toLong())
             } finally {
                 response.close()
             }
