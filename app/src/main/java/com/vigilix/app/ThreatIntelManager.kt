@@ -44,7 +44,7 @@ class ThreatIntelManager private constructor(context: Context) {
 
     /** Descarga y actualiza toda la threat intel (llamar en WiFi + cargando). */
     suspend fun sync(): Result<SyncResult> = withContext(Dispatchers.IO) {
-        val manifest = fetchManifest() ?: return Result.failure(IOException("Manifest fetch failed"))
+        val manifest = fetchManifest() ?: return@withContext Result.failure(IOException("Manifest fetch failed"))
         var totalAdded = 0L
 
         for (file in manifest.files) {
@@ -114,54 +114,62 @@ class ThreatIntelManager private constructor(context: Context) {
         File(filesDir, "last_sync.txt").writeText(time.toString())
     }
 
-    private fun fetchManifest(): Manifest? = try {
-        val request = Request.Builder().url("$baseUrl/manifest.json").build()
-        val response = client.newCall(request).execute()
-        try {
-            if (!response.isSuccessful) return null
-            val json = JSONObject(response.body?.string())
-            Manifest(
-                version = json.getInt("version"),
-                files = json.getJSONArray("files").map { o ->
-                    val obj = o as JSONObject
-                    ManifestFile(obj.getString("name"), obj.getString("sha256"))
-                },
-                updated = json.getString("updated")
-            )
-        } finally {
-            response.close()
+    private fun fetchManifest(): Manifest? {
+        return try {
+            val request = Request.Builder().url("$baseUrl/manifest.json").build()
+            val response = client.newCall(request).execute()
+            try {
+                if (!response.isSuccessful) null
+                else {
+                    val json = JSONObject(response.body?.string())
+                    Manifest(
+                        version = json.getInt("version"),
+                        files = json.getJSONArray("files").map { o ->
+                            val obj = o as JSONObject
+                            ManifestFile(obj.getString("name"), obj.getString("sha256"))
+                        },
+                        updated = json.getString("updated")
+                    )
+                }
+            } finally {
+                response.close()
+            }
+        } catch (_: Exception) {
+            null
         }
-    } catch (_: Exception) {
-        null
     }
 
-    private fun downloadAndSave(fileName: String, expectedSha256: String): Result<Long> = try {
-        val request = Request.Builder().url("$baseUrl/threat-intel/$fileName").build()
-        val response = client.newCall(request).execute()
-        try {
-            if (!response.isSuccessful) return Result.failure(IOException("HTTP ${response.code}"))
-            val body = response.body?.bytes() ?: return Result.failure(IOException("Empty body"))
-            
-            // Verify SHA-256
-            val digest = java.security.MessageDigest.getInstance("SHA-256").digest(body)
-            val actualSha256 = body?.let { bytes ->
-                java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
-            } ?: ""
-            if (actualSha256 != expectedSha256) {
-                return Result.failure(SecurityException("SHA-256 mismatch for $fileName"))
+    private fun downloadAndSave(fileName: String, expectedSha256: String): Result<Long> {
+        return try {
+            val request = Request.Builder().url("$baseUrl/threat-intel/$fileName").build()
+            val response = client.newCall(request).execute()
+            try {
+                if (!response.isSuccessful) Result.failure(IOException("HTTP ${response.code}"))
+                else {
+                    val body = response.body?.bytes() ?: Result.failure(IOException("Empty body"))
+                    
+                    // Verify SHA-256
+                    val digest = java.security.MessageDigest.getInstance("SHA-256").digest(body)
+                    val actualSha256 = body?.let { bytes ->
+                        java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+                    } ?: ""
+                    if (actualSha256 != expectedSha256) {
+                        Result.failure(SecurityException("SHA-256 mismatch for $fileName"))
+                    } else {
+                        val file = File(filesDir, fileName)
+                        FileOutputStream(file).use { it.write(body) }
+                        
+                        // Parse and add to sets
+                        val added = parseAndAdd(file)
+                        Result.success(added.toLong())
+                    }
+                }
+            } finally {
+                response.close()
             }
-
-            val file = File(filesDir, fileName)
-            FileOutputStream(file).use { it.write(body) }
-            
-            // Parse and add to sets
-            val added = parseAndAdd(file)
-            Result.success(added.toLong())
-        } finally {
-            response.close()
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-    } catch (e: Exception) {
-        Result.failure(e)
     }
 
     private fun parseAndAdd(file: File): Int {
@@ -174,11 +182,13 @@ class ThreatIntelManager private constructor(context: Context) {
         }
     }
 
-    private fun parseJsonArray(file: File): List<String> = try {
-        val json = JSONObject(file.readText())
-        json.getJSONArray("data").toList().map { it.toString() }
-    } catch (_: Exception) {
-        emptyList()
+    private fun parseJsonArray(file: File): List<String> {
+        return try {
+            val json = JSONObject(file.readText())
+            json.getJSONArray("data").toList().map { it.toString() }
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     private fun normalizePhone(number: String): String = number.replace(Regex("[^0-9+]"), "")

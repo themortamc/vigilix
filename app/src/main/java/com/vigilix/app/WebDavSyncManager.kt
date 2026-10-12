@@ -1,9 +1,10 @@
 package com.vigilix.app
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Credentials
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -83,14 +84,17 @@ object WebDavSyncManager {
 
     /** Prueba la conexión al servidor WebDAV. */
     suspend fun testConnection(config: WebDavConfig): Result<Unit> = withContext(Dispatchers.IO) {
-        val request = buildRequest(config, "PROPFIND", "/", depth = "0")
+        val request = buildRequest(config, "PROPFIND", "/")
             .header("Depth", "0")
             .build()
 
         try {
-            client.newCall(request).execute().use { response ->
+            val response = client.newCall(request).execute()
+            try {
                 if (response.isSuccessful) Result.success(Unit)
                 else Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+            } finally {
+                response.close()
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -99,21 +103,21 @@ object WebDavSyncManager {
 
     /** Sincroniza la bóveda: sube la local y descarga la remota (merge por updatedAt). */
     suspend fun sync(context: Context): Result<SyncResult> = withContext(Dispatchers.IO) {
-        val config = getConfig(context) ?: return Result.failure(Exception("Sin configuración WebDAV"))
+        val config = getConfig(context) ?: return@withContext Result.failure(Exception("Sin configuración WebDAV"))
 
         if (!VaultStore.exists(context)) {
-            return Result.failure(Exception("No hay bóveda local"))
+            return@withContext Result.failure(Exception("No hay bóveda local"))
         }
 
         // 1. Subir bóveda local
         val uploadResult = uploadVault(context, config)
-        if (uploadResult.isFailure) return Result.failure(uploadResult.exceptionOrNull()!!)
+        if (uploadResult.isFailure) return@withContext Result.failure(uploadResult.exceptionOrNull()!!)
 
         // 2. Descargar bóveda remota (si existe)
         val downloadResult = downloadVault(context, config)
         if (downloadResult.isFailure) {
             // No es error fatal: solo avisamos
-            return Result.success(SyncResult(true, "Subida OK, bajada falló: ${downloadResult.exceptionOrNull()?.message}", uploaded = true))
+            return@withContext Result.success(SyncResult(true, "Subida OK, bajada falló: ${downloadResult.exceptionOrNull()?.message}", uploaded = true))
         }
 
         // 3. Merge: importar la remota en la local
@@ -127,18 +131,22 @@ object WebDavSyncManager {
         if (!vaultFile.exists()) return Result.failure(Exception("Bóveda local no existe"))
 
         val remotePath = buildRemotePath(config)
-        val requestBody = FileInputStream(vaultFile).readBytes().toRequestBody("application/octet-stream".toMediaType())
+        val fileBytes = FileInputStream(vaultFile).readBytes()
+        val requestBody = RequestBody.create(fileBytes, "application/octet-stream".toMediaType())
 
         val request = Request.Builder()
-            .url("$remotePath")
+            .url(remotePath)
             .header("Authorization", Credentials.basic(config.username, config.password))
             .put(requestBody)
             .build()
 
         return try {
-            client.newCall(request).execute().use { response ->
+            val response = client.newCall(request).execute()
+            try {
                 if (response.isSuccessful) Result.success(Unit)
                 else Result.failure(Exception("Upload failed: HTTP ${response.code}"))
+            } finally {
+                response.close()
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -151,7 +159,8 @@ object WebDavSyncManager {
         val request = buildRequest(config, "GET", remotePath).build()
 
         return try {
-            client.newCall(request).execute().use { response ->
+            val response = client.newCall(request).execute()
+            try {
                 if (response.isSuccessful) {
                     val body = response.body?.string() ?: return Result.failure(Exception("Empty response"))
                     Result.success(body)
@@ -160,6 +169,8 @@ object WebDavSyncManager {
                 } else {
                     Result.failure(Exception("Download failed: HTTP ${response.code}"))
                 }
+            } finally {
+                response.close()
             }
         } catch (e: Exception) {
             Result.failure(e)
