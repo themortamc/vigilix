@@ -534,6 +534,13 @@ strategy:
 - `lint`: `./gradlew lintDebug`
 - `proguard-check`: `assembleRelease` (continue-on-error)
 
+### 10.3 **Regla obligatoria: Push y verificación CI**
+**CADA CAMBIO debe pasar por CI antes de considerarse completo:**
+1. `git push` a la rama correspondiente
+2. Verificar que **GitHub Actions** (`build.yml`) pase: `rust-tests` + `build-apk` (matrix 4 APIs) + `unit-tests`
+3. **NUNCA** asumir que compilar localmente = CI verde (diferencias de entorno, caché, matrix)
+4. Si CI falla → arreglar → push → repetir hasta verde
+
 ### 10.2 Release Workflow (`.github/workflows/release.yml`)
 - Trigger: tag `v*`
 - Version bump: `versionName` + `versionCode`

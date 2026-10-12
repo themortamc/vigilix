@@ -6,7 +6,7 @@
     <string name="nav_home">Inicio</string>
     <string name="dash_title">Estado del dispositivo</string>
     <string name="dash_subtitle">Controles reales de tu teléfono, explicados sin vueltas.</string>
-    <string name="dash_health_score">%1$d% de salud</string>
+    <string name="dash_health_score" formatted="false">%1$d% de salud</string>
     <string name="dash_health_detail">%1$d de %2$d controles en orden</string>
     <string name="dash_vault_engine_off">Motor no disponible</string>
     <string name="dash_vault_empty">Bóveda vacía</string>
@@ -538,6 +538,11 @@
     <string name="sub_free_feature_autofill">Autocompletado sistema</string>
     <string name="sub_free_feature_vt">VirusTotal (tu API key)</string>
     <string name="sub_free_feature_backup">Backup/Restore bóveda cifrado</string>
+
+    <!-- ===== Design System Components ===== -->
+    <string name="vx_loading">Cargando…</string>
+    <string name="vx_empty_illustration_desc">Ilustración decorativa</string>
+    <string name="vx_empty_action_label">Acción principal</string>
 
     <!-- Permissions descriptions -->
     <string name="perm_storage_desc">Para escanear tus archivos y apps</string>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VxProgress Layout -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="@dimen/vx_inset_medium">
+
+    <ProgressBar
+        android:id="@+id/vx_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/vx_space_2"
+        android:indeterminate="true"
+        android:max="100"
+        android:progress="0"
+        android:progressBackgroundTint="@color/vx_color_border_light"
+        android:progressTint="@color/vx_color_accent_primary" />
+
+    <TextView
+        android:id="@+id/vx_progress_label"
+        style="@style/VxBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vx_gap_small"
+        android:textColor="@color/vx_color_text_secondary"
+        android:visibility="gone"
+        tools:text="Cargando..." />
+</merge>

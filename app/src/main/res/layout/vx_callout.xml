@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VxCallout Layout -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/vx_callout_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/vx_inset_medium">
+
+        <ImageView
+            android:id="@+id/vx_callout_icon"
+            android:layout_width="@dimen/vx_icon_size_medium"
+            android:layout_height="@dimen/vx_icon_size_medium"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="@dimen/vx_gap_medium"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_status_info"
+            tools:src="@drawable/ic_status_info" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/vx_callout_title"
+                style="@style/VxCalloutTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/vx_color_text_primary"
+                tools:text="Título" />
+
+            <TextView
+                android:id="@+id/vx_callout_body"
+                style="@style/VxBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vx_gap_small"
+                android:textColor="@color/vx_color_text_primary"
+                tools:text="Detalle del mensaje" />
+        </LinearLayout>
+    </LinearLayout>
+</merge>

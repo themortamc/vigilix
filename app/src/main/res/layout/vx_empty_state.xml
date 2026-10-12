@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VxEmptyState Layout -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="@dimen/vx_inset_large">
+
+    <ImageView
+        android:id="@+id/vx_empty_illustration"
+        android:layout_width="@dimen/vx_icon_size_xlarge"
+        android:layout_height="@dimen/vx_icon_size_xlarge"
+        android:layout_marginBottom="@dimen/vx_gap_large"
+        android:contentDescription="@string/vx_empty_illustration_desc"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_shield"
+        tools:src="@drawable/ic_shield" />
+
+    <TextView
+        android:id="@+id/vx_empty_title"
+        style="@style/VxHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/vx_gap_small"
+        android:gravity="center"
+        android:textColor="@color/vx_color_text_primary"
+        tools:text="Sin resultados" />
+
+    <TextView
+        android:id="@+id/vx_empty_body"
+        style="@style/VxBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/vx_gap_large"
+        android:gravity="center"
+        android:maxWidth="300dp"
+        android:textColor="@color/vx_color_text_secondary"
+        tools:text="No hay elementos para mostrar. Prueba a cambiar los filtros o agregar uno nuevo." />
+
+    <com.vigilix.app.ui.components.VxButton
+        android:id="@+id/vx_empty_action"
+        style="@style/VxButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/vx_empty_action_label"
+        android:visibility="gone" />
+</merge>

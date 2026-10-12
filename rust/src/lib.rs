@@ -418,14 +418,14 @@ fn read_db(path: &Path) -> Result<Vec<[u8; HASH_LEN]>, i64> {
             if bytes.len() % HASH_LEN != 0 {
                 return Err(DB_OK_IO_ERROR);
             }
-            Ok(bytes
-                .chunks_exact(HASH_LEN)
-                .map(|c| {
+            Ok({
+                let (chunks, _remainder) = bytes.as_chunks::<HASH_LEN>();
+                chunks.iter().map(|c| {
                     let mut h = [0u8; HASH_LEN];
                     h.copy_from_slice(c);
                     h
-                })
-                .collect())
+                }).collect()
+            })
         }
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
         Err(_) => Err(DB_OK_IO_ERROR),
@@ -1175,8 +1175,9 @@ mod tests {
 
         // El archivo queda ordenado (requisito de la búsqueda binaria).
         let bytes = std::fs::read(&db).unwrap();
-        let chunks: Vec<&[u8]> = bytes.chunks_exact(HASH_LEN).collect();
-        assert!(chunks.windows(2).all(|w| w[0] < w[1]));
+        let (chunks, _remainder) = bytes.as_chunks::<HASH_LEN>();
+        let chunks_vec: Vec<&[u8]> = chunks.iter().map(|c| c.as_slice()).collect();
+        assert!(chunks_vec.windows(2).all(|w| w[0] < w[1]));
 
         let _ = std::fs::remove_file(&db);
         let _ = std::fs::remove_file(&txt);

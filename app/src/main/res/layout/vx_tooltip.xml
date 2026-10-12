@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VxTooltip Layout -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/vx_inset_medium"
+    android:paddingVertical="@dimen/vx_inset_small">
+
+    <TextView
+        android:id="@+id/vx_tooltip_text"
+        style="@style/VxBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="280dp"
+        android:textColor="@color/vx_color_text_on_accent"
+        android:textSize="@dimen/vx_text_size_body_small"
+        tools:text="Texto del tooltip" />
+</merge>

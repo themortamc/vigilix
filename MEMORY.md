@@ -80,7 +80,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 ## Próximos pasos (Prioridad)
 
-1. **CI verde completo**: ya verificado localmente, esperar GitHub Actions
+1. **⚠️ HACER PUSH Y COMPROBAR COMPILACIÓN EN GITHUB ACTIONS** — Verificar CI verde en `build.yml` (rust-tests + build-apk matrix API 26/28/30/34 + unit-tests 44/44)
 2. **Bot de sync de reports**: workflow GitHub Actions que lee `local_reports` → PR a `vigilix-community/scam-reports` (secret en el repo del bot, nunca en la app).
 3. **Behavioral Analysis Sandbox** (Root + Pro).
 4. **Cloud Sync WebDAV** (Pro).

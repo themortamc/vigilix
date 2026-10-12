@@ -98,3 +98,4 @@ Implementar **todas** las features solicitadas:
 - [ ] Security audit: sin regresiones vs SECURITY_AUDIT.md
 - [ ] Performance: Quick scan < 30s, Full < 5min, Battery < 2%/day
 - [ ] UX test: Abuelo completa wizard solo, Dev accede a todo en < 3 taps
+- [ ] **⚠️ HACER PUSH Y COMPROBAR COMPILACIÓN EN GITHUB ACTIONS** — `git push` y esperar CI verde en build.yml

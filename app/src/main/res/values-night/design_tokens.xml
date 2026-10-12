@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Design Tokens - Vigilix Design System (Dark Theme) -->
+<resources>
+    <!-- ===== COLOR TOKENS (DARK) ===== -->
+    <color name="vx_color_bg_primary">#1E1E1E</color>
+    <color name="vx_color_bg_secondary">#2A2A2A</color>
+    <color name="vx_color_bg_tertiary">#333333</color>
+    <color name="vx_color_bg_inverse">#FFFFFF</color>
+    <color name="vx_color_bg_overlay">#CC000000</color> <!-- 80% black -->
+
+    <color name="vx_color_text_primary">#FFFFFF</color>
+    <color name="vx_color_text_secondary">#B0B0B0</color>
+    <color name="vx_color_text_tertiary">#808080</color>
+    <color name="vx_color_text_inverse">#222222</color>
+    <color name="vx_color_text_on_accent">#FFFFFF</color>
+    <color name="vx_color_text_link">#B8A9F0</color>
+
+    <color name="vx_color_border_light">#3D3D3D</color>
+    <color name="vx_color_border_medium">#4A4A4A</color>
+    <color name="vx_color_border_focus">#B8A9F0</color>
+    <color name="vx_color_border_error">#F58C8C</color>
+
+    <!-- Brand / Accent (adjusted for dark) -->
+    <color name="vx_color_accent_primary">#B8A9F0</color>
+    <color name="vx_color_accent_secondary">#9D8CE8</color>
+    <color name="vx_color_accent_tertiary">#3A2A7A</color>
+    <color name="vx_color_accent_container">#3A2A7A</color>
+    <color name="vx_color_accent_on_container">#EEEAFB</color>
+
+    <!-- Semantic State Colors (dark adjusted) -->
+    <color name="vx_color_success">#66D978</color>
+    <color name="vx_color_success_container">#0D421A</color>
+    <color name="vx_color_success_on_container">#A8F5B8</color>
+
+    <color name="vx_color_warning">#FFD066</color>
+    <color name="vx_color_warning_container">#5C3500</color>
+    <color name="vx_color_warning_on_container">#FFF0D9</color>
+
+    <color name="vx_color_error">#F58C8C</color>
+    <color name="vx_color_error_container">#701618</color>
+    <color name="vx_color_error_on_container">#FDE7E7</color>
+
+    <color name="vx_color_info">#66D9E8</color>
+    <color name="vx_color_info_container">#063D48</color>
+    <color name="vx_color_info_on_container">#E0F2F6</color>
+
+    <!-- Surface variants -->
+    <color name="vx_color_surface">#2A2A2A</color>
+    <color name="vx_color_surface_variant">#333333</color>
+    <color name="vx_color_surface_container">#3D3D3D</color>
+    <color name="vx_color_surface_container_high">#4A4A4A</color>
+
+    <!-- Icon colors -->
+    <color name="vx_color_icon_primary">#FFFFFF</color>
+    <color name="vx_color_icon_secondary">#B0B0B0</color>
+    <color name="vx_color_icon_accent">#B8A9F0</color>
+
+    <!-- Scrim -->
+    <color name="vx_color_scrim">#000000</color>
+
+    <!-- Shadow colors (darker for dark theme) -->
+    <color name="vx_shadow_color_umbra">#33000000</color>
+    <color name="vx_shadow_color_penumbra">#24000000</color>
+    <color name="vx_shadow_color_ambient">#1F000000</color>
+
+    <!-- ===== All other tokens (spacing, typography, motion, shape, elevation, z-index, breakpoints, icon sizes, transitions) ===== -->
+    <!-- These remain the same as light theme - they are not theme-dependent -->
+    <!-- Inherited from values/design_tokens.xml -->
+</resources>

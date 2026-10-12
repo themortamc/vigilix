@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Paleta inspirada en Obsidian. Modo claro (por defecto); el oscuro está en values-night. -->
+<!-- Vigilix Colors - Backward compatible aliases for design_tokens.xml -->
+<!-- New code should use design_tokens.xml semantic names directly -->
 <resources>
-    <color name="vx_bg">#FFFFFF</color>
-    <color name="vx_bg_alt">#F6F6F6</color>
-    <color name="vx_bg_input">#EDEDED</color>
-    <color name="vx_border">#DADADA</color>
-    <color name="vx_text">#222222</color>
-    <color name="vx_text_muted">#5C5C5C</color>
+    <!-- ===== BACKGROUND (legacy aliases) ===== -->
+    <color name="vx_bg">@color/vx_color_bg_primary</color>
+    <color name="vx_bg_alt">@color/vx_color_bg_secondary</color>
+    <color name="vx_bg_input">@color/vx_color_bg_tertiary</color>
 
-    <color name="vx_accent">#7A5AE0</color>
-    <color name="vx_accent_text">#5B3FC4</color>
-    <color name="vx_accent_soft">#EEEAFB</color>
-    <color name="vx_on_accent">#FFFFFF</color>
+    <!-- ===== BORDER (legacy aliases) ===== -->
+    <color name="vx_border">@color/vx_color_border_light</color>
 
-    <color name="vx_green">#17702F</color>
-    <color name="vx_green_soft">#E3F4E8</color>
-    <color name="vx_orange">#9A5700</color>
-    <color name="vx_orange_soft">#FFF0D9</color>
-    <color name="vx_red">#C6282B</color>
-    <color name="vx_red_soft">#FDE7E7</color>
-    <color name="vx_cyan">#0A6C7E</color>
-    <color name="vx_cyan_soft">#E0F2F6</color>
+    <!-- ===== TEXT (legacy aliases) ===== -->
+    <color name="vx_text">@color/vx_color_text_primary</color>
+    <color name="vx_text_muted">@color/vx_color_text_secondary</color>
 
-    <color name="vx_icon_bg">#1E1E1E</color>
-    <color name="vx_icon_fg">#8B6CEF</color>
+    <!-- ===== ACCENT (legacy aliases) ===== -->
+    <color name="vx_accent">@color/vx_color_accent_primary</color>
+    <color name="vx_accent_text">@color/vx_color_accent_secondary</color>
+    <color name="vx_accent_soft">@color/vx_color_accent_tertiary</color>
+    <color name="vx_on_accent">@color/vx_color_text_on_accent</color>
+
+    <!-- ===== SEMANTIC STATE COLORS (legacy aliases) ===== -->
+    <color name="vx_green">@color/vx_color_success</color>
+    <color name="vx_green_soft">@color/vx_color_success_container</color>
+    <color name="vx_orange">@color/vx_color_warning</color>
+    <color name="vx_orange_soft">@color/vx_color_warning_container</color>
+    <color name="vx_red">@color/vx_color_error</color>
+    <color name="vx_red_soft">@color/vx_color_error_container</color>
+    <color name="vx_cyan">@color/vx_color_info</color>
+    <color name="vx_cyan_soft">@color/vx_color_info_container</color>
+
+    <!-- ===== ICON COLORS (legacy aliases) ===== -->
+    <color name="vx_icon_bg">@color/vx_color_icon_primary</color>
+    <color name="vx_icon_fg">@color/vx_color_icon_accent</color>
+
+    <!-- ===== DEPRECATED - Use design tokens directly ===== -->
+    <!-- These are kept for backward compatibility only -->
+    <!-- @deprecated Use vx_color_bg_primary instead -->
+    <color name="vx_bg_primary_deprecated">@color/vx_color_bg_primary</color>
 </resources>
