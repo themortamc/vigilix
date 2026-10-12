@@ -2,8 +2,10 @@ package com.vigilix.app
 
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import androidx.annotation.RequiresApi
 
 /**
  * Quick Settings Tile para "Escanear ahora".
@@ -39,11 +41,13 @@ class ScanTileService : TileService() {
         tile.updateTile()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun updateTile() {
         val tile = qsTile
         val isScanning = ScanEngine.state.value.running
         tile.state = if (isScanning) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.label = getString(R.string.tile_scan)
+        // subtitle requiere API 29 (Q)
         tile.subtitle = if (isScanning) getString(R.string.tile_scanning) else getString(R.string.tile_ready)
         // Icono: usar ic_scan del drawable
         tile.icon = Icon.createWithResource(this, R.drawable.ic_scan)

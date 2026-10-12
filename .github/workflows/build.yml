@@ -190,6 +190,14 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.2.9519653" "cmdline-tools;latest"
 
+      - name: Configurar Rust y targets de Android
+        uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # rama stable
+        with:
+          targets: aarch64-linux-android,x86_64-linux-android
+
+      - name: Instalar cargo-ndk (versión fija)
+        run: cargo install cargo-ndk --version 4.1.2 --locked
+
       - name: Hacer ejecutable gradlew
         run: chmod +x gradlew
 
